@@ -148,15 +148,6 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     int scan_height_;
     /// sweep height
     int sweep_height_;
-    /// encoder
-    int encoder0;
-    /// encoder
-    int encoder1;
-    /// spinning direction
-    short direction_;
-    /// range offset file ???
-    std::string rangeOffsetFile_;
-    int rangeOffset_;
     /// number of dropped packets
     int dropped_packets_;
     /// global scan counter

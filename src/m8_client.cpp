@@ -20,8 +20,9 @@ M8Client::M8Client(const boost::asio::ip::address& ip,
   , dropped_packets_ (0)
   , cos_lookup_table_(M8_NUM_ROT_ANGLES+1)
   , sin_lookup_table_(M8_NUM_ROT_ANGLES+1)
+  , terminate_read_packet_thread_ (false)
 {
-  const double to_rad = (M_PI / 180.f);
+  const double to_rad (M_PI / 180.f);
   for (unsigned int i = 0; i <= M8_NUM_ROT_ANGLES; i++)
   {
     double rad = to_rad * ((double (i) / M8_NUM_ROT_ANGLES) * 360.f);
@@ -37,6 +38,35 @@ M8Client::M8Client(const boost::asio::ip::address& ip,
   }
 
   sweep_xyzi_signal_ = pcl::Grabber::createSignal<sig_cb_quanergy_m8_sweep_point_cloud_xyzi> ();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+M8Client::~M8Client () throw ()
+{
+  stop ();
+
+  disconnect_all_slots<sig_cb_quanergy_m8_sweep_point_cloud_xyzi> ();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+bool
+M8Client::isRunning () const
+{
+  return (!data_queue_.isEmpty() || read_packet_thread_ != NULL);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+std::string
+M8Client::getName () const
+{
+  return (std::string ("Quanergy M8 LiDAR Grabber"));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+float
+M8Client::getFramesPerSecond () const
+{
+  return (0.0f);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -268,6 +298,9 @@ M8Client::computeXYZ(const double range,
 
 void M8Client::start()
 {
+  terminate_read_packet_thread_ = false;
+  queue_consumer_thread_ = new boost::thread (boost::bind (&M8Client::processM8Packets, this));
+
   try
   {
     // We first try to connect to the given IP and port
@@ -305,9 +338,33 @@ void M8Client::start()
   std::cout << "Sensor connected, starting to read packets" << std::endl;
   // Create the thread responsible for reading data from socket
   read_packet_thread_ = new boost::thread (boost::bind (&M8Client::read, this));
-  // there is an infinite loop in read so if we are here than the thread is dead so stop reading
-  read_socket_service_.stop ();
-  // delete the read socket
-  delete read_socket_;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+void
+M8Client::stop ()
+{
+  terminate_read_packet_thread_ = true;
+  data_queue_.stopQueue ();
+
+  if (read_packet_thread_ != NULL)
+  {
+    read_packet_thread_->interrupt ();
+    read_packet_thread_->join ();
+    delete read_packet_thread_;
+    read_packet_thread_ = NULL;
+  }
+
+  if (queue_consumer_thread_ != NULL)
+  {
+    queue_consumer_thread_->join ();
+    delete queue_consumer_thread_;
+    queue_consumer_thread_ = NULL;
+  }
+
+  if (read_socket_ != NULL)
+  {
+    delete read_socket_;
+    read_socket_ = NULL;
+  }
+}
