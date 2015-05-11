@@ -2,6 +2,10 @@ project(M8Client)
 
 cmake_minimum_required(VERSION 2.8)
 
+if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+  add_definitions("-DDEBUG")
+endif (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+
 find_package(Boost COMPONENTS system thread chrono REQUIRED)
 
 find_package(PCL REQUIRED common io)
@@ -17,4 +21,4 @@ link_directories(
 
 add_definitions(${PCL_DEFINITIONS})
 
-add_library(m8_client src/m8_client.cpp)
+add_library(m8_client SHARED src/m8_client.cpp)
