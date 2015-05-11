@@ -3,8 +3,10 @@
 #include <ctime>
 #include <boost/proto/args.hpp>
 
+double const M8Client::M8_VERTICAL_ANGLES[] = { -0.318505, -0.2692, -0.218009, -0.165195, -0.111003, -0.0557982, 0, 0.0557982 };
+
 M8Client::M8Client(const boost::asio::ip::address& ip,
-		   const unsigned short int port)
+                   const unsigned short int port)
   : data_queue_ ()
   , tcp_listener_endpoint_ (ip, port)
   , read_socket_service_ ()
@@ -18,9 +20,6 @@ M8Client::M8Client(const boost::asio::ip::address& ip,
   , dropped_packets_ (0)
   , cos_lookup_table_(M8_NUM_ROT_ANGLES+1)
   , sin_lookup_table_(M8_NUM_ROT_ANGLES+1)
-  , vertical_angles_(M8_LASER_PER_FIRING)
-  , sin_vertical_angles_(M8_LASER_PER_FIRING)
-  , cos_vertical_angles_(M8_LASER_PER_FIRING)
 {
   const double to_rad = (M_PI / 180.f);
   for (unsigned int i = 0; i <= M8_NUM_ROT_ANGLES; i++)
@@ -30,12 +29,9 @@ M8Client::M8Client(const boost::asio::ip::address& ip,
     sin_lookup_table_[i] = std::sin (rad);
   }
 
-  double M8VerticalAngles[] = { -18.249, -15.424, -12.491, -9.465, -6.36, -3.197, 0, 3.197 };
-  const double* angle_in_degree = M8VerticalAngles;
-  double* angle_in_radians = &vertical_angles_[0];
-  for (int i = 0; i < M8_LASER_PER_FIRING; ++i, ++angle_in_radians)
+  const double* angle_in_radians = M8_VERTICAL_ANGLES;
+  for (int i = 0; i < M8_NUM_LASERS; ++i, ++angle_in_radians)
   {
-    *angle_in_radians = M8_Grabber_toRadians(*angle_in_degree++);
     sin_vertical_angles_[i] = std::sin (*angle_in_radians);
     cos_vertical_angles_[i] = std::cos (*angle_in_radians);
   }
@@ -108,7 +104,7 @@ void
 M8Client::organizeCloud(PointCloudPtr &current_xyzi)
 {
   // transpose the cloud
-  PointCloudPtr temp_xyzi(new pcl::PointCloud<pcl::PointXYZI> ());
+  PointCloudPtr temp_xyzi(new PointCloud);
 
   // reserve space
   temp_xyzi->reserve(current_xyzi->size());
@@ -188,7 +184,7 @@ M8Client::toPointClouds(M8DataPacket *data_packet)
         // transpose data
         // if (organize_data_)
         // {
-	organizeCloud(current_sweep_xyzi_);
+        organizeCloud(current_sweep_xyzi_);
         // }
 
         current_sweep_xyzi_->header.stamp = time;
@@ -210,19 +206,20 @@ M8Client::toPointClouds(M8DataPacket *data_packet)
       current_sweep_xyzi_->is_dense = true;
     }
 
-    for (int j = 0; j < M8_LASER_PER_FIRING; j++)
+    // get the cosine corresponding
+    const double cos_horizontal_angle = cos_lookup_table_[data.position];
+    // get the sine corresponding
+    const double sin_horizontal_angle = sin_lookup_table_[data.position];
+
+    for (int j = 0; j < M8_NUM_LASERS; j++)
     {
       // convert range to meters
       float range = data.returns_distances[0][j] * .01;
-      // get horizontal angle
-      float horizontal_angle = azimuth_angle;
-      // get vertical angle
-      // float vertical_angle = laser_corrections_[j].verticalCorrection;
-      float vertical_angle = vertical_angles_[j];
       // output point
       pcl::PointXYZI xyzi;
       // convert to cartezian coordinates and populate x, y and z members
-      computeXYZ (range, horizontal_angle, vertical_angle, xyzi);
+      computeXYZ (range, cos_horizontal_angle, sin_horizontal_angle,
+		  cos_vertical_angles_[j], sin_vertical_angles_[j], xyzi);
       // intensity value is fetched directly
       xyzi.intensity = data.returns_intensities[0][j];
       // add the point to the current scan
@@ -236,7 +233,6 @@ M8Client::toPointClouds(M8DataPacket *data_packet)
   }
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 void
 M8Client::fireCurrentSweep()
@@ -247,45 +243,28 @@ M8Client::fireCurrentSweep()
 
 /////////////////////////////////////////////////////////////////////////////
 void
-M8Client::computeXYZ(const double range, int azimuth, float vertical_angle, pcl::PointXYZI& point)
+M8Client::computeXYZ(const double range, 
+		     const double cos_hz_angle, const double sin_hz_angle,
+		     const double cos_vt_angle, const double sin_vt_angle, 
+		     pcl::PointXYZI& point)
 {
   if (std::isnan(range))
   {
     point.x = point.y = point.z = std::numeric_limits<float>::quiet_NaN();
     return;
   }
-  // get the cosine corresponding
-  double cos_azimuth = cos_lookup_table_[azimuth];
-  // get the sine corresponding
-  double sin_azimuth = sin_lookup_table_[azimuth];
+
   // get the distance to the XY plane
-  // double xy_distance = range * correction.cosVertCorrection - correction.sinVertOffsetCorrection;
-  double xy_distance = range * std::cos (M8_Grabber_toRadians(M8VerticalAngles[i])) - std::sin (M8_Grabber_toRadians(M8VerticalAngles[i]));
+  double xy_distance = range * cos_vt_angle - sin_vt_angle;
   // set y
-  point.y = static_cast<float> (xy_distance * sin_azimuth);
+  point.y = static_cast<float> (xy_distance * sin_hz_angle);
   // set x
-  point.x = static_cast<float> (xy_distance * cos_azimuth);
+  point.x = static_cast<float> (xy_distance * cos_hz_angle);
   // set z
-  point.z = static_cast<float> (range * std::sin (M8_Grabber_toRadians(M8VerticalAngles[i])) + std::cos (M8_Grabber_toRadians(M8VerticalAngles[i])));
+  point.z = static_cast<float> (range * sin_vt_angle + cos_vt_angle);
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void
-M8Client::loadM8Corrections()
-{
-  double M8VerticalAngles[] = { -18.249, -15.424, -12.491, -9.465, -6.36, -3.197, 0, 3.197 };
-
-  for (int i = 0; i < M8_LASER_PER_FIRING; i++)
-  {
-    laser_corrections_[i].azimuthCorrection = 0.0;
-    laser_corrections_[i].distanceCorrection = 0.0;
-    laser_corrections_[i].horizontalOffsetCorrection = 0.0;
-    laser_corrections_[i].verticalOffsetCorrection = 0.0;
-    laser_corrections_[i].verticalCorrection = M8VerticalAngles[i];
-    laser_corrections_[i].sinVertCorrection = std::sin (M8_Grabber_toRadians(M8VerticalAngles[i]));
-    laser_corrections_[i].cosVertCorrection = std::cos (M8_Grabber_toRadians(M8VerticalAngles[i]));
-  }
-}
 
 void M8Client::start()
 {
