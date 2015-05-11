@@ -8,7 +8,7 @@ endif (${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 find_package(Boost COMPONENTS system thread chrono REQUIRED)
 
-find_package(PCL REQUIRED common io)
+find_package(PCL REQUIRED common io visualization)
 
 include_directories(
   include
@@ -22,3 +22,6 @@ link_directories(
 add_definitions(${PCL_DEFINITIONS})
 
 add_library(m8_client SHARED src/m8_client.cpp)
+
+add_executable(test src/test.cpp)
+target_link_libraries(test m8_client ${PCL_LIBRARIES})
