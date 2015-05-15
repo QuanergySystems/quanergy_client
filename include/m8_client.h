@@ -106,9 +106,9 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     /** Convert from range and angles to cartesian
       * \param[in] range range in meter
       * \param[in] cos_hz_angle cosine of horizontal angle
-      * \param[in] sin_hz_angle sinine of horizontal angle
+      * \param[in] sin_hz_angle sine of horizontal angle
       * \param[in] cos_vt_angle cosine of vertical angle
-      * \param[in] sin_vt_angle sinine of vertical angle
+      * \param[in] sin_vt_angle sine of vertical angle
       * \param[out] point point in cartesian coordinates
       */
     void computeXYZ(const double range, 
