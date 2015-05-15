@@ -3,7 +3,7 @@
 #include <ctime>
 #include <boost/proto/args.hpp>
 
-double const M8Client::M8_VERTICAL_ANGLES[] = { -0.318505, -0.2692, -0.218009, -0.165195, -0.111003, -0.0557982, 0, 0.0557982 };
+double const M8Client::M8_VERTICAL_ANGLES[] = { -0.318505, -0.2692, -0.218009, -0.165195, -0.111003, -0.0557982, 0.f, 0.0557982 };
 
 M8Client::M8Client(const boost::asio::ip::address& ip,
                    const unsigned short int port)
@@ -211,11 +211,7 @@ M8Client::toPointClouds(M8DataPacket *data_packet)
     {
       if (current_sweep_xyzi_->size () > 0)
       {
-        // transpose data
-        // if (organize_data_)
-        // {
         organizeCloud(current_sweep_xyzi_);
-        // }
 
         current_sweep_xyzi_->header.stamp = time;
         current_sweep_xyzi_->header.seq = sweep_counter_;
