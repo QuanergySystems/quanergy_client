@@ -6,7 +6,7 @@
 double const M8Client::M8_VERTICAL_ANGLES[] = { -0.318505, -0.2692, -0.218009, -0.165195, -0.111003, -0.0557982, 0.f, 0.0557982 };
 
 M8Client::M8Client (const boost::asio::ip::address& ip,
-                   const unsigned short int port)
+		    const unsigned short int port)
   : data_queue_ ()
   , tcp_listener_endpoint_ (ip, port)
   , read_socket_service_ ()
@@ -74,7 +74,7 @@ M8Client::getFramesPerSecond () const
 /////////////////////////////////////////////////////////////////////////////
 void
 M8Client::enqueueM8Packet (const unsigned char *data,
-                          const std::size_t& bytes_received)
+			   const std::size_t& bytes_received)
 {
   if (bytes_received == M8_PACKET_BYTES)
   {
