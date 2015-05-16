@@ -19,10 +19,10 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     /// Shared pointer
     typedef boost::shared_ptr<PointCloud> PointCloudPtr;
 
-    /** \brief Signal calllback used for a 360 degree sweep
+    /** \brief Signal calllback used for a 360 degree cloud
       * Represents multiple corrected packets from the Quanergy M8.
       */
-    typedef void (sig_cb_quanergy_m8_sweep_point_cloud_xyzi) (const PointCloudConstPtr&);
+    typedef void (cloud_signal_callback) (const PointCloudConstPtr&);
 
     /** \brief Constructor taking a specified IP/port.
       * \param[in] ip IP Address that should be used to listen for M8 packets
@@ -52,6 +52,22 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     /** \brief Returns the number of frames per second.
      */
     virtual float getFramesPerSecond () const;
+
+    /** \brief Any returns from the M8 with a distance less than this are discarded.
+      * This value is in meters \default 1.0
+      */
+    void setMinimumDistanceThreshold (float minThreshold);
+
+    /** \brief Returns the current minimum distance threshold, in meters */
+    float getMinimumDistanceThreshold () const;
+
+    /** \brief Any returns from the M8 with a distance greater than this are discarded.
+      * This value is in meters \default 400.0
+      */
+    void setMaximumDistanceThreshold (float maxThreshold);
+
+    /** \brief Returns the current maximum distance threshold, in meters */
+    float getMaximumDistanceThreshold () const;
 
   private:
     /// Default TCP port for the M8 sensor
@@ -91,18 +107,18 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     }; // 6612 bytes
 
     /// function used as a callback for the thread that enqueus encoming data in the queue
-    void enqueueM8Packet(const unsigned char *data,
+    void enqueueM8Packet (const unsigned char *data,
                          const std::size_t& bytes_received);
     /// function used as a callback for the socket reading thread
-    void read();
+    void read ();
     /// processes the TCP packets
-    void processM8Packets();
+    void processM8Packets ();
     /// transposes the point cloud
-    void organizeCloud(PointCloudPtr &current_xyzi);
+    void organizeCloud (PointCloudPtr &current_xyzi);
     /// converts TCP packets to PCL point clouds
-    void toPointClouds(M8DataPacket *data_packet);
-    /// Fire current sweep
-    void fireCurrentSweep();
+    void toPointClouds (M8DataPacket *data_packet);
+    /// Fire current cloud
+    void fireCurrentCloud ();
     /** Convert from range and angles to cartesian
       * \param[in] range range in meter
       * \param[in] cos_hz_angle cosine of horizontal angle
@@ -111,10 +127,10 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
       * \param[in] sin_vt_angle sine of vertical angle
       * \param[out] point point in cartesian coordinates
       */
-    void computeXYZ(const double range, 
-		    const double cos_hz_angle, const double sin_hz_angle,
-		    const double cos_vt_angle, const double sin_vt_angle, 
-		    pcl::PointXYZI& point);
+    void computeXYZ (const double range,
+                     const double cos_hz_angle, const double sin_hz_angle,
+                     const double cos_vt_angle, const double sin_vt_angle,
+                     pcl::PointXYZI& point);
     /// sensor IP address
     boost::asio::ip::address ip_address_;
     /// TCP port
@@ -139,21 +155,23 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     boost::thread *read_packet_thread_;
     /// termination condition
     bool terminate_read_packet_thread_;
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZI> > current_sweep_xyzi_;
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZI> > current_cloud_;
     /// signal that gets fired whenever we collect a scan
-    boost::signals2::signal<sig_cb_quanergy_m8_sweep_point_cloud_xyzi>* sweep_xyzi_signal_;
+    boost::signals2::signal<cloud_signal_callback>* cloud_signal_;
     /// last accounted for azimuth angle
     double last_azimuth_;
-    /// scan height
-    int scan_height_;
-    /// sweep height
-    int sweep_height_;
+    /// cloud height
+    int cloud_height_;
     /// number of dropped packets
     int dropped_packets_;
-    /// global scan counter
-    uint32_t scan_counter_;
-    /// global sweep counter
-    uint32_t sweep_counter_;
+    /// global packet counter
+    uint32_t packet_counter_;
+    /// global cloud counter
+    uint32_t cloud_counter_;
+    /// minimum range threshold
+    float min_range_threshold_;
+    /// maximum range threshold
+    float max_range_threshold_;
 };
 
 #endif // M8_CLIENT_H
