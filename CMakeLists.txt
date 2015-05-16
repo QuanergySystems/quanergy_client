@@ -6,6 +6,12 @@ if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
   add_definitions("-DDEBUG")
 endif (${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
+option(USE_CLIENT_TIME "If enabled, clouds will be time stamped by the M8 Client not the sensor" OFF)
+
+if (USE_CLIENT_TIME)
+  add_definitions("-DCLIENT_TIME")
+endif (USE_CLIENT_TIME)
+
 find_package(Boost COMPONENTS system thread chrono REQUIRED)
 
 find_package(PCL REQUIRED common io visualization)
