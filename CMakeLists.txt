@@ -2,6 +2,8 @@ project(M8Client)
 
 cmake_minimum_required(VERSION 2.8)
 
+set(VERSION "0.1.0")
+
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
   add_definitions("-DDEBUG")
 endif (${CMAKE_BUILD_TYPE} MATCHES "Debug")
@@ -31,3 +33,11 @@ add_library(m8_client SHARED src/m8_client.cpp)
 
 add_executable(test src/test.cpp)
 target_link_libraries(test m8_client ${PCL_LIBRARIES})
+
+configure_file(docs/doxyfile.in
+  "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
+
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+  add_custom_target(doc ALL "${DOXYGEN_EXECUTABLE}" "${PROJECT_BINARY_DIR}/doxyfile")
+endif(DOXYGEN_FOUND)
