@@ -9,6 +9,10 @@
 #include <pcl/io/grabber.h>
 #include <pcl/io/impl/synchronized_queue.hpp>
 
+/** Class M8Client used to connect to Quanergy Systems M8 LiDAR
+  * Implements pcl::Grabber
+  * \file m8_client.h
+  */
 class M8Client : public pcl::Grabber, private boost::noncopyable
 {
   public:
@@ -54,7 +58,7 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     virtual float getFramesPerSecond () const;
 
     /** \brief Any returns from the M8 with a distance less than this are discarded.
-      * This value is in meters \default 1.0
+      * This value is in meters. Defaults to 1.0
       */
     void setMinimumDistanceThreshold (float minThreshold);
 
@@ -62,7 +66,7 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     float getMinimumDistanceThreshold () const;
 
     /** \brief Any returns from the M8 with a distance greater than this are discarded.
-      * This value is in meters \default 400.0
+      * This value is in meters. Defaults to 400.0
       */
     void setMaximumDistanceThreshold (float maxThreshold);
 
