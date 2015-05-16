@@ -224,22 +224,22 @@ usage (char ** argv)
     	    << "\t N: solid color[default]" << std::endl
 	    << "\t I: intensity field is colored" << std::endl
             << "\t Z: z field is colored" << std::endl;
-  std::cout << argv[0] << " -h | --help : shows this help" << std::endl;
+  std::cout << "\t-h | --help : shows this help and exit" << std::endl;
   return;
 }
 
 int
 main (int argc, char ** argv)
 {
-  std::char color ('N'), ip ("10.0.0.2");
-  int port = 4141;
-
-  if (find_switch (argc, argv, "-h") ||
-      find_switch (argc, argv, "--help"))
+  if (argc < 2 || find_switch (argc, argv, "-h") || find_switch (argc, argv, "--help"))
   {
     usage (argv);
     return (0);
   }
+
+  char color ('N');
+  std::string ip ("10.0.0.2");
+  int port = 4141;
 
   parse_argument (argc, argv, "-ip", ip);
   parse_argument (argc, argv, "-port", port);
@@ -247,7 +247,7 @@ main (int argc, char ** argv)
 
   M8Client* grabber = new M8Client(boost::asio::ip::address::from_string(ip), port);
 
-  std::cout << "viewer coloring:";
+  std::cout << "viewer coloring: ";
   switch (color)
   {
     case 'Z':
@@ -274,8 +274,5 @@ main (int argc, char ** argv)
     } break;
   }
 
-  else if (boost::iequals (color, std::string ("N")))
   return (0);
 }
-
-
