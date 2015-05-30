@@ -1,3 +1,9 @@
+/****************************************************************************
+ **
+ ** Copyright (C) 2014-- Quanergy Systems. All Rights Reserved.
+ ** Contact: http://www.quanergy.com
+ **
+ ****************************************************************************/
 #ifndef M8_CLIENT_H
 #define M8_CLIENT_H
 
@@ -57,21 +63,33 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
      */
     virtual float getFramesPerSecond () const;
 
+    /** \brief Returns the minimum range filter threshold for the given beam, in meters */
+    float getMinimumRangeThreshold (const unsigned int laser_beam) const;
+
     /** \brief Any returns from the M8 with a distance less than this are discarded.
       * This value is in meters. Defaults to 1.0
       */
-    void setMinimumDistanceThreshold (float minThreshold);
+    void setMinimumRangeThreshold (const unsigned int laser_beam, const float min_threshold);
 
-    /** \brief Returns the current minimum distance threshold, in meters */
-    float getMinimumDistanceThreshold () const;
+    /** \brief Returns the minimum intensity filter threshold for the given beam */
+    unsigned char getMinimumIntensityThreshold (const unsigned int laser_beam) const;
 
-    /** \brief Any returns from the M8 with a distance greater than this are discarded.
-      * This value is in meters. Defaults to 400.0
+    /** \brief Any returns from the M8 with intensity less than this are discarded.
+      * This value is an integer between 0-255. Defaults to 0
       */
-    void setMaximumDistanceThreshold (float maxThreshold);
+    void setMinimumIntensityThreshold (const unsigned int laser_beam, const unsigned char min_threshold);
 
-    /** \brief Returns the current maximum distance threshold, in meters */
-    float getMaximumDistanceThreshold () const;
+    /** \brief Gets the minimum range filter thresholds for all 8 beams, in meters */
+    void getMinimumRangeThresholds (float min_threshold[8]) const;
+
+    /** \brief Sets the minimum range filter thresholds for all 8 beams, in meters */
+    void setMinimumRangeThresholds (const float min_threshold[8]);
+
+    /** \brief Gets the minimum intensity filter thresholds for all 8 beams, in meters */
+    void getMinimumIntensityThresholds (unsigned char min_threshold[8]) const;
+
+    /** \brief Sets the minimum intensity filter thresholds for all 8 beams, in meters */
+    void setMinimumIntensityThresholds (const unsigned char min_threshold[8]);
 
   private:
     /// Default TCP port for the M8 sensor
@@ -176,6 +194,18 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     float min_range_threshold_;
     /// maximum range threshold
     float max_range_threshold_;
+    /// range filter thresholds
+    float m8_range_filter_[M8_NUM_LASERS];
+    /// intensity filter thresholds
+    unsigned char m8_intensity_filter_[M8_NUM_LASERS];
+    /// number of proccessed frames over the previous second
+    int frames_per_second_;
+    /// current moment timestamp
+    boost::chrono::high_resolution_clock::time_point curr_time_;
+    /// previous second timestamp
+    boost::chrono::high_resolution_clock::time_point prev_time_;
+    /// duration of time between current time and previous second
+    boost::chrono::duration<double> time_span_;
 };
 
 #endif // M8_CLIENT_H

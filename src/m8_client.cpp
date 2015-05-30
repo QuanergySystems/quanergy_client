@@ -1,3 +1,9 @@
+/****************************************************************************
+ **
+ ** Copyright (C) 2014-- Quanergy Systems. All Rights Reserved.
+ ** Contact: http://www.quanergy.com
+ **
+ ****************************************************************************/
 #include "m8_client.h"
 #include <iostream>
 #include <ctime>
@@ -23,6 +29,7 @@ M8Client::M8Client (const boost::asio::ip::address& ip,
   , terminate_read_packet_thread_ (false)
   , min_range_threshold_ (1.f)
   , max_range_threshold_ (400.f)
+  , frames_per_second_ (0)
 {
   const double to_rad (M_PI / 180.f);
   for (unsigned int i = 0; i <= M8_NUM_ROT_ANGLES; i++)
@@ -40,6 +47,15 @@ M8Client::M8Client (const boost::asio::ip::address& ip,
   }
 
   cloud_signal_ = pcl::Grabber::createSignal<cloud_signal_callback> ();
+
+  curr_time_ = boost::chrono::high_resolution_clock::now();
+  prev_time_ = curr_time_;
+
+  for (int i = 0; i < M8_NUM_LASERS; ++i)
+  {
+    m8_range_filter_[i] = 1.0;
+    m8_intensity_filter_[i] = 0;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -68,7 +84,81 @@ M8Client::getName () const
 float
 M8Client::getFramesPerSecond () const
 {
-  return (0.0f);
+  return ((float)frames_per_second_);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+float
+M8Client::getMinimumRangeThreshold (const unsigned int laser_beam) const
+{
+  if (laser_beam >= M8_NUM_LASERS)
+  {
+    std::cerr << "Index out of bound! Beam index should be between 0-7.";
+    return -1;
+  }
+  else
+    return (m8_range_filter_[laser_beam]);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void
+M8Client::setMinimumRangeThreshold (const unsigned int laser_beam, const float threshold)
+{
+  if (laser_beam >= M8_NUM_LASERS)
+    std::cerr << "Index out of bound! Beam index should be between 0-7.";
+  else
+    m8_range_filter_[laser_beam] = threshold;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+unsigned char
+M8Client::getMinimumIntensityThreshold (const unsigned int laser_beam) const
+{
+  if (laser_beam >= M8_NUM_LASERS)
+  {
+    std::cerr << "Index out of bound! Beam index should be between 0-7.";
+    return 0;
+  }
+  else
+    return (m8_intensity_filter_[laser_beam]);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void
+M8Client::setMinimumIntensityThreshold (const unsigned int laser_beam, const unsigned char threshold)
+{
+  if (laser_beam >= M8_NUM_LASERS)
+    std::cerr << "Index out of bound! Beam index should be between 0-7.";
+  else
+    m8_intensity_filter_[laser_beam] = threshold;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void
+M8Client::getMinimumRangeThresholds (float min_threshold[M8_NUM_LASERS]) const
+{
+  memcpy (min_threshold, m8_range_filter_, sizeof(float) * M8_NUM_LASERS);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void
+M8Client::setMinimumRangeThresholds (const float min_threshold[M8_NUM_LASERS])
+{
+  memcpy (m8_range_filter_, min_threshold, sizeof(float) * M8_NUM_LASERS);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void
+M8Client::getMinimumIntensityThresholds (unsigned char min_threshold[M8_NUM_LASERS]) const
+{
+  memcpy (min_threshold, m8_intensity_filter_, sizeof(unsigned char) * M8_NUM_LASERS);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void
+M8Client::setMinimumIntensityThresholds (const unsigned char min_threshold[M8_NUM_LASERS])
+{
+  memcpy (m8_intensity_filter_, min_threshold, sizeof(unsigned char) * M8_NUM_LASERS);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -241,15 +331,23 @@ M8Client::toPointClouds (M8DataPacket *data_packet)
     {
       // convert range to meters
       float range = data.returns_distances[0][j] * .01;
-      if ((range < min_range_threshold_) || (range > max_range_threshold_))
+      unsigned char intensity = data.returns_intensities[0][j];
+
+      // filter out points that are...
+      //   1) outside minimum and maximum allowed range,
+      //   2) closer than the certain mimimum threshold for that specific beam, or
+      //   3) below the certain intensity threshold for that specific beam
+      if ((range < min_range_threshold_) || (range > max_range_threshold_) ||
+          (range < m8_range_filter_[j])  || (intensity < m8_intensity_filter_[j]))
         range = std::numeric_limits<float>::quiet_NaN ();
       // output point
       pcl::PointXYZI xyzi;
       // convert to cartezian coordinates and populate x, y and z members
       computeXYZ (range, cos_horizontal_angle, sin_horizontal_angle,
                   cos_vertical_angles_[j], sin_vertical_angles_[j], xyzi);
+
       // intensity value is fetched directly
-      xyzi.intensity = data.returns_intensities[0][j];
+      xyzi.intensity = intensity;
       // add the point to the current scan
       current_cloud_->push_back (xyzi);
       // if the range is NaN, the cloud is not dense, one point is sufficient
@@ -267,6 +365,19 @@ M8Client::fireCurrentCloud ()
 {
   if (cloud_signal_->num_slots () > 0)
     cloud_signal_->operator () (current_cloud_);
+
+  curr_time_ = boost::chrono::high_resolution_clock::now();
+  time_span_ = boost::chrono::duration_cast<boost::chrono::duration<double> >(curr_time_ - prev_time_);
+
+  if (time_span_.count() >= 1)
+  {
+    prev_time_ = curr_time_;
+    frames_per_second_ = 0;
+  }
+  else
+  {
+    ++frames_per_second_;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -296,6 +407,7 @@ M8Client::computeXYZ (const double range,
 
 void M8Client::start ()
 {
+  cloud_counter_ = 0;
   terminate_read_packet_thread_ = false;
   queue_consumer_thread_ = new boost::thread (boost::bind (&M8Client::processM8Packets, this));
 

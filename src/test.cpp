@@ -1,38 +1,9 @@
-/*
- * Software License Agreement (BSD License)
- *
- *  Copyright (c) 2011, The MITRE Corporation
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
- *   * Neither the name of Willow Garage, Inc. nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
- *
- * Author: Nizar Sallem <nizar.sallem@quanergy.com>
- */
+/****************************************************************************
+ **
+ ** Copyright (C) 2014-- Quanergy Systems. All Rights Reserved.
+ ** Contact: http://www.quanergy.com
+ **
+ ****************************************************************************/
 #define PCL_NO_PRECOMPILE
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
@@ -79,19 +50,16 @@ using namespace pcl::visualization;
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename PointType>
 class SimpleM8Viewer
 {
   public:
-    typedef PointCloud<PointType> Cloud;
+    typedef PointCloud<pcl::PointXYZI> Cloud;
     typedef typename Cloud::ConstPtr CloudConstPtr;
 
-    SimpleM8Viewer (Grabber& grabber,
-                    PointCloudColorHandler<PointType>* handler = NULL)
+    SimpleM8Viewer (Grabber& grabber)
       : cloud_viewer_ (new PCLVisualizer ("PCL M8 Cloud"))
       , grabber_ (grabber)
       , clouds_ (25)
-      , handler_ (handler)
     {}
 
     void cloud_callback (const CloudConstPtr& cloud)
@@ -135,69 +103,38 @@ class SimpleM8Viewer
 
       grabber_.start ();
 
-      if (handler_) 
+
+      while (!cloud_viewer_->wasStopped ())
       {
-        while (!cloud_viewer_->wasStopped ())
+        // See if we can get a cloud
+        if (cloud_mutex_.try_lock ())
         {
-          // See if we can get a cloud
-          if (cloud_mutex_.try_lock ())
-          {
-            if (!clouds_.empty()) {
-              cloud_ = clouds_.front();
-              clouds_.pop_front();
-            }
-            cloud_mutex_.unlock ();
+          if (!clouds_.empty()) {
+            cloud_ = clouds_.front();
+            clouds_.pop_front();
           }
-
-          if (cloud_)
-          {
-            FPS_CALC("drawing cloud");
-            handler_->setInputCloud (cloud_);
-            if (!cloud_viewer_->updatePointCloud (cloud_, *handler_, "M8"))
-              cloud_viewer_->addPointCloud (cloud_, *handler_, "M8");
-
-            cloud_viewer_->spinOnce ();
-
-            cloud_.reset();
-          }
-
-          if (!grabber_.isRunning ())
-            cloud_viewer_->spin ();
-
-          boost::this_thread::sleep (boost::posix_time::microseconds (100));
+          cloud_mutex_.unlock ();
         }
-      } 
-      else 
-      {
-        while (!cloud_viewer_->wasStopped ())
+
+        if (cloud_)
         {
-          // See if we can get a cloud
-          if (cloud_mutex_.try_lock ())
-          {
-            if (!clouds_.empty()) {
-              cloud_ = clouds_.front();
-              clouds_.pop_front();
-            }
-            cloud_mutex_.unlock ();
-          }
+          FPS_CALC("drawing cloud");
+          PointCloudColorHandlerGenericField<pcl::PointXYZI> color_handler (cloud_,"intensity");
 
-          if (cloud_)
-          {
-            FPS_CALC("drawing cloud");
-            if (!cloud_viewer_->updatePointCloud<pcl::PointXYZI> (cloud_, "M8"))
-              cloud_viewer_->addPointCloud<pcl::PointXYZI> (cloud_, "M8");
+          if (!cloud_viewer_->updatePointCloud<pcl::PointXYZI> (cloud_, color_handler, "M8"))
+            cloud_viewer_->addPointCloud<pcl::PointXYZI> (cloud_, "M8");
 
-            cloud_viewer_->spinOnce ();
+          cloud_viewer_->spinOnce ();
 
-            cloud_.reset();
-          }
-
-          if (!grabber_.isRunning ())
-            cloud_viewer_->spin ();
-
-          boost::this_thread::sleep (boost::posix_time::microseconds (100));
+          cloud_.reset();
         }
+
+        if (!grabber_.isRunning ())
+          cloud_viewer_->spin ();
+
+        boost::this_thread::sleep (boost::posix_time::microseconds (100));
       }
+
       grabber_.stop ();
 
       cloud_connection.disconnect ();
@@ -210,20 +147,17 @@ class SimpleM8Viewer
 
     CloudConstPtr cloud_;
     boost::circular_buffer<CloudConstPtr> clouds_;
-    PointCloudColorHandler<PointType> *handler_;
 };
 
 void
 usage (char ** argv)
 {
   std::cout << "usage: " << argv[0]
-	    << " -ip 10.0.0.2 -port 1234 [-h | --help] [-color N/I/Z]" << std::endl
-	    << "-ip IP address of the sensor  10.0.0.2[default]" << std::endl
-	    << "-port TCP port used by the sensor 4141[default]" << std::endl
-	    << "-color specifies the color handler" << std::endl
-    	    << "\t N: solid color[default]" << std::endl
-	    << "\t I: intensity field is colored" << std::endl
-            << "\t Z: z field is colored" << std::endl;
+      << " -ip 10.0.0.2 -port 1234 [-h | --help] [-color N/I/Z]" << std::endl
+      << "-ip IP address of the sensor  10.0.0.2[default]" << std::endl
+      << "-port TCP port used by the sensor 4141[default]" << std::endl
+      << "-range minimum range threshold for beam 0" << std::endl
+      << "-intensity minimum intensity threshold for beam 0" << std::endl;
   std::cout << "\t-h | --help : shows this help and exit" << std::endl;
   return;
 }
@@ -237,42 +171,27 @@ main (int argc, char ** argv)
     return (0);
   }
 
-  char color ('N');
   std::string ip ("10.0.0.2");
   int port = 4141;
+  double range = 0;
+  double intensity = 0;
 
   parse_argument (argc, argv, "-ip", ip);
   parse_argument (argc, argv, "-port", port);
-  parse_argument (argc, argv, "-color", color);
+  parse_argument (argc, argv, "-range", range);
+  parse_argument (argc, argv, "-intensity", intensity);
 
   M8Client* grabber = new M8Client(boost::asio::ip::address::from_string(ip), port);
 
-  std::cout << "viewer coloring: ";
-  switch (color)
-  {
-    case 'Z':
-    {
-      std::cout << "Z axis" << std::endl;
-      PointCloudColorHandlerGenericField<pcl::PointXYZI> color_handler ("z");
-      
-      SimpleM8Viewer<pcl::PointXYZI> v (*grabber, &color_handler);
-      v.run ();
-    } break;
-    case 'I':
-    {
-      std::cout << "intensity field" << std::endl;
-      PointCloudColorHandlerGenericField<pcl::PointXYZI> color_handler ("intensity");
-      
-      SimpleM8Viewer<pcl::PointXYZI> v (*grabber, &color_handler);
-      v.run ();
-    } break;
-    case 'N':
-    {
-      std::cout << "solid color" << std::endl;
-      SimpleM8Viewer<pcl::PointXYZI> v (*grabber);
-      v.run ();
-    } break;
-  }
+  float ranges[8] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+  grabber->setMinimumRangeThresholds(ranges);
+  grabber->setMinimumRangeThreshold(0, range);
+  unsigned char intensities[8] = {1, 2, 2, 3, 3, 4, 2, 1};
+  grabber->setMinimumIntensityThresholds(intensities);
+  grabber->setMinimumIntensityThreshold(0, intensity);
+
+  SimpleM8Viewer v (*grabber);
+  v.run ();
 
   return (0);
 }
