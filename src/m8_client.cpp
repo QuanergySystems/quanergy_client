@@ -53,8 +53,8 @@ M8Client::M8Client (const boost::asio::ip::address& ip,
 
   for (int i = 0; i < M8_NUM_LASERS; ++i)
   {
-    m8_range_filter_[i] = 1.0;
-    m8_intensity_filter_[i] = 0;
+    ring_filter_range_[i] = 1.0;
+    ring_filter_intensity_[i] = 0;
   }
 }
 
@@ -89,7 +89,7 @@ M8Client::getFramesPerSecond () const
 
 /////////////////////////////////////////////////////////////////////////////
 float
-M8Client::getMinimumRangeThreshold (const unsigned int laser_beam) const
+M8Client::getRingFilterMinimumRangeThreshold (const unsigned int laser_beam) const
 {
   if (laser_beam >= M8_NUM_LASERS)
   {
@@ -97,22 +97,22 @@ M8Client::getMinimumRangeThreshold (const unsigned int laser_beam) const
     return -1;
   }
   else
-    return (m8_range_filter_[laser_beam]);
+    return (ring_filter_range_[laser_beam]);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void
-M8Client::setMinimumRangeThreshold (const unsigned int laser_beam, const float threshold)
+M8Client::setRingFilterMinimumRangeThreshold (const unsigned int laser_beam, const float threshold)
 {
   if (laser_beam >= M8_NUM_LASERS)
     std::cerr << "Index out of bound! Beam index should be between 0-7.";
   else
-    m8_range_filter_[laser_beam] = threshold;
+    ring_filter_range_[laser_beam] = threshold;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 unsigned char
-M8Client::getMinimumIntensityThreshold (const unsigned int laser_beam) const
+M8Client::getRingFilterMinimumIntensityThreshold (const unsigned int laser_beam) const
 {
   if (laser_beam >= M8_NUM_LASERS)
   {
@@ -120,45 +120,45 @@ M8Client::getMinimumIntensityThreshold (const unsigned int laser_beam) const
     return 0;
   }
   else
-    return (m8_intensity_filter_[laser_beam]);
+    return (ring_filter_intensity_[laser_beam]);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void
-M8Client::setMinimumIntensityThreshold (const unsigned int laser_beam, const unsigned char threshold)
+M8Client::setRingFilterMinimumIntensityThreshold (const unsigned int laser_beam, const unsigned char threshold)
 {
   if (laser_beam >= M8_NUM_LASERS)
     std::cerr << "Index out of bound! Beam index should be between 0-7.";
   else
-    m8_intensity_filter_[laser_beam] = threshold;
+    ring_filter_intensity_[laser_beam] = threshold;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void
-M8Client::getMinimumRangeThresholds (float min_threshold[M8_NUM_LASERS]) const
+M8Client::getRingFilterMinimumRangeThresholds (float min_threshold[M8_NUM_LASERS]) const
 {
-  memcpy (min_threshold, m8_range_filter_, sizeof(float) * M8_NUM_LASERS);
+  memcpy (min_threshold, ring_filter_range_, sizeof(float) * M8_NUM_LASERS);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void
-M8Client::setMinimumRangeThresholds (const float min_threshold[M8_NUM_LASERS])
+M8Client::setRingFilterMinimumRangeThresholds (const float min_threshold[M8_NUM_LASERS])
 {
-  memcpy (m8_range_filter_, min_threshold, sizeof(float) * M8_NUM_LASERS);
+  memcpy (ring_filter_range_, min_threshold, sizeof(float) * M8_NUM_LASERS);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void
-M8Client::getMinimumIntensityThresholds (unsigned char min_threshold[M8_NUM_LASERS]) const
+M8Client::getRingFilterMinimumIntensityThresholds (unsigned char min_threshold[M8_NUM_LASERS]) const
 {
-  memcpy (min_threshold, m8_intensity_filter_, sizeof(unsigned char) * M8_NUM_LASERS);
+  memcpy (min_threshold, ring_filter_intensity_, sizeof(unsigned char) * M8_NUM_LASERS);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void
-M8Client::setMinimumIntensityThresholds (const unsigned char min_threshold[M8_NUM_LASERS])
+M8Client::setRingFilterMinimumIntensityThresholds (const unsigned char min_threshold[M8_NUM_LASERS])
 {
-  memcpy (m8_intensity_filter_, min_threshold, sizeof(unsigned char) * M8_NUM_LASERS);
+  memcpy (ring_filter_intensity_, min_threshold, sizeof(unsigned char) * M8_NUM_LASERS);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -335,10 +335,9 @@ M8Client::toPointClouds (M8DataPacket *data_packet)
 
       // filter out points that are...
       //   1) outside minimum and maximum allowed range,
-      //   2) closer than the certain mimimum threshold for that specific beam, or
-      //   3) below the certain intensity threshold for that specific beam
+      //   2) within the ring filter thresholds
       if ((range < min_range_threshold_) || (range > max_range_threshold_) ||
-          (range < m8_range_filter_[j])  || (intensity < m8_intensity_filter_[j]))
+          (range < ring_filter_range_[j]  && intensity < ring_filter_intensity_[j]))
         range = std::numeric_limits<float>::quiet_NaN ();
       // output point
       pcl::PointXYZI xyzi;

@@ -18,6 +18,11 @@
 /** Class M8Client used to connect to Quanergy Systems M8 LiDAR
   * Implements pcl::Grabber
   * \file m8_client.h
+  *
+  * \note M8 A samples may display a ring of low intensity data near the origin that is not
+  * valid data. This class provides a ring filter to remove that ring if it is present. The
+  * ring filter range and intensity thresholds are combined to filter out only points that
+  * are both within the range and of lower intensity.
   */
 class M8Client : public pcl::Grabber, private boost::noncopyable
 {
@@ -63,33 +68,33 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
      */
     virtual float getFramesPerSecond () const;
 
-    /** \brief Returns the minimum range filter threshold for the given beam, in meters */
-    float getMinimumRangeThreshold (const unsigned int laser_beam) const;
+    /** \brief For ring filtering: Returns the minimum range filter threshold for the given beam, in meters */
+    float getRingFilterMinimumRangeThreshold (const unsigned int laser_beam) const;
 
-    /** \brief Any returns from the M8 with a distance less than this are discarded.
+    /** \brief For ring filtering: Set the minimum range filter threshold for the given beam, in meters
       * This value is in meters. Defaults to 1.0
       */
-    void setMinimumRangeThreshold (const unsigned int laser_beam, const float min_threshold);
+    void setRingFilterMinimumRangeThreshold (const unsigned int laser_beam, const float min_threshold);
 
-    /** \brief Returns the minimum intensity filter threshold for the given beam */
-    unsigned char getMinimumIntensityThreshold (const unsigned int laser_beam) const;
+    /** \brief For ring filtering: Returns the minimum intensity filter threshold for the given beam */
+    unsigned char getRingFilterMinimumIntensityThreshold (const unsigned int laser_beam) const;
 
-    /** \brief Any returns from the M8 with intensity less than this are discarded.
+    /** \brief For ring filtering: Set the minimum intensity filter threshold for the given beam, in meters
       * This value is an integer between 0-255. Defaults to 0
       */
-    void setMinimumIntensityThreshold (const unsigned int laser_beam, const unsigned char min_threshold);
+    void setRingFilterMinimumIntensityThreshold (const unsigned int laser_beam, const unsigned char min_threshold);
 
-    /** \brief Gets the minimum range filter thresholds for all 8 beams, in meters */
-    void getMinimumRangeThresholds (float min_threshold[8]) const;
+    /** \brief For ring filtering: Gets the minimum range filter thresholds for all 8 beams, in meters */
+    void getRingFilterMinimumRangeThresholds (float min_threshold[8]) const;
 
-    /** \brief Sets the minimum range filter thresholds for all 8 beams, in meters */
-    void setMinimumRangeThresholds (const float min_threshold[8]);
+    /** \brief For ring filtering: Sets the minimum range filter thresholds for all 8 beams, in meters */
+    void setRingFilterMinimumRangeThresholds (const float min_threshold[8]);
 
-    /** \brief Gets the minimum intensity filter thresholds for all 8 beams, in meters */
-    void getMinimumIntensityThresholds (unsigned char min_threshold[8]) const;
+    /** \brief For ring filtering: Gets the minimum intensity filter thresholds for all 8 beams, in meters */
+    void getRingFilterMinimumIntensityThresholds (unsigned char min_threshold[8]) const;
 
-    /** \brief Sets the minimum intensity filter thresholds for all 8 beams, in meters */
-    void setMinimumIntensityThresholds (const unsigned char min_threshold[8]);
+    /** \brief For ring filtering: Sets the minimum intensity filter thresholds for all 8 beams, in meters */
+    void setRingFilterMinimumIntensityThresholds (const unsigned char min_threshold[8]);
 
   private:
     /// Default TCP port for the M8 sensor
@@ -194,10 +199,10 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     float min_range_threshold_;
     /// maximum range threshold
     float max_range_threshold_;
-    /// range filter thresholds
-    float m8_range_filter_[M8_NUM_LASERS];
-    /// intensity filter thresholds
-    unsigned char m8_intensity_filter_[M8_NUM_LASERS];
+    /// For ring filter: range filter thresholds
+    float ring_filter_range_[M8_NUM_LASERS];
+    /// For ring filter: intensity filter thresholds
+    unsigned char ring_filter_intensity_[M8_NUM_LASERS];
     /// number of proccessed frames over the previous second
     int frames_per_second_;
     /// current moment timestamp
