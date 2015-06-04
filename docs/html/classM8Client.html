@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">M8Client
-   &#160;<span id="projectnumber">0.1.0</span>
+   &#160;<span id="projectnumber">0.2.0</span>
    </div>
   </td>
  </tr>
@@ -149,22 +149,38 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#af65644a97c4605837cc82379a9e1329a">getFramesPerSecond</a> () const </td></tr>
 <tr class="memdesc:af65644a97c4605837cc82379a9e1329a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of frames per second. <br/></td></tr>
 <tr class="separator:af65644a97c4605837cc82379a9e1329a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9696b5d69c51eeb6d6222d1c7cf62cbb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9696b5d69c51eeb6d6222d1c7cf62cbb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a9696b5d69c51eeb6d6222d1c7cf62cbb">setMinimumDistanceThreshold</a> (float minThreshold)</td></tr>
-<tr class="memdesc:a9696b5d69c51eeb6d6222d1c7cf62cbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Any returns from the M8 with a distance less than this are discarded. This value is in meters  1.0. <br/></td></tr>
-<tr class="separator:a9696b5d69c51eeb6d6222d1c7cf62cbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20cd3b4195234d0354c161a5eb3756bc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a20cd3b4195234d0354c161a5eb3756bc"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a20cd3b4195234d0354c161a5eb3756bc">getMinimumDistanceThreshold</a> () const </td></tr>
-<tr class="memdesc:a20cd3b4195234d0354c161a5eb3756bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current minimum distance threshold, in meters. <br/></td></tr>
-<tr class="separator:a20cd3b4195234d0354c161a5eb3756bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc5b947f52e385374e89f873ac82d565"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc5b947f52e385374e89f873ac82d565"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#abc5b947f52e385374e89f873ac82d565">setMaximumDistanceThreshold</a> (float maxThreshold)</td></tr>
-<tr class="memdesc:abc5b947f52e385374e89f873ac82d565"><td class="mdescLeft">&#160;</td><td class="mdescRight">Any returns from the M8 with a distance greater than this are discarded. This value is in meters  400.0. <br/></td></tr>
-<tr class="separator:abc5b947f52e385374e89f873ac82d565"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a03d78886ebba5fc6b5949e8b53eb0e12"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a03d78886ebba5fc6b5949e8b53eb0e12"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a03d78886ebba5fc6b5949e8b53eb0e12">getMaximumDistanceThreshold</a> () const </td></tr>
-<tr class="memdesc:a03d78886ebba5fc6b5949e8b53eb0e12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current maximum distance threshold, in meters. <br/></td></tr>
-<tr class="separator:a03d78886ebba5fc6b5949e8b53eb0e12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a653109fd11dcde2e71a364540e82a082"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a653109fd11dcde2e71a364540e82a082"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a653109fd11dcde2e71a364540e82a082">getRingFilterMinimumRangeThreshold</a> (const unsigned int laser_beam) const </td></tr>
+<tr class="memdesc:a653109fd11dcde2e71a364540e82a082"><td class="mdescLeft">&#160;</td><td class="mdescRight">For ring filtering: Returns the minimum range filter threshold for the given beam, in meters. <br/></td></tr>
+<tr class="separator:a653109fd11dcde2e71a364540e82a082"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ee5c3d843bde70128b79c1fbbbbbc93"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9ee5c3d843bde70128b79c1fbbbbbc93"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a9ee5c3d843bde70128b79c1fbbbbbc93">setRingFilterMinimumRangeThreshold</a> (const unsigned int laser_beam, const float min_threshold)</td></tr>
+<tr class="memdesc:a9ee5c3d843bde70128b79c1fbbbbbc93"><td class="mdescLeft">&#160;</td><td class="mdescRight">For ring filtering: Set the minimum range filter threshold for the given beam, in meters This value is in meters. Defaults to 1.0. <br/></td></tr>
+<tr class="separator:a9ee5c3d843bde70128b79c1fbbbbbc93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab14aaeca482a4c9dddec867c62b6c11"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab14aaeca482a4c9dddec867c62b6c11"></a>
+unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#aab14aaeca482a4c9dddec867c62b6c11">getRingFilterMinimumIntensityThreshold</a> (const unsigned int laser_beam) const </td></tr>
+<tr class="memdesc:aab14aaeca482a4c9dddec867c62b6c11"><td class="mdescLeft">&#160;</td><td class="mdescRight">For ring filtering: Returns the minimum intensity filter threshold for the given beam. <br/></td></tr>
+<tr class="separator:aab14aaeca482a4c9dddec867c62b6c11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3bcea5dffd7e8f2890f550fa91f3ad31"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3bcea5dffd7e8f2890f550fa91f3ad31"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a3bcea5dffd7e8f2890f550fa91f3ad31">setRingFilterMinimumIntensityThreshold</a> (const unsigned int laser_beam, const unsigned char min_threshold)</td></tr>
+<tr class="memdesc:a3bcea5dffd7e8f2890f550fa91f3ad31"><td class="mdescLeft">&#160;</td><td class="mdescRight">For ring filtering: Set the minimum intensity filter threshold for the given beam, in meters This value is an integer between 0-255. Defaults to 0. <br/></td></tr>
+<tr class="separator:a3bcea5dffd7e8f2890f550fa91f3ad31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3431633eb3f291b6a694daa35040236"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3431633eb3f291b6a694daa35040236"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#ad3431633eb3f291b6a694daa35040236">getRingFilterMinimumRangeThresholds</a> (float min_threshold[8]) const </td></tr>
+<tr class="memdesc:ad3431633eb3f291b6a694daa35040236"><td class="mdescLeft">&#160;</td><td class="mdescRight">For ring filtering: Gets the minimum range filter thresholds for all 8 beams, in meters. <br/></td></tr>
+<tr class="separator:ad3431633eb3f291b6a694daa35040236"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a737bf83a90081de7da30cad24c919748"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a737bf83a90081de7da30cad24c919748"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a737bf83a90081de7da30cad24c919748">setRingFilterMinimumRangeThresholds</a> (const float min_threshold[8])</td></tr>
+<tr class="memdesc:a737bf83a90081de7da30cad24c919748"><td class="mdescLeft">&#160;</td><td class="mdescRight">For ring filtering: Sets the minimum range filter thresholds for all 8 beams, in meters. <br/></td></tr>
+<tr class="separator:a737bf83a90081de7da30cad24c919748"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41ad40d8829451fa9287388472547df3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a41ad40d8829451fa9287388472547df3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a41ad40d8829451fa9287388472547df3">getRingFilterMinimumIntensityThresholds</a> (unsigned char min_threshold[8]) const </td></tr>
+<tr class="memdesc:a41ad40d8829451fa9287388472547df3"><td class="mdescLeft">&#160;</td><td class="mdescRight">For ring filtering: Gets the minimum intensity filter thresholds for all 8 beams, in meters. <br/></td></tr>
+<tr class="separator:a41ad40d8829451fa9287388472547df3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00ea1c0b83f0f435a898113925d38650"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00ea1c0b83f0f435a898113925d38650"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classM8Client.html#a00ea1c0b83f0f435a898113925d38650">setRingFilterMinimumIntensityThresholds</a> (const unsigned char min_threshold[8])</td></tr>
+<tr class="memdesc:a00ea1c0b83f0f435a898113925d38650"><td class="mdescLeft">&#160;</td><td class="mdescRight">For ring filtering: Sets the minimum intensity filter thresholds for all 8 beams, in meters. <br/></td></tr>
+<tr class="separator:a00ea1c0b83f0f435a898113925d38650"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a9fbe4479b9eda46c76c17a1b95d8a541"></a>
@@ -256,12 +272,12 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>include/<a class="el" href="m8__client_8h_source.html">m8_client.h</a></li>
+<li>include<a class="el" href="m8__client_8h_source.html">m8_client.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 15 2015 17:47:22 for M8Client by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 4 2015 09:52:38 for M8Client by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

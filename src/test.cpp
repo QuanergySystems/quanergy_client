@@ -184,11 +184,11 @@ main (int argc, char ** argv)
   M8Client* grabber = new M8Client(boost::asio::ip::address::from_string(ip), port);
 
   float ranges[8] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
-  grabber->setMinimumRangeThresholds(ranges);
-  grabber->setMinimumRangeThreshold(0, range);
+  grabber->setRingFilterMinimumRangeThresholds(ranges);
+  grabber->setRingFilterMinimumRangeThreshold(0, range);
   unsigned char intensities[8] = {1, 2, 2, 3, 3, 4, 2, 1};
-  grabber->setMinimumIntensityThresholds(intensities);
-  grabber->setMinimumIntensityThreshold(0, intensity);
+  grabber->setRingFilterMinimumIntensityThresholds(intensities);
+  grabber->setRingFilterMinimumIntensityThreshold(0, intensity);
 
   SimpleM8Viewer v (*grabber);
   v.run ();
