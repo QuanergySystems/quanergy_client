@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">M8Client
-   &#160;<span id="projectnumber">0.1.0</span>
+   &#160;<span id="projectnumber">0.2.0</span>
    </div>
   </td>
  </tr>
@@ -91,23 +91,27 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="directory">
   <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#a3cf3a3a616368ca36f683fed632d5e09">cloud_signal_callback</a> typedef</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classM8Client.html#af65644a97c4605837cc82379a9e1329a">getFramesPerSecond</a>() const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#a03d78886ebba5fc6b5949e8b53eb0e12">getMaximumDistanceThreshold</a>() const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classM8Client.html#a20cd3b4195234d0354c161a5eb3756bc">getMinimumDistanceThreshold</a>() const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#aab38f05a8977d18505102c2bc14f4bad">getName</a>() const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classM8Client.html#aab14aaeca482a4c9dddec867c62b6c11">getRingFilterMinimumIntensityThreshold</a>(const unsigned int laser_beam) const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#a41ad40d8829451fa9287388472547df3">getRingFilterMinimumIntensityThresholds</a>(unsigned char min_threshold[8]) const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classM8Client.html#a653109fd11dcde2e71a364540e82a082">getRingFilterMinimumRangeThreshold</a>(const unsigned int laser_beam) const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#ad3431633eb3f291b6a694daa35040236">getRingFilterMinimumRangeThresholds</a>(float min_threshold[8]) const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classM8Client.html#acdae7380fb8845c7c96b7dd7325df5f6">isRunning</a>() const </td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#a9fbe4479b9eda46c76c17a1b95d8a541">M8Client</a>(const boost::asio::ip::address &amp;ip, const unsigned short port)</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classM8Client.html#a3d651bd016c47804ce1391825442ae92">PointCloud</a> typedef</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#ac7ec6ec8625564a0a32aa86dc3814d45">PointCloudConstPtr</a> typedef</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classM8Client.html#aac090a8526e96c4f061b9300b7211113">PointCloudPtr</a> typedef</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#abc5b947f52e385374e89f873ac82d565">setMaximumDistanceThreshold</a>(float maxThreshold)</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classM8Client.html#a9696b5d69c51eeb6d6222d1c7cf62cbb">setMinimumDistanceThreshold</a>(float minThreshold)</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#a3bcea5dffd7e8f2890f550fa91f3ad31">setRingFilterMinimumIntensityThreshold</a>(const unsigned int laser_beam, const unsigned char min_threshold)</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classM8Client.html#a00ea1c0b83f0f435a898113925d38650">setRingFilterMinimumIntensityThresholds</a>(const unsigned char min_threshold[8])</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#a9ee5c3d843bde70128b79c1fbbbbbc93">setRingFilterMinimumRangeThreshold</a>(const unsigned int laser_beam, const float min_threshold)</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classM8Client.html#a737bf83a90081de7da30cad24c919748">setRingFilterMinimumRangeThresholds</a>(const float min_threshold[8])</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#a57abc3cc5f1f417403ad315af858cabe">start</a>()</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr><td class="entry"><a class="el" href="classM8Client.html#a4e5c1af01541b1e00604fe1267528286">stop</a>()</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classM8Client.html#a077ee8d2a0626a5bf63c17df57e0564c">~M8Client</a>()</td><td class="entry"><a class="el" href="classM8Client.html">M8Client</a></td><td class="entry"><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 15 2015 17:47:22 for M8Client by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 4 2015 09:52:38 for M8Client by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
