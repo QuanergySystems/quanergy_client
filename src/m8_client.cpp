@@ -265,7 +265,13 @@ M8Client::toPointClouds (M8DataPacket *data_packet)
   bpt::time_duration dur = bpt::microsec_clock::universal_time () - bpt::ptime (bg::date (1970, 1, 1));
   time = static_cast<uint32_t>(dur.total_seconds ()) * 1e9 + static_cast<uint32_t>(dur.fractional_seconds () * 1e3);
 #else
-  time = data_packet->seconds * 1e9 + data_packet->nanoseconds;
+  if (data_packet->version <= 3)
+  {
+    // early versions of API put 10 ns increments in this field
+    time = data_packet->seconds * 1e9 + data_packet->nanoseconds * 10;
+  }
+  else
+    time = data_packet->seconds * 1e9 + data_packet->nanoseconds;
 #endif
 
 #ifdef DEBUG
