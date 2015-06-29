@@ -130,7 +130,8 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
       M8FiringData data[M8_FIRING_PER_PKT];
       unsigned int seconds;     // 32-bit, seconds from Jan 1 1970
       unsigned int nanoseconds; // 32-bit, fractional seconds turned to nanoseconds
-      unsigned int status;      // 32-bit, undefined for now
+      unsigned short version;   // 16-bit API version number
+      unsigned short status;    // 16-bit, 0 for now
     }; // 6612 bytes
 
     /// function used as a callback for the thread that enqueus encoming data in the queue
