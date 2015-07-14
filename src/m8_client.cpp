@@ -399,13 +399,13 @@ M8Client::computeXYZ (const double range,
   }
 
   // get the distance to the XY plane
-  double xy_distance = range * cos_vt_angle - sin_vt_angle;
+  double xy_distance = range * cos_vt_angle;
   // set y
   point.y = static_cast<float> (xy_distance * sin_hz_angle);
   // set x
   point.x = static_cast<float> (xy_distance * cos_hz_angle);
   // set z
-  point.z = static_cast<float> (range * sin_vt_angle + cos_vt_angle);
+  point.z = static_cast<float> (range * sin_vt_angle);
 }
 
 /////////////////////////////////////////////////////////////////////////////
