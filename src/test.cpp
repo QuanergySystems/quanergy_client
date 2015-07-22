@@ -54,7 +54,7 @@ class SimpleM8Viewer
 {
   public:
     typedef PointCloud<pcl::PointXYZI> Cloud;
-    typedef typename Cloud::ConstPtr CloudConstPtr;
+    typedef Cloud::ConstPtr CloudConstPtr;
 
     SimpleM8Viewer (Grabber& grabber)
       : cloud_viewer_ (new PCLVisualizer ("PCL M8 Cloud"))
