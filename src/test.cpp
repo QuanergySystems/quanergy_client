@@ -87,6 +87,7 @@ class SimpleM8Viewer
     void
     run ()
     {
+		int frame = 0;
 #if (PCL_MAJOR_VERSION == 1 && PCL_MINOR_VERSION == 7 && PCL_REVISION_VERSION <= 2)
       cloud_viewer_->addCoordinateSystem (3.0);
 #else
@@ -119,20 +120,23 @@ class SimpleM8Viewer
         if (cloud_)
         {
           FPS_CALC("drawing cloud");
+		  printf("frame = %d\n", frame);
           PointCloudColorHandlerGenericField<pcl::PointXYZI> color_handler (cloud_,"intensity");
 
-          if (!cloud_viewer_->updatePointCloud<pcl::PointXYZI> (cloud_, color_handler, "M8"))
-            cloud_viewer_->addPointCloud<pcl::PointXYZI> (cloud_, "M8");
+ //         if (!cloud_viewer_->updatePointCloud<pcl::PointXYZI> (cloud_, color_handler, "M8"))
+   //         cloud_viewer_->addPointCloud<pcl::PointXYZI> (cloud_, "M8");
 
           cloud_viewer_->spinOnce ();
 
           cloud_.reset();
+		  frame++;
         }
 
         if (!grabber_.isRunning ())
           cloud_viewer_->spin ();
 
         boost::this_thread::sleep (boost::posix_time::microseconds (100));
+
       }
 
       grabber_.stop ();
