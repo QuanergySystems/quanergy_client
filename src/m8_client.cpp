@@ -446,7 +446,8 @@ void M8Client::start ()
   }
   catch (boost::system::system_error &e) // you can't recover from this
   {
-    std::cerr << "Unable to bind to socket! " << e.code ().message () << std::endl;
+    std::cerr << "Unable to bind to socket (" << tcp_listener_endpoint_.address().to_string()
+              << ":" << tcp_listener_endpoint_.port() << ")! " << e.code ().message () << std::endl;
     return;
   }
   // At this point the connection has been established
