@@ -2,7 +2,7 @@ project(M8Client)
 
 cmake_minimum_required(VERSION 2.8)
 
-set(VERSION "0.2.3")
+set(VERSION "0.3.0")
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
   add_definitions("-DDEBUG")
