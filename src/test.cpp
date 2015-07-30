@@ -121,8 +121,13 @@ class SimpleM8Viewer
           FPS_CALC("drawing cloud");
           PointCloudColorHandlerGenericField<pcl::PointXYZI> color_handler (cloud_,"intensity");
 
+#ifndef _WIN32
+//
+//  Temporary bug in opengl for windows; remove rendering
+//
           if (!cloud_viewer_->updatePointCloud<pcl::PointXYZI> (cloud_, color_handler, "M8"))
             cloud_viewer_->addPointCloud<pcl::PointXYZI> (cloud_, "M8");
+#endif
 
           cloud_viewer_->spinOnce ();
 
