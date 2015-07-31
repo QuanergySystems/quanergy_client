@@ -257,6 +257,15 @@ M8Client::organizeCloud (PointCloudPtr &current_xyzi)
 void
 M8Client::toPointClouds (M8DataPacket *data_packet)
 {
+  if (data_packet->status != 0)
+  {
+    std::cerr << "Sensor (" << tcp_listener_endpoint_.address().to_string()
+              << ":" << tcp_listener_endpoint_.port() << ") status nonzero: " << data_packet->status;
+    if (data_packet->status == 1)
+      throw std::runtime_error ("Firmware version mismatch");
+    return; // don't process if sensor in error
+  }
+
   time_t time;
 #if CLIENT_TIME
   namespace bpt = boost::posix_time;
@@ -446,7 +455,8 @@ void M8Client::start ()
   }
   catch (boost::system::system_error &e) // you can't recover from this
   {
-    std::cerr << "Unable to bind to socket! " << e.code ().message () << std::endl;
+    std::cerr << "Unable to bind to socket (" << tcp_listener_endpoint_.address().to_string()
+              << ":" << tcp_listener_endpoint_.port() << ")! " << e.code ().message () << std::endl;
     return;
   }
   // At this point the connection has been established
