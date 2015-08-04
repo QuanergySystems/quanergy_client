@@ -11,7 +11,7 @@ Steps:
 <li>Install Visual C++ Redistributable Packages for Visual Studio 2013 found here: 
 	https://www.microsoft.com/en-us/download/details.aspx?id=40784
 </li>
-<li>Install PCL 1.7.2 All-in-one for MSVC2013 (Win32 or x64) found here: http://unanancyowen.com/?p=1255&lang=en
+<li>Install PCL 1.7.2 All-in-one for MSVC2013 (Win32 or x64) found here: http://unanancyowen.com/?p=1255&amp;lang=en
     <ul>
     <li>Install PCL 1.7.2 in either "C:\Program Files\PCL 1.7.2" or "C:\Program Files (x86)\PCL 1.7.2"
     </li>
@@ -30,7 +30,6 @@ Steps:
              ;%PCL_ROOT%\3rdParty\VTK\bin
           </li>
           </ul>
-
     </li>
     </ul>
 </li>
