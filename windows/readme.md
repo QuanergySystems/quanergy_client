@@ -33,11 +33,8 @@ Steps:
     </li>
     </ul>
 </li>
-
 <li>Get copy of M8Client source from GitHub.
 </li>
-
-
 <li>Open CMake 3.2.3 to start converting cmake files to Visual Studio 2013 solutions.
     <ul>
     <li>Set "Where is the source code:" to C:\location\of\m8client
@@ -69,8 +66,6 @@ Steps:
     </li>
     </ul>
 </li>
-
-
 <li>Configuring and Building M8Client in Visual Studio 2013
     <ul>
     <li>Open M8Client.sln in C:\location\of\m8client_build
@@ -83,5 +78,4 @@ Steps:
     </li>
     </ul>
 </li>
-
 </ol>
