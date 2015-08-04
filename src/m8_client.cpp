@@ -427,29 +427,15 @@ void M8Client::start ()
 
   try
   {
-    // We first try to connect to the given IP and port
-    try
-    {
-      // create the read socket
-      read_socket_ = new boost::asio::ip::tcp::socket (read_socket_service_);
-      // try opening a connection with the sensor on the given IP
-      read_socket_->open (boost::asio::ip::tcp::v4 ());
-      // we don't need delays
-      read_socket_->set_option (boost::asio::ip::tcp::no_delay (true));
-      // establish the TCP connection
-      read_socket_->connect (tcp_listener_endpoint_);
-    }
-    catch (boost::system::system_error bind) // if we fail, connect to any IP at that port
-    {
-      // first delete the previously created socket
-      delete read_socket_;
-      // create a new one
-      read_socket_ = new boost::asio::ip::tcp::socket (read_socket_service_);
-      read_socket_->open (boost::asio::ip::tcp::v4 ());
-      read_socket_->set_option (boost::asio::ip::tcp::no_delay (true));
-      tcp_listener_endpoint_ = boost::asio::ip::tcp::endpoint (boost::asio::ip::address_v4::any (), tcp_listener_endpoint_.port ());
-      read_socket_->connect (tcp_listener_endpoint_);
-    }
+    // connect to the given IP and port
+    // create the read socket
+    read_socket_ = new boost::asio::ip::tcp::socket (read_socket_service_);
+    // try opening a connection with the sensor on the given IP
+    read_socket_->open (boost::asio::ip::tcp::v4 ());
+    // we don't need delays
+    read_socket_->set_option (boost::asio::ip::tcp::no_delay (true));
+    // establish the TCP connection
+    read_socket_->connect (tcp_listener_endpoint_);
     // start the reading service
     read_socket_service_.run ();
   }
