@@ -2,7 +2,13 @@ project(M8Client)
 
 cmake_minimum_required(VERSION 2.8)
 
-set(VERSION "0.3.2")
+if(GCC_VERSION VERSION_GREATER "4.7")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+else()
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+endif()
+
+set(VERSION "0.3.3")
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
   add_definitions("-DDEBUG")

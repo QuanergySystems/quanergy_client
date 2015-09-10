@@ -114,25 +114,27 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     /// Default IP address for the sensor
     static const boost::asio::ip::address M8_DEFAULT_NETWORK_ADDRESS;
 
-    /// \brief structure that holds the sensor firing output
-    struct M8FiringData
-    {
-      unsigned short position;
-      unsigned short padding;
-      unsigned int   returns_distances[M8_NUM_RETURNS][M8_NUM_LASERS];   // 32-bit, 1 cm resolution.
-      unsigned char  returns_intensities[M8_NUM_RETURNS][M8_NUM_LASERS]; // 8-bit, 0-255
-      unsigned char  returns_status[M8_NUM_LASERS];                      // 8-bit, 0-255
-    }; // 132 bytes
+#pragma pack(push, 1)
+      /// \brief structure that holds the sensor firing output
+      struct M8FiringData
+      {
+        std::uint16_t position;
+        std::uint16_t padding;
+        std::uint32_t returns_distances[M8_NUM_RETURNS][M8_NUM_LASERS];   // 1 cm resolution.
+        std::uint8_t  returns_intensities[M8_NUM_RETURNS][M8_NUM_LASERS]; // 255 indicates saturation
+        std::uint8_t  returns_status[M8_NUM_LASERS];                      // 0 for now
+      }; // 132 bytes
 
-    /// \brief structure that holds multiple sensor firings and gets sent in the TCP packet
-    struct M8DataPacket
-    {
-      M8FiringData data[M8_FIRING_PER_PKT];
-      unsigned int seconds;     // 32-bit, seconds from Jan 1 1970
-      unsigned int nanoseconds; // 32-bit, fractional seconds turned to nanoseconds
-      unsigned short version;   // 16-bit API version number
-      unsigned short status;    // 16-bit, 0 for now
-    }; // 6612 bytes
+      /// \brief structure that holds multiple sensor firings and gets sent in the TCP packet
+      struct M8DataPacket
+      {
+        M8FiringData  data[M8_FIRING_PER_PKT];
+        std::uint32_t seconds;     // seconds from Jan 1 1970
+        std::uint32_t nanoseconds; // fractional seconds turned to nanoseconds
+        std::uint16_t version;     // API version number
+        std::uint16_t status;      // 0: good, 1: Sensor SW/FW mismatch
+      }; // 6612 bytes
+#pragma pack(pop)
 
     /// function used as a callback for the thread that enqueus encoming data in the queue
     void enqueueM8Packet (const unsigned char *data,
