@@ -1,30 +1,19 @@
-project(M8Client)
-
+project(QuanergyClient)
 cmake_minimum_required(VERSION 2.8)
 
-if(GCC_VERSION VERSION_GREATER "4.7")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-else()
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-endif()
+set(QUANERGY_CLIENT_VERSION "1.0.0")
 
-set(VERSION "0.3.3")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
   add_definitions("-DDEBUG")
 endif (${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
-option(USE_CLIENT_TIME "If enabled, clouds will be time stamped by the M8 Client not the sensor" OFF)
-
-if (USE_CLIENT_TIME)
-  add_definitions("-DCLIENT_TIME")
-endif (USE_CLIENT_TIME)
-
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unknown-pragmas -fno-strict-aliasing -Wno-format-extra-args -Wno-sign-compare -Wno-invalid-offsetof -Wno-conversion")
 endif()
 
-find_package(Boost COMPONENTS system thread chrono REQUIRED)
+find_package(Boost COMPONENTS system thread REQUIRED)
 
 find_package(PCL REQUIRED common io visualization)
 
@@ -39,15 +28,5 @@ link_directories(
 
 add_definitions(${PCL_DEFINITIONS})
 
-add_library(m8_client SHARED src/m8_client.cpp)
-
 add_executable(test src/test.cpp)
-target_link_libraries(test m8_client ${PCL_LIBRARIES})
-
-configure_file(docs/doxyfile.in
-  "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
-
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-  add_custom_target(doc ALL "${DOXYGEN_EXECUTABLE}" "${PROJECT_BINARY_DIR}/doxyfile")
-endif(DOXYGEN_FOUND)
+target_link_libraries(test ${PCL_LIBRARIES})
