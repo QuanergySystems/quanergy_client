@@ -17,7 +17,6 @@
 
 /** Class M8Client used to connect to Quanergy Systems M8 LiDAR
   * Implements pcl::Grabber
-  * \file m8_client.h
   *
   * \note M8 A samples may display a ring of low intensity data near the origin that is not
   * valid data. This class provides a ring filter to remove that ring if it is present. The
@@ -43,7 +42,7 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
       * \param[in] ip IP Address that should be used to listen for M8 packets
       * \param[in] port TCP Port that should be used to listen for M8 packets
       */
-    M8Client (const boost::asio::ip::address& ip, const unsigned short port);
+    M8Client (const boost::asio::ip::address& ip, const unsigned short port = M8_DATA_PORT);
 
     /** \brief virtual Destructor inherited from the pcl::Grabber interface. It never throws. */
     virtual ~M8Client () throw ();
@@ -111,8 +110,6 @@ class M8Client : public pcl::Grabber, private boost::noncopyable
     static const int M8_NUM_LASERS = 8;
     /// Vertical angles
     static const double M8_VERTICAL_ANGLES[];
-    /// Default IP address for the sensor
-    static const boost::asio::ip::address M8_DEFAULT_NETWORK_ADDRESS;
 
 #pragma pack(push, 1)
       /// \brief structure that holds the sensor firing output

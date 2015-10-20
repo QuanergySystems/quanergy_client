@@ -20,6 +20,10 @@ if (USE_CLIENT_TIME)
   add_definitions("-DCLIENT_TIME")
 endif (USE_CLIENT_TIME)
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unknown-pragmas -fno-strict-aliasing -Wno-format-extra-args -Wno-sign-compare -Wno-invalid-offsetof -Wno-conversion")
+endif()
+
 find_package(Boost COMPONENTS system thread chrono REQUIRED)
 
 find_package(PCL REQUIRED common io visualization)
