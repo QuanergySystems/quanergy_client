@@ -4,6 +4,8 @@
  ** Contact: http://www.quanergy.com
  **
  ****************************************************************************/
+#include "deserialize_00.h"
+#include "pointcloud_generator_00.h"
 #include "deserialize_01.h"
 #include "pointcloud_generator_01.h"
 #include "failover_client.h"
@@ -38,7 +40,7 @@ int main(int argc, char** argv)
   pcl::console::parse_argument (argc, argv, "-port", port);
 
   /// FailoverClient adds a failover to old M8 data
-  typedef quanergy::FailoverClient<quanergy::DataPacket01> ClientType;
+  typedef quanergy::FailoverClient<quanergy::DataPacket01, quanergy::DataPacket00> ClientType;
   ClientType client(host, port);
   boost::signals2::connection cloud_connection;
 

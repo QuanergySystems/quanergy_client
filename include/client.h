@@ -18,7 +18,6 @@
 
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
-#include <boost/variant.hpp>
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>

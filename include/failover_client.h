@@ -7,7 +7,6 @@
 #ifndef FAILOVER_CLIENT_H
 #define FAILOVER_CLIENT_H
 
-#include "deserialize_failover.h"
 #include "pointcloud_generator_failover.h"
 #include "client.h"
 
