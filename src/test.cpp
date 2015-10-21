@@ -4,15 +4,17 @@
  ** Contact: http://www.quanergy.com
  **
  ****************************************************************************/
-#include "deserialize_00.h"
-#include "pointcloud_generator_00.h"
-#include "deserialize_01.h"
-#include "pointcloud_generator_01.h"
-#include "failover_client.h"
 
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/point_cloud_color_handlers.h>
 #include <pcl/console/parse.h>
+
+#include <quanergy/client/deserialize_00.h>
+#include <quanergy/client/pointcloud_generator_00.h>
+#include <quanergy/client/deserialize_01.h>
+#include <quanergy/client/pointcloud_generator_01.h>
+#include <quanergy/client/failover_client.h>
+
 
 void usage(char** argv)
 {

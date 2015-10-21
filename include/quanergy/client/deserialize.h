@@ -12,7 +12,7 @@
 #include <arpa/inet.h>
 #include <algorithm>
 
-#include "exceptions.h"
+#include <quanergy/client/exceptions.h>
 
 namespace quanergy
 {

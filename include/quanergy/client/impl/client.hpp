@@ -4,7 +4,7 @@
  ** Contact: http://www.quanergy.com
  **
  ****************************************************************************/
-#include "client.h"
+#include <quanergy/client/client.h>
 
 namespace quanergy
 {

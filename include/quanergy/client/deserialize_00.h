@@ -1,7 +1,7 @@
 #ifndef QUANERGY_DESERIALIZE_00_H
 #define QUANERGY_DESERIALIZE_00_H
 
-#include "deserialize.h"
+#include <quanergy/client/deserialize.h>
 
 namespace quanergy
 {

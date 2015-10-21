@@ -4,7 +4,8 @@
  ** Contact: http://www.quanergy.com
  **
  ****************************************************************************/
-#include "failover_client.h"
+
+#include <quanergy/client/failover_client.h>
 
 namespace quanergy
 {

@@ -7,10 +7,6 @@
 #ifndef QUANERGY_CLIENT_H
 #define QUANERGY_CLIENT_H
 
-#include "exceptions.h"
-#include "deserialize.h"
-#include "pointcloud_generator.h"
-
 #include <queue>
 #include <mutex>
 #include <condition_variable>
@@ -21,6 +17,11 @@
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
+
+#include <quanergy/client/exceptions.h>
+#include <quanergy/client/deserialize.h>
+#include <quanergy/client/pointcloud_generator.h>
+
 
 namespace quanergy
 {

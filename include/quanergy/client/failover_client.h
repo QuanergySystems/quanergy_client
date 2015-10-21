@@ -7,8 +7,8 @@
 #ifndef FAILOVER_CLIENT_H
 #define FAILOVER_CLIENT_H
 
-#include "pointcloud_generator_failover.h"
-#include "client.h"
+#include <quanergy/client/pointcloud_generator_failover.h>
+#include <quanergy/client/client.h>
 
 namespace quanergy
 {

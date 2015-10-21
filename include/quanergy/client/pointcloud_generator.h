@@ -7,10 +7,11 @@
 #ifndef QUANERGY_POINTCLOUD_GENERATOR_H
 #define QUANERGY_POINTCLOUD_GENERATOR_H
 
-#include "deserialize.h"
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <boost/signals2.hpp>
+
+#include <quanergy/client/deserialize.h>
 
 namespace quanergy
 {

@@ -5,9 +5,10 @@
 #ifndef QUANERGY_POINTCLOUD_GENERATOR_FAILOVER_H
 #define QUANERGY_POINTCLOUD_GENERATOR_FAILOVER_H
 
-#include "pointcloud_generator.h"
-#include "pointcloud_generator_m8.h"
-#include "pcl/point_cloud.h"
+#include <pcl/point_cloud.h>
+
+#include <quanergy/client/pointcloud_generator.h>
+#include <quanergy/client/pointcloud_generator_m8.h>
 
 namespace quanergy
 {

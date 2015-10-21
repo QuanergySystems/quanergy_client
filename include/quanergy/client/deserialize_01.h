@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "deserialize.h"
+#include <quanergy/client/deserialize.h>
 
 namespace quanergy
 {
