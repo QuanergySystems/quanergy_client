@@ -55,8 +55,8 @@ int main(int argc, char** argv)
   cloud_connection = client.connect([&viewer](const ClientType::PointCloud::ConstPtr& pc)
                                 {
                                   pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> color_handler(pc,"intensity");
-                                  if (!viewer.updatePointCloud<pcl::PointXYZI>(pc, color_handler, "S3"))
-                                    viewer.addPointCloud<pcl::PointXYZI>(pc, color_handler, "S3");
+                                  if (!viewer.updatePointCloud<pcl::PointXYZI>(pc, color_handler, "Quanergy"))
+                                    viewer.addPointCloud<pcl::PointXYZI>(pc, color_handler, "Quanergy");
                                 });
 
   // run client on separate thread
