@@ -53,7 +53,15 @@ namespace quanergy
           }));
 
     // Add this thread to the pool to handle data
-    io_service_.run();
+    try
+    {
+      io_service_.run();
+    }
+    catch (...)
+    {
+      eptr = std::current_exception();
+      stop();
+    }
 
     parse_thread_->join();
     parse_thread_.reset();
