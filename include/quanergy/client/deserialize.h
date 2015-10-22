@@ -24,7 +24,7 @@ namespace quanergy
 
 #pragma pack(push, 1)
   /** \brief Header shared by all messages */
-  struct DataPacketHeader
+  struct PacketHeader
   {
     std::uint32_t signature; // SIGNATURE
     std::uint32_t size;      // bytes
@@ -33,7 +33,7 @@ namespace quanergy
     std::uint8_t  version_major;
     std::uint8_t  version_minor;
     std::uint8_t  version_patch;
-    std::uint8_t  data_type;
+    std::uint8_t  packet_type;
   };
 #pragma pack(pop)
 
@@ -74,9 +74,9 @@ namespace quanergy
 
   /** \brief deserialize specialization for header */
   template<>
-  inline void deserialize(const char* network_buffer, DataPacketHeader& object)
+  inline void deserialize(const char* network_buffer, PacketHeader& object)
   {
-    const DataPacketHeader& network_order = *reinterpret_cast<const DataPacketHeader*>(network_buffer);
+    const PacketHeader& network_order = *reinterpret_cast<const PacketHeader*>(network_buffer);
 
     object.signature     = deserialize(network_order.signature);
     object.size          = deserialize(network_order.size);
@@ -85,7 +85,7 @@ namespace quanergy
     object.version_major = deserialize(network_order.version_major);
     object.version_minor = deserialize(network_order.version_minor);
     object.version_patch = deserialize(network_order.version_patch);
-    object.data_type     = deserialize(network_order.data_type);
+    object.packet_type   = deserialize(network_order.packet_type);
   }
 }
 #endif

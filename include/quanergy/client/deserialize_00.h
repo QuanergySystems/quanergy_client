@@ -38,8 +38,8 @@ namespace quanergy
   /** \brief data packet 0x00 */
   struct DataPacket00
   {
-    DataPacketHeader          packet_header;
-    M8DataPacket                data_body;
+    PacketHeader packet_header;
+    M8DataPacket data_body;
   };
 #pragma pack(pop)
 
@@ -106,7 +106,7 @@ namespace quanergy
   inline void deserialize(const char* network_buffer, DataPacket00& object)
   {
     deserialize(network_buffer, object.packet_header);
-    network_buffer += sizeof(DataPacketHeader);
+    network_buffer += sizeof(PacketHeader);
     deserialize(network_buffer, object.data_body);
   }
 }
