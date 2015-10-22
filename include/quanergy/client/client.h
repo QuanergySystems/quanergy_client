@@ -81,6 +81,6 @@ namespace quanergy
   };
 }
 
-#include "impl/client.hpp"
+#include <quanergy/client/impl/client.hpp>
 
 #endif

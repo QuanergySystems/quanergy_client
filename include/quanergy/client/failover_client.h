@@ -38,6 +38,6 @@ namespace quanergy
   };
 }
 
-#include "impl/failover_client.hpp"
+#include <quanergy/client/impl/failover_client.hpp>
 
 #endif
