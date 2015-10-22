@@ -10,7 +10,7 @@ namespace quanergy
 {
   template <class... Types>
   Client<Types...>::Client(const std::string& host, const std::string& port)
-    : buff_(sizeof(DataPacketHeader))
+    : buff_(sizeof(PacketHeader))
     , host_query_(host, port)
     , kill_(false)
     , cloud_signal_(new CloudSignal)
@@ -108,7 +108,7 @@ namespace quanergy
   void Client<Types...>::startDataRead()
   {
     boost::asio::async_read(*read_socket_,
-              boost::asio::buffer(buff_.data(), sizeof(DataPacketHeader)),
+              boost::asio::buffer(buff_.data(), sizeof(PacketHeader)),
               boost::bind(&Client::handleReadHeader, this,
                           boost::asio::placeholders::error));
   }
@@ -124,8 +124,8 @@ namespace quanergy
     }
     else
     {
-      DataPacketHeader* h =
-          reinterpret_cast<DataPacketHeader*>(buff_.data());
+      PacketHeader* h =
+          reinterpret_cast<PacketHeader*>(buff_.data());
 
       // check signature
       if (deserialize(h->signature) != SIGNATURE)
@@ -140,8 +140,8 @@ namespace quanergy
         buff_.resize(size); // invalidates h pointer because of potential reallocate and move
 
         boost::asio::async_read(*read_socket_,
-                                boost::asio::buffer(buff_.data() + sizeof(DataPacketHeader),
-                                                    size - sizeof(DataPacketHeader)),
+                                boost::asio::buffer(buff_.data() + sizeof(PacketHeader),
+                                                    size - sizeof(PacketHeader)),
                                 boost::bind(&Client::handleReadBody, this,
                                             boost::asio::placeholders::error));
       }
@@ -195,7 +195,7 @@ namespace quanergy
   template <class... Types>
   void Client<Types...>::toPointCloud(const std::vector<char>& packet)
   {
-    const DataPacketHeader* h = reinterpret_cast<const DataPacketHeader*>(packet.data());
-    point_cloud_generator_.toPointCloud(deserialize(h->data_type), packet);
+    const PacketHeader* h = reinterpret_cast<const PacketHeader*>(packet.data());
+    point_cloud_generator_.toPointCloud(deserialize(h->packet_type), packet);
   }
 }

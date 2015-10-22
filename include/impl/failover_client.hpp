@@ -54,8 +54,8 @@ namespace quanergy
 
       // read the rest of the packet
       boost::asio::async_read(*read_socket_,
-                              boost::asio::buffer(buff_.data() + sizeof(DataPacketHeader),
-                                                  sizeof(M8DataPacket) - sizeof(DataPacketHeader)),
+                              boost::asio::buffer(buff_.data() + sizeof(PacketHeader),
+                                                  sizeof(M8DataPacket) - sizeof(PacketHeader)),
                               boost::bind(&FailoverClient<Types...>::handleReadBody, this,
                                           boost::asio::placeholders::error));
     }
