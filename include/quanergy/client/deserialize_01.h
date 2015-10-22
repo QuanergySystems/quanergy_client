@@ -36,7 +36,7 @@ namespace quanergy
   /** \brief data packet 0x01 */
   struct DataPacket01
   {
-    DataPacketHeader          packet_header;
+    PacketHeader              packet_header;
     DataHeader01              data_header;
     //! @todo use custom allocator to guarantee alignment
     std::vector<DataPoint01>  data_points;
@@ -70,11 +70,11 @@ namespace quanergy
   inline void deserialize(const char* network_buffer, DataPacket01& object)
   {
     deserialize(network_buffer, object.packet_header);
-    network_buffer += sizeof(DataPacketHeader);
+    network_buffer += sizeof(PacketHeader);
     deserialize(network_buffer, object.data_header);
     network_buffer += sizeof(DataHeader01);
 
-    if (object.packet_header.size != sizeof(DataPacketHeader) +
+    if (object.packet_header.size != sizeof(PacketHeader) +
                                       sizeof(DataHeader01) +
                                       object.data_header.point_count * sizeof(DataPoint01))
     {
