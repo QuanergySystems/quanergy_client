@@ -31,7 +31,7 @@ namespace quanergy
   {
   public:
     
-    typedef std::shared_ptr<typename Client> Ptr;
+    typedef std::shared_ptr<Client> Ptr;
     typedef typename PointCloudGenerator<Types...>::PointCloud PointCloud;
     typedef typename PointCloudGenerator<Types...>::CloudSignal CloudSignal;
 

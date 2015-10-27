@@ -17,7 +17,8 @@ namespace quanergy
   {
   public:
 
-    typedef std::shared_ptr<typename FailoverClient> Ptr;
+    // @TODO: Why doesn't this work?
+    typedef std::shared_ptr<FailoverClient> Ptr;
 
     /** \brief Constructor taking a host and port. */
     FailoverClient(const std::string& host, const std::string& port);
