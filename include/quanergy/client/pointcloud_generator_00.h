@@ -5,19 +5,22 @@
 #ifndef QUANERGY_POINTCLOUD_GENERATOR_00_H
 #define QUANERGY_POINTCLOUD_GENERATOR_00_H
 
-#include "deserialize_00.h"
-#include "pointcloud_generator.h"
-#include "pointcloud_generator_m8.h"
-#include "pcl/point_cloud.h"
+#include <quanergy/client/pointcloud_types.h>
+
+#include <quanergy/client/packet_parser.h>
+#include <quanergy/client/deserialize_00.h>
+#include <quanergy/client/pointcloud_generator_m8.h>
+
 
 namespace quanergy
 {
   /** \brief specialization for DataPacket00 */
   template <>
-  struct PointCloudGenerator<DataPacket00> : public PointCloudGeneratorM8
+  struct PacketParser<PointCloudXYZIPtr, DataPacket00> 
+    : public PointCloudGeneratorM8
   {
   public:
-    PointCloudGenerator()
+    PacketParser()
       : PointCloudGeneratorM8()
     {
     }
@@ -27,13 +30,13 @@ namespace quanergy
       return type == 0x00;
     }
 
-    inline void toPointCloud(std::uint8_t type, const std::vector<char>& packet)
+    inline void parse(std::uint8_t type, const std::vector<char>& packet)
     {
       if (match(type))
       {
         DataPacket00 data_packet;
         deserialize(packet.data(), data_packet);
-        PointCloudGeneratorM8::toPointCloud(data_packet.data_body);
+        PointCloudGeneratorM8::parse(data_packet.data_body);
       }
       else
         throw InvalidDataTypeError();

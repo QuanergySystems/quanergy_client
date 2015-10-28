@@ -54,7 +54,7 @@ int main(int argc, char** argv)
   viewer.setCameraPosition (0.0, 0.0, 30.0, 0.0, 1.0, 0.0, 0);
   viewer.setCameraClipDistances (0.0, 50.0);
 
-  cloud_connection = client.connect([&viewer](const ClientType::PointCloud::ConstPtr& pc)
+  cloud_connection = client.connect([&viewer](const ClientType::Result& pc)
                                 {
                                   pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> color_handler(pc,"intensity");
                                   if (!viewer.updatePointCloud<pcl::PointXYZI>(pc, color_handler, "Quanergy"))

@@ -5,8 +5,9 @@
 #ifndef QUANERGY_POINTCLOUD_GENERATOR_FAILOVER_H
 #define QUANERGY_POINTCLOUD_GENERATOR_FAILOVER_H
 
-#include <pcl/point_cloud.h>
+#include <quanergy/client/pointcloud_types.h>
 
+#include <quanergy/client/packet_parser.h>
 #include <quanergy/client/pointcloud_generator.h>
 #include <quanergy/client/pointcloud_generator_m8.h>
 
@@ -14,9 +15,9 @@ namespace quanergy
 {
   /** \brief specialization for M8DataPacket */
   template <>
-  struct PointCloudGenerator<M8DataPacket> : public PointCloudGeneratorM8
+  struct PacketParser<PointCloudXYZIPtr, M8DataPacket> : public PointCloudGeneratorM8
   {
-    PointCloudGenerator()
+    PacketParser()
       : PointCloudGeneratorM8()
     {
     }
@@ -26,13 +27,13 @@ namespace quanergy
       return type == 0xFF;
     }
 
-    inline void toPointCloud(std::uint8_t type, const std::vector<char>& packet)
+    inline void parse(std::uint8_t type, const std::vector<char>& packet)
     {
       if (match(type))
       {
         // old data was sent in little endian
         const M8DataPacket& data_packet = *reinterpret_cast<const M8DataPacket*>(packet.data());
-        PointCloudGeneratorM8::toPointCloud(data_packet);
+        PointCloudGeneratorM8::parse(data_packet);
       }
       else
         throw InvalidDataTypeError();

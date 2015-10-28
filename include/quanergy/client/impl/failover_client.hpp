@@ -9,47 +9,50 @@
 
 namespace quanergy
 {
-  template <class... Types>
-  FailoverClient<Types...>::FailoverClient(const std::string& host, const std::string& port)
-    : Client<Types..., M8DataPacket>(host, port)
-    , failover(false)
+  template <class... TYPES>
+  FailoverClient<TYPES...>::FailoverClient(const std::string& host, const std::string& port)
+    : Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>(host, port)
+    , failover_(false)
   {
   }
 
-  template <class... Types>
-  FailoverClient<Types...>::~FailoverClient()
+
+  template <class... TYPES>
+  FailoverClient<TYPES...>::~FailoverClient()
   {
   }
 
-  template <class... Types>
-  void FailoverClient<Types...>::startDataRead()
+
+  template <class... TYPES>
+  void FailoverClient<TYPES...>::startDataRead()
   {
-    if (failover)
+    if (failover_)
     {
       // skip straight to body
       boost::asio::async_read(*read_socket_,
-                boost::asio::buffer(buff_.data(), sizeof(M8DataPacket)),
-                boost::bind(&FailoverClient<Types...>::handleReadBody, this,
-                            boost::asio::placeholders::error));
+                              boost::asio::buffer(buff_.data(), sizeof(M8DataPacket)),
+                              boost::bind(&FailoverClient<TYPES...>::handleReadBody, this,
+                                          boost::asio::placeholders::error));
     }
     else
     {
-      Client<Types..., M8DataPacket>::startDataRead();
+      Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::startDataRead();
     }
   }
 
-  template <class... Types>
-  void FailoverClient<Types...>::handleReadHeader(const boost::system::error_code& error)
+
+  template <class... TYPES>
+  void FailoverClient<TYPES...>::handleReadHeader(const boost::system::error_code& error)
   {
     try
     {
-      Client<Types..., M8DataPacket>::handleReadHeader(error);
+      Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::handleReadHeader(error);
     }
     catch (InvalidHeaderError)
     {
       std::cout << "Failover to old M8 Data" << std::endl;
       // failover
-      failover = true;
+      failover_ = true;
 
       buff_.resize(sizeof(M8DataPacket));
 
@@ -57,17 +60,17 @@ namespace quanergy
       boost::asio::async_read(*read_socket_,
                               boost::asio::buffer(buff_.data() + sizeof(PacketHeader),
                                                   sizeof(M8DataPacket) - sizeof(PacketHeader)),
-                              boost::bind(&FailoverClient<Types...>::handleReadBody, this,
+                              boost::bind(&FailoverClient<TYPES...>::handleReadBody, this,
                                           boost::asio::placeholders::error));
     }
   }
 
-  template <class... Types>
-  void FailoverClient<Types...>::toPointCloud(const std::vector<char>& packet)
+  template <class... TYPES>
+  void FailoverClient<TYPES...>::parse(const std::vector<char>& packet)
   {
-    if (failover)
-      point_cloud_generator_.toPointCloud(0xFF, packet);
+    if (failover_)
+      parser_.parse(0xFF, packet);
     else
-      Client<Types..., M8DataPacket>::toPointCloud(packet);
+      Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::parse(packet);
   }
 }

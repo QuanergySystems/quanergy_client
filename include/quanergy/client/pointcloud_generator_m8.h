@@ -1,28 +1,38 @@
 /** \file pointcloud_generator_failover.h
-  * \brief provide pointcloud generator functionality for m8 data
-  */
+ * \brief provide pointcloud generator functionality for m8 data
+ */
 
 #ifndef QUANERGY_POINTCLOUD_GENERATOR_M8_H
 #define QUANERGY_POINTCLOUD_GENERATOR_M8_H
 
-#include "deserialize_00.h"
-#include "pointcloud_generator.h"
-#include "pcl/point_cloud.h"
+#include <quanergy/client/pointcloud_types.h>
+
+#include <quanergy/client/packet_parser.h>
+#include <quanergy/client/deserialize_00.h>
+
 
 namespace quanergy
 {
-  const double M8_VERTICAL_ANGLES[] = { -0.318505, -0.2692, -0.218009, -0.165195, -0.111003, -0.0557982, 0.f, 0.0557982 };
+  const double M8_VERTICAL_ANGLES[] = { 
+    -0.318505, 
+    -0.2692, 
+    -0.218009, 
+    -0.165195, 
+    -0.111003, 
+    -0.0557982, 
+    0.f, 
+    0.0557982 };
   const int M8_NUM_ROT_ANGLES = 10400;
 
-  /** \brief not a specialization because it is intended to be used by others */
-  struct PointCloudGeneratorM8 : public PointCloudGeneratorBase
+  /** \brief Not a specialization because it is intended to be used by others. */
+  struct PointCloudGeneratorM8 : PacketParserBase<PointCloudXYZIPtr>
   {
     PointCloudGeneratorM8()
-      : PointCloudGeneratorBase()
+      : PacketParserBase<PointCloudXYZIPtr>()
       , packet_counter_(0)
       , cloud_counter_(0)
       , last_azimuth_(65000)
-      , current_cloud_(new PointCloud)
+      , current_cloud_(new PointCloudXYZI())
       , cos_lookup_table_(M8_NUM_ROT_ANGLES+1)
       , sin_lookup_table_(M8_NUM_ROT_ANGLES+1)
     {
@@ -42,10 +52,10 @@ namespace quanergy
       }
     }
 
-    inline void toPointCloud(const M8DataPacket& data_packet)
+    inline void parse(const M8DataPacket& data_packet)
     {
       // don't do the work unless someone is listening
-      if (cloud_signal_ && cloud_signal_->num_slots() == 0)
+      if (signal_ && signal_->num_slots() == 0)
         return;
 
       if (data_packet.status != 0)
@@ -92,11 +102,11 @@ namespace quanergy
             ++cloud_counter_;
 
             // fire the signal that we have a new cloud
-            (*cloud_signal_)(current_cloud_);
+            (*signal_)(current_cloud_);
           }
 
           // start a new cloud
-          current_cloud_.reset(new PointCloud);
+          current_cloud_.reset(new PointCloudXYZI);
           // at first we assume it is dense
           current_cloud_->is_dense = true;
         }
@@ -116,10 +126,10 @@ namespace quanergy
             range = std::numeric_limits<float>::quiet_NaN ();
 
           // output point
-          PointCloud::PointType xyzi;
+          PointCloudXYZI::PointType xyzi;
           // convert to cartezian coordinates and populate x, y and z members
           computeXYZ(range, cos_horizontal_angle, sin_horizontal_angle,
-                      cos_vertical_angles_[j], sin_vertical_angles_[j], xyzi);
+                     cos_vertical_angles_[j], sin_vertical_angles_[j], xyzi);
 
           // intensity value is fetched directly
           xyzi.intensity = intensity;
@@ -135,10 +145,11 @@ namespace quanergy
     }
 
   private:
-    static void organizeCloud(PointCloud::Ptr& current_pc)
+
+    static void organizeCloud(PointCloudXYZIPtr & current_pc)
     {
       // transpose the cloud
-      PointCloud::Ptr temp_pc(new PointCloud);
+      PointCloudXYZIPtr temp_pc(new PointCloudXYZI());  
 
       // reserve space
       temp_pc->reserve(current_pc->size());
@@ -166,9 +177,9 @@ namespace quanergy
     }
 
     static void computeXYZ (const double range,
-                         const double cos_hz_angle, const double sin_hz_angle,
-                         const double cos_vt_angle, const double sin_vt_angle,
-                         pcl::PointXYZI& point)
+                            const double cos_hz_angle, const double sin_hz_angle,
+                            const double cos_vt_angle, const double sin_vt_angle,
+                            PointCloudXYZI::PointType& point)
     {
       if (std::isnan (range))
       {
@@ -195,7 +206,7 @@ namespace quanergy
     /// last accounted for azimuth angle
     double last_azimuth_;
 
-    boost::shared_ptr<PointCloud> current_cloud_;
+    PointCloudXYZIPtr current_cloud_;
 
     /// lookup table for cosines
     std::vector<double> cos_lookup_table_;
