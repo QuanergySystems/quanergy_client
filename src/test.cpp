@@ -48,7 +48,11 @@ int main(int argc, char** argv)
 
   pcl::visualization::PCLVisualizer viewer("Cloud Viewer");
 
+#if (PCL_MAJOR_VERSION == 1 && PCL_MINOR_VERSION == 7 && PCL_REVISION_VERSION <= 2)
+  viewer.addCoordinateSystem(1.0);
+#else
   viewer.addCoordinateSystem (1.0, "global");
+#endif
   viewer.setBackgroundColor (0, 0, 0);
   viewer.initCameraParameters ();
   viewer.setCameraPosition (0.0, 0.0, 30.0, 0.0, 1.0, 0.0, 0);
