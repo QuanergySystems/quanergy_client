@@ -8,7 +8,6 @@
 #include <quanergy/client/pointcloud_types.h>
 
 #include <quanergy/client/packet_parser.h>
-#include <quanergy/client/pointcloud_generator.h>
 #include <quanergy/client/pointcloud_generator_m8.h>
 
 namespace quanergy

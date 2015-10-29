@@ -1,7 +1,8 @@
 /** \file deserialize.h
   * \brief provide base deserialization functionality
   *
-  * Individual message types will need to specialize the functionality provided here.
+  * Individual message types will need to specialize the functionality
+  * provided here.
   */
 
 #ifndef QUANERGY_DESERIALIZE_H

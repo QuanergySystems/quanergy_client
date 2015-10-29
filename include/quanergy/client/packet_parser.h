@@ -10,8 +10,6 @@
 #include <memory>
 #include <boost/signals2.hpp>
 
-#include <quanergy/client/deserialize.h>
-
 namespace quanergy
 {
   template <class RESULT>
@@ -37,7 +35,9 @@ namespace quanergy
   struct PacketParser : public PacketParserBase<RESULT>
   {
     // @TODO: Why is this necessary? It's in the base class.
-    typedef boost::signals2::signal<void (const RESULT&)> Signal;
+    typedef boost::signals2::signal<void (RESULT const &)> Signal;
+    // This doesn't work either...
+    // using PacketParserBase<RESULT>::Signal;
 
     virtual void setSignal(std::shared_ptr<Signal> const & signal)
     {
