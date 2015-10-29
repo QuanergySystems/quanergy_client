@@ -1,5 +1,5 @@
-#ifndef M8_EXCEPTIONS_H
-#define M8_EXCEPTIONS_H
+#ifndef QUANERGY_CLIENT_EXCEPTIONS_H
+#define QUANERGY_CLIENT_EXCEPTIONS_H
 
 #include <stdexcept>
 

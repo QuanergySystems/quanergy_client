@@ -8,31 +8,35 @@
 
 namespace quanergy
 {
-  template <class... Types>
-  Client<Types...>::Client(const std::string& host, const std::string& port)
+
+  template <class RESULT, class... TYPES>
+  Client<RESULT, TYPES...>::Client(const std::string& host, const std::string& port)
     : buff_(sizeof(PacketHeader))
     , host_query_(host, port)
     , kill_(false)
-    , cloud_signal_(new CloudSignal)
+    , signal_(new Signal)
   {
     read_socket_.reset(new boost::asio::ip::tcp::socket(io_service_));
-    point_cloud_generator_.setCloudSignal(cloud_signal_);
+    parser_.setSignal(signal_);
   }
 
-  template <class... Types>
-  Client<Types...>::~Client()
+
+  template <class RESULT, class... TYPES>
+  Client<RESULT, TYPES...>::~Client()
   {
     stop();
   }
 
-  template <class... Types>
-  boost::signals2::connection Client<Types...>::connect(const typename CloudSignal::slot_type& subscriber)
+
+  template <class RESULT, class... TYPES>
+  boost::signals2::connection Client<RESULT, TYPES...>::connect(const typename Signal::slot_type& subscriber)
   {
-    return cloud_signal_->connect(subscriber);
+    return signal_->connect(subscriber);
   }
 
-  template <class... Types>
-  void Client<Types...>::run()
+
+  template <class RESULT, class... TYPES>
+  void Client<RESULT, TYPES...>::run()
   {
     kill_ = false;
     startDataConnect();
@@ -40,17 +44,17 @@ namespace quanergy
     // create thread for parsing
     std::exception_ptr eptr;
     parse_thread_.reset(new std::thread([this, &eptr]
-          {
-            try
-            {
-              parsePackets();
-            }
-            catch (...)
-            {
-              eptr = std::current_exception();
-              stop();
-            }
-          }));
+                                        {
+                                          try
+                                          {
+                                            parsePackets();
+                                          }
+                                          catch (...)
+                                          {
+                                            eptr = std::current_exception();
+                                            stop();
+                                          }
+                                        }));
 
     // Add this thread to the pool to handle data
     try
@@ -69,8 +73,8 @@ namespace quanergy
     if (eptr) std::rethrow_exception(eptr);
   }
 
-  template <class... Types>
-  void Client<Types...>::stop()
+  template <class RESULT, class... TYPES>
+  void Client<RESULT, TYPES...>::stop()
   {
     kill_ = true;
     io_service_.stop();
@@ -79,42 +83,44 @@ namespace quanergy
     buff_queue_conditional_.notify_one();
   }
 
-  template <class... Types>
-  void Client<Types...>::startDataConnect()
+  template <class RESULT, class... TYPES>
+  void Client<RESULT, TYPES...>::startDataConnect()
   {
     std::cout << "Attempting to connect..." << std::endl;
     boost::asio::ip::tcp::resolver resolver(io_service_);
     auto endpoint_iterator = resolver.resolve(host_query_);
 
     boost::asio::async_connect(*read_socket_, endpoint_iterator,
-        [this](boost::system::error_code error, boost::asio::ip::tcp::resolver::iterator)
-        {
-          if (error)
-          {
-            std::cerr << "Unable to bind to socket (" << host_query_.host_name()
-                      << ":" << host_query_.service_name() << ")! "
-                      << error.message() << std::endl;
-            throw SocketBindError(error.message());
-          }
-          else
-          {
-            std::cout << "Connection established" << std::endl;
-            startDataRead();
-          }
-        });
+                               [this](boost::system::error_code error, boost::asio::ip::tcp::resolver::iterator)
+                               {
+                                 if (error)
+                                 {
+                                   std::cerr << "Unable to bind to socket (" << host_query_.host_name()
+                                             << ":" << host_query_.service_name() << ")! "
+                                             << error.message() << std::endl;
+                                   throw SocketBindError(error.message());
+                                 }
+                                 else
+                                 {
+                                   std::cout << "Connection established" << std::endl;
+                                   startDataRead();
+                                 }
+                               });
   }
 
-  template <class... Types>
-  void Client<Types...>::startDataRead()
+
+  template <class RESULT, class... TYPES>
+  void Client<RESULT, TYPES...>::startDataRead()
   {
     boost::asio::async_read(*read_socket_,
-              boost::asio::buffer(buff_.data(), sizeof(PacketHeader)),
-              boost::bind(&Client::handleReadHeader, this,
-                          boost::asio::placeholders::error));
+                            boost::asio::buffer(buff_.data(), sizeof(PacketHeader)),
+                            boost::bind(&Client::handleReadHeader, this,
+                                        boost::asio::placeholders::error));
   }
 
-  template <class... Types>
-  void Client<Types...>::handleReadHeader(const boost::system::error_code& error)
+
+  template <class RESULT, class... TYPES>
+  void Client<RESULT, TYPES...>::handleReadHeader(const boost::system::error_code& error)
   {
     if (error)
     {
@@ -125,7 +131,7 @@ namespace quanergy
     else
     {
       PacketHeader* h =
-          reinterpret_cast<PacketHeader*>(buff_.data());
+        reinterpret_cast<PacketHeader*>(buff_.data());
 
       // check signature
       if (deserialize(h->signature) != SIGNATURE)
@@ -148,8 +154,9 @@ namespace quanergy
     }
   }
 
-  template <class... Types>
-  void Client<Types...>::handleReadBody(const boost::system::error_code& error)
+
+  template <class RESULT, class... TYPES>
+  void Client<RESULT, TYPES...>::handleReadBody(const boost::system::error_code& error)
   {
     if (error)
     {
@@ -172,8 +179,9 @@ namespace quanergy
     startDataRead();
   }
 
-  template <class... Types>
-  void Client<Types...>::parsePackets()
+
+  template <class RESULT, class... TYPES>
+  void Client<RESULT, TYPES...>::parsePackets()
   {
     for (;;)
     {
@@ -188,14 +196,15 @@ namespace quanergy
       buff_queue_.pop();
       lk.unlock();
 
-      toPointCloud(*packet);
+      parse(*packet);
     }
   }
 
-  template <class... Types>
-  void Client<Types...>::toPointCloud(const std::vector<char>& packet)
+
+  template <class RESULT, class... TYPES>
+  void Client<RESULT, TYPES...>::parse(const std::vector<char>& packet)
   {
     const PacketHeader* h = reinterpret_cast<const PacketHeader*>(packet.data());
-    point_cloud_generator_.toPointCloud(deserialize(h->packet_type), packet);
+    parser_.parse(deserialize(h->packet_type), packet);
   }
 }
