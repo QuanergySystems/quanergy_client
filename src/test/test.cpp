@@ -42,8 +42,8 @@ int main(int argc, char** argv)
   pcl::console::parse_argument (argc, argv, "-port", port);
 
   /// FailoverClient adds a failover to old M8 data
-  typedef quanergy::FailoverClient<quanergy::DataPacket01, quanergy::DataPacket00> ClientType;
-  ClientType client(host, port);
+  typedef quanergy::client::FailoverClient<quanergy::client::DataPacket01, quanergy::client::DataPacket00> ClientType;
+  ClientType client(host, port, "test frame");
   boost::signals2::connection cloud_connection;
 
   pcl::visualization::PCLVisualizer viewer("Cloud Viewer");

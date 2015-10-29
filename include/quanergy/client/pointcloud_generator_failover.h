@@ -12,31 +12,36 @@
 
 namespace quanergy
 {
-  /** \brief specialization for M8DataPacket */
-  template <>
-  struct PacketParser<PointCloudXYZIPtr, M8DataPacket> : public PointCloudGeneratorM8
+  namespace client
   {
-    PacketParser()
-      : PointCloudGeneratorM8()
+    /** \brief specialization for M8DataPacket */
+    template <>
+    struct PacketParser<PointCloudXYZIPtr, M8DataPacket> : public PointCloudGeneratorM8
     {
-    }
-
-    static bool match(std::uint8_t type)
-    {
-      return type == 0xFF;
-    }
-
-    inline void parse(std::uint8_t type, const std::vector<char>& packet)
-    {
-      if (match(type))
+      PacketParser(std::string const & frame_id)
+        : PointCloudGeneratorM8(frame_id)
       {
-        // old data was sent in little endian
-        const M8DataPacket& data_packet = *reinterpret_cast<const M8DataPacket*>(packet.data());
-        PointCloudGeneratorM8::parse(data_packet);
       }
-      else
-        throw InvalidDataTypeError();
-    }
-  };
-}
+
+      static bool match(std::uint8_t type)
+      {
+        return type == 0xFF;
+      }
+
+      inline void parse(std::uint8_t type, const std::vector<char>& packet)
+      {
+        if (match(type))
+        {
+          // old data was sent in little endian
+          const M8DataPacket& data_packet = *reinterpret_cast<const M8DataPacket*>(packet.data());
+          PointCloudGeneratorM8::parse(data_packet);
+        }
+        else
+          throw InvalidDataTypeError();
+      }
+    };
+
+  } // namespace client
+
+} // namespace quanergy
 #endif

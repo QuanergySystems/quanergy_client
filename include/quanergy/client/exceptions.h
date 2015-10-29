@@ -5,37 +5,43 @@
 
 namespace quanergy
 {
-  struct SocketBindError : public std::runtime_error
+  namespace client
   {
-    explicit SocketBindError(const std::string& message)
+
+    struct SocketBindError : public std::runtime_error
+    {
+      explicit SocketBindError(const std::string& message)
         : std::runtime_error(message) {}
-  };
+    };
 
-  struct SocketReadError : public std::runtime_error
-  {
-    explicit SocketReadError(const std::string& message)
+    struct SocketReadError : public std::runtime_error
+    {
+      explicit SocketReadError(const std::string& message)
         : std::runtime_error(message) {}
-  };
+    };
 
-  struct InvalidHeaderError : public std::exception
-  {
-    virtual const char* what() const throw() { return "Invalid header"; }
-  };
+    struct InvalidHeaderError : public std::exception
+    {
+      virtual const char* what() const throw() { return "Invalid header"; }
+    };
 
-  struct SizeMismatchError : public std::exception
-  {
-    virtual const char* what() const throw() { return "Packet sizes don't match"; }
-  };
+    struct SizeMismatchError : public std::exception
+    {
+      virtual const char* what() const throw() { return "Packet sizes don't match"; }
+    };
 
-  struct InvalidDataTypeError : public std::exception
-  {
-    virtual const char* what() const throw() { return "Invalid data type"; }
-  };
+    struct InvalidDataTypeError : public std::exception
+    {
+      virtual const char* what() const throw() { return "Invalid data type"; }
+    };
 
-  struct FirmwareVersionMismatchError : public std::exception
-  {
-    virtual const char* what() const throw() { return "Firmware version mismatch"; }
-  };
-}
+    struct FirmwareVersionMismatchError : public std::exception
+    {
+      virtual const char* what() const throw() { return "Firmware version mismatch"; }
+    };
+
+  } // namespace client
+
+} // namespace quanergy
 
 #endif

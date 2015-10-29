@@ -46,6 +46,9 @@ find_package(Boost COMPONENTS system thread REQUIRED)
 
 find_package(PCL REQUIRED common io visualization)
 
+# We only need the headers. Is this necessary?
+find_package(QuanergyCore REQUIRED)
+
 include_directories(
   include
   ${Boost_INCLUDE_DIR}
@@ -57,12 +60,12 @@ link_directories(
 
 add_definitions(${PCL_DEFINITIONS})
 
-# There is no library. Only headers at this point.
-#add_library(quanergy_client SHARED src/m8_client.cpp)
 
-add_executable(test src/test.cpp)
-target_link_libraries(test ${PCL_LIBRARIES})
+set(client_SRCS
+  src/client/polar_to_cart_filter.cpp)
 
+
+add_library(quanergy_client SHARED ${client_SRCS})
 
 configure_file(docs/doxyfile.in
   "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
@@ -74,17 +77,18 @@ endif(DOXYGEN_FOUND)
 
 
 #  This is the export CMake stuff form.
-#set_target_properties(quanergy_client PROPERTIES SOVERSION ${QUANERGY_CLIENT_VERSION})
-#install(TARGETS quanergy_client
-#  EXPORT QuanergyClientTargets
-#  LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+set_target_properties(quanergy_client 
+  PROPERTIES SOVERSION ${QUANERGY_CLIENT_VERSION})
+install(TARGETS quanergy_client
+  EXPORT QuanergyClientTargets
+  LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 
 install(DIRECTORY include/quanergy
   DESTINATION "${INSTALL_INCLUDE_DIR}")
 
 
 # Add all targets to the build-tree export set
-#export(TARGETS quanergy_client FILE "${PROJECT_BINARY_DIR}/QuanergyClientTargets.cmake")
+export(TARGETS quanergy_client FILE "${PROJECT_BINARY_DIR}/QuanergyClientTargets.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
@@ -119,7 +123,44 @@ if (PACKAGE_FOR_DEV)
     "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/QuanergyClientConfigVersion.cmake"
     DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
-# No library yet
-#  install(EXPORT QuanergyClientTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+  install(EXPORT QuanergyClientTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 endif()
+
+set(CPACK_GENERATOR "DEB")
+if(PACKAGE_FOR_DEV)
+  set(CPACK_PACKAGE_FILE_NAME "quanergy-client-${QUANERGY_CLIENT_VERSION}-dev")
+  set(CPACK_DEBIAN_PACKAGE_NAME "quanergy-client-dev")
+  set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Quanergy client library - development")
+  set(CPACK_DEBIAN_PACKAGE_SECTION libdevel)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "quanergy-core-dev (>= 0.1.0), libpcl-common-1.7-dev (>= 1.7.0), libpcl-io-1.7-dev (>= 1.7.0), libboost-dev (>= 1.54), libboost-system1.54.0, quanergy-client")
+#  configure_file(debian/postinst-dev.in "${PROJECT_BINARY_DIR}/postinst")
+#  configure_file(debian/preinst-dev.in "${PROJECT_BINARY_DIR}/preinst")
+#  configure_file(debian/postrm-dev.in "${PROJECT_BINARY_DIR}/postrm")
+#  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/preinst;${PROJECT_BINARY_DIR}/postinst;${PROJECT_BINARY_DIR}/postrm;")
+else()
+  set(CPACK_PACKAGE_FILE_NAME "quanergy-client-${QUANERGY_CLIENT_VERSION}")
+  set(CPACK_DEBIAN_PACKAGE_NAME "quanergy-client")
+  set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Quanergy client library - runtime")
+  set(CPACK_DEBIAN_PACKAGE_SECTION libs)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "quanergy-client (>= 0.1.0), libpcl-common-1.7 (>= 1.7.0), libpcl-io-1.7 (>= 1.7.0), libboost-system1.54.0")
+  configure_file(debian/postinst.in "${PROJECT_BINARY_DIR}/postinst")
+  configure_file(debian/prerm.in "${PROJECT_BINARY_DIR}/prerm")
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/postinst;${PROJECT_BINARY_DIR}/prerm;")
+endif()
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Quanergy Systems Inc.") #required
+set(CPACK_DEBIAN_PACKAGE_VERSION ${QUANERGY_CLIENT_VERSION})
+if ("x86_64-linux-gnu" STREQUAL "${CMAKE_LIBRARY_ARCHITECTURE}")
+  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+else()
+  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+endif()
+include(CPack)
+
+##########
+#  test  #
+##########
+
+add_executable(test src/test/test.cpp)
+target_link_libraries(test quanergy_client ${PCL_LIBRARIES})
+
