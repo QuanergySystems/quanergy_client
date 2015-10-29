@@ -34,10 +34,7 @@ namespace quanergy
   template <class RESULT, class TYPE, class... TYPES>
   struct PacketParser : public PacketParserBase<RESULT>
   {
-    // @TODO: Why is this necessary? It's in the base class.
-    typedef boost::signals2::signal<void (RESULT const &)> Signal;
-    // This doesn't work either...
-    // using PacketParserBase<RESULT>::Signal;
+    using typename PacketParserBase<RESULT>::Signal;
 
     virtual void setSignal(std::shared_ptr<Signal> const & signal)
     {
