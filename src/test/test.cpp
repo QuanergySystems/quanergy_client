@@ -5,6 +5,11 @@
  **
  ****************************************************************************/
 
+#include <mutex>
+
+/*!  The PCL_NO_PRECOMPILE is needed to pull in the PCL cloud geometry
+ *   handlers template code for some reason.
+ */
 #define PCL_NO_PRECOMPILE
 
 #include <pcl/visualization/pcl_visualizer.h>
@@ -30,6 +35,88 @@ void usage(char** argv)
   return;
 }
 
+
+
+struct Test {
+
+  /// FailoverClient adds a failover to old M8 data
+  typedef quanergy::client::FailoverClient<quanergy::client::DataPacket01, quanergy::client::DataPacket00> ClientType;
+  typedef pcl::visualization::PCLVisualizer Visualizer;
+  typedef quanergy::client::PolarToCartFilter Filter;
+
+  Test(std::string const & host, std::string const & port)
+    : client_(host, port, "test frame") 
+    , viewer_("Cloud Viewer")
+    , kill_prog_(false)
+  {
+
+#if (PCL_MAJOR_VERSION == 1 && PCL_MINOR_VERSION == 7 && PCL_REVISION_VERSION <= 2)
+    viewer_.addCoordinateSystem(1.0);
+#else
+    viewer_.addCoordinateSystem (1.0, "global");
+#endif
+    viewer_.setBackgroundColor (0, 0, 0);
+    viewer_.initCameraParameters ();
+    viewer_.setCameraPosition (0.0, 0.0, 30.0, 0.0, 1.0, 0.0, 0);
+    viewer_.setCameraClipDistances (0.0, 50.0);
+
+    cloud_connection_ = client_.connect([this](const ClientType::Result& pc) 
+                                        { this->filter_.slot(pc); } );
+
+    filter_connection_ = filter_.connect([this](const Filter::Result& pc)
+                                         {
+                                           pcl::visualization::PointCloudColorHandlerGenericField<quanergy::PointXYZIR> color_handler(pc,"intensity");
+                                           if (!this->viewer_.updatePointCloud<quanergy::PointXYZIR>(pc, color_handler, "Quanergy"))
+                                           {
+                                             std::unique_lock<std::mutex> lock(this->viewer_spin_mutex_);
+                                             this->viewer_.addPointCloud<quanergy::PointXYZIR>(pc, color_handler, "Quanergy");
+                                           }
+                                         });
+  }
+
+  void run()
+  {
+    std::thread client_thread([this]
+                              {
+                                try
+                                {
+                                  this->client_.run();
+                                }
+                                catch (std::exception& e)
+                                {
+                                  std::cerr << "Terminating after catching exception: " << e.what() << std::endl;
+                                  this->kill_prog_ = true;
+                                }
+                              });
+
+    while (!viewer_.wasStopped() && !kill_prog_)
+    {
+      std::unique_lock<std::mutex> lock(viewer_spin_mutex_);
+      viewer_.spinOnce();
+    }
+
+    filter_connection_.disconnect();
+    cloud_connection_.disconnect();
+    client_.stop();
+    client_thread.join();
+  }
+
+private:
+
+  ClientType client_;
+  boost::signals2::connection cloud_connection_;
+  boost::signals2::connection filter_connection_;
+
+  std::mutex viewer_spin_mutex_;
+
+  Visualizer viewer_;
+  Filter filter_;
+
+  // run client on separate thread
+  std::atomic_bool kill_prog_;
+};
+
+
 int main(int argc, char** argv)
 {
   if (argc < 2 || argc > 3 || pcl::console::find_switch(argc, argv, "-h") ||
@@ -45,57 +132,9 @@ int main(int argc, char** argv)
   pcl::console::parse_argument (argc, argv, "-host", host);
   pcl::console::parse_argument (argc, argv, "-port", port);
 
-  /// FailoverClient adds a failover to old M8 data
-  typedef quanergy::client::FailoverClient<quanergy::client::DataPacket01, quanergy::client::DataPacket00> ClientType;
-  ClientType client(host, port, "test frame");
-  boost::signals2::connection cloud_connection;
-  boost::signals2::connection filter_connection;
+  Test test(host, port);
 
-  typedef pcl::visualization::PCLVisualizer Visualizer;
-  Visualizer::Ptr viewer = Visualizer::Ptr(new Visualizer("Cloud Viewer"));
-
-  viewer->addCoordinateSystem (1.0, "global");
-  viewer->setBackgroundColor (0, 0, 0);
-  viewer->initCameraParameters ();
-  viewer->setCameraPosition (0.0, 0.0, 30.0, 0.0, 1.0, 0.0, 0);
-  viewer->setCameraClipDistances (0.0, 50.0);
-
-  typedef quanergy::client::PolarToCartFilter Filter;
-
-  Filter::Ptr filter = Filter::Ptr(new Filter());
-
-  cloud_connection = client.connect([filter](const ClientType::Result& pc) { filter->slot(pc); });
-
-  filter_connection = filter->connect([viewer](const Filter::Result& pc)
-                                      {
-                                        pcl::visualization::PointCloudColorHandlerGenericField<quanergy::PointXYZIR> color_handler(pc,"intensity");
-                                        if (!viewer->updatePointCloud<quanergy::PointXYZIR>(pc, color_handler, "Quanergy"))
-                                          viewer->addPointCloud<quanergy::PointXYZIR>(pc, color_handler, "Quanergy");
-                                      });
-
-  // run client on separate thread
-  std::atomic_bool kill_prog(false);
-
-  std::thread client_thread([&client, &kill_prog]
-        {
-          try
-          {
-            client.run();
-          }
-          catch (std::exception& e)
-          {
-            std::cerr << "Terminating after catching exception: " << e.what() << std::endl;
-            kill_prog = true;
-          }
-        });
-
-  while (!viewer->wasStopped() && !kill_prog)
-    viewer->spinOnce();
-
-  filter_connection.disconnect();
-  cloud_connection.disconnect();
-  client.stop();
-  client_thread.join();
+  test.run();
 
   return (0);
 }
