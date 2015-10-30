@@ -16,7 +16,6 @@ namespace quanergy
     const int M8_NUM_LASERS = 8;
 
 #pragma pack(push, 1)
-#pragma pack(push, 1)
     /// \brief structure that holds the sensor firing output
     struct M8FiringData
     {
@@ -36,7 +35,6 @@ namespace quanergy
       std::uint16_t version;     // API version number
       std::uint16_t status;      // 0: good, 1: Sensor SW/FW mismatch
     }; // 6612 bytes
-#pragma pack(pop)
 
     /** \brief data packet 0x00 */
     struct DataPacket00
