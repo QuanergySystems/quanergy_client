@@ -63,6 +63,7 @@ int main(int argc, char** argv)
                                   pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> color_handler(pc,"intensity");
                                   if (!viewer.updatePointCloud<pcl::PointXYZI>(pc, color_handler, "Quanergy"))
                                     viewer.addPointCloud<pcl::PointXYZI>(pc, color_handler, "Quanergy");
+                                  viewer.spinOnce();
                                 });
 
   // run client on separate thread
@@ -80,8 +81,7 @@ int main(int argc, char** argv)
           }
         });
 
-  while (!viewer.wasStopped() && !kill_prog)
-    viewer.spinOnce();
+  while (!viewer.wasStopped() && !kill_prog);
 
   cloud_connection.disconnect();
   client.stop();
