@@ -24,7 +24,7 @@ namespace quanergy
   {
 
     template <class... TYPES>
-    class FailoverClient : public Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>
+    class FailoverClient : public Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>
     {
     public:
       typedef std::shared_ptr<FailoverClient<TYPES...> > Ptr;
@@ -46,9 +46,9 @@ namespace quanergy
       /// variable for automatic packet failover to old m8 packet parsing
       bool failover_;
 
-      using Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::read_socket_;
-      using Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::buff_;
-      using Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::parser_;
+      using Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::read_socket_;
+      using Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::buff_;
+      using Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::parser_;
     };
 
   } // namespace client

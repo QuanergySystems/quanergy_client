@@ -14,6 +14,9 @@ namespace quanergy
     {
       if (!cloudPtr) return;
 
+      // Don't do the work unless someone is listening.
+      if (signal_.num_slots() == 0) return;
+
       PointCloudHVDIR const & cloud = *cloudPtr;
 
       PointCloudXYZIRPtr resultPtr = PointCloudXYZIRPtr(new PointCloudXYZIR());
@@ -38,7 +41,7 @@ namespace quanergy
       signal_(resultPtr);
     }
 
-    PointCloudXYZIR::PointType polarToCart(PointCloudHVDIR::PointType const & from)
+    PointCloudXYZIR::PointType PolarToCartFilter::polarToCart(PointCloudHVDIR::PointType const & from)
     {
       PointCloudXYZIR::PointType to;
 

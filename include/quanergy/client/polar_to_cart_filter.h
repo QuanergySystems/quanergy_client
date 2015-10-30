@@ -31,7 +31,9 @@ namespace quanergy
     {
       typedef std::shared_ptr<PolarToCartFilter> Ptr;
 
-      typedef boost::signals2::signal<void (PointCloudXYZIRConstPtr const &)> Signal;
+      typedef PointCloudXYZIRPtr Result;
+
+      typedef boost::signals2::signal<void (Result const &)> Signal;
 
       boost::signals2::connection connect(const typename Signal::slot_type& subscriber);
 

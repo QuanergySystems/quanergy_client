@@ -16,7 +16,7 @@ namespace quanergy
   {
     /** \brief specialization for M8DataPacket */
     template <>
-    struct PacketParser<PointCloudXYZIPtr, M8DataPacket> : public PointCloudGeneratorM8
+    struct PacketParser<PointCloudHVDIRPtr, M8DataPacket> : public PointCloudGeneratorM8
     {
       PacketParser(std::string const & frame_id)
         : PointCloudGeneratorM8(frame_id)

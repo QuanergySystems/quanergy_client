@@ -164,3 +164,4 @@ include(CPack)
 add_executable(test src/test/test.cpp)
 target_link_libraries(test quanergy_client ${PCL_LIBRARIES})
 
+message("PCL_LIBRARIES: ${PCL_LIBRARIES}")

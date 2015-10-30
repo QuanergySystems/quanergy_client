@@ -19,11 +19,11 @@ namespace quanergy
 
     /** \brief specialization for DataPacket00 */
     template <>
-    struct PacketParser<PointCloudXYZIPtr, DataPacket00> 
+    struct PacketParser<PointCloudHVDIRPtr, DataPacket00> 
       : public PointCloudGeneratorM8
     {
     public:
-      PacketParser<PointCloudXYZIPtr, DataPacket00>(std::string const & frame_id)
+      PacketParser<PointCloudHVDIRPtr, DataPacket00>(std::string const & frame_id)
         : PointCloudGeneratorM8(frame_id)
       {
       }

@@ -93,6 +93,7 @@ namespace quanergy
     {
       std::cout << "Attempting to connect..." << std::endl;
       boost::asio::ip::tcp::resolver resolver(io_service_);
+
       auto endpoint_iterator = resolver.resolve(host_query_);
 
       boost::asio::async_connect(*read_socket_, endpoint_iterator,

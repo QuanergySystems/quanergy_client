@@ -6,6 +6,8 @@
 #ifndef QUANERGY_POINTCLOUD_GENERATOR_01_H
 #define QUANERGY_POINTCLOUD_GENERATOR_01_H
 
+#include <limits>
+
 #include <quanergy/client/pointcloud_types.h>
 
 #include <quanergy/client/deserialize_01.h>
@@ -19,11 +21,11 @@ namespace quanergy
 
     /** \brief specialization for DataPacket01 */
     template <>
-    struct PacketParser<PointCloudXYZIPtr, DataPacket01> 
-      : PacketParserBase<PointCloudXYZIPtr>
+    struct PacketParser<PointCloudHVDIRPtr, DataPacket01> 
+      : PacketParserBase<PointCloudHVDIRPtr>
     {
-      PacketParser<PointCloudXYZIPtr, DataPacket01>(std::string const & frame_id)
-        : PacketParserBase<PointCloudXYZIPtr>(frame_id)
+      PacketParser<PointCloudHVDIRPtr, DataPacket01>(std::string const & frame_id)
+        : PacketParserBase<PointCloudHVDIRPtr>(frame_id)
       {
       }
 
@@ -31,6 +33,7 @@ namespace quanergy
       {
         return type == 0x01;
       }
+
 
       inline void parse(std::uint8_t type, const std::vector<char>& packet)
       {
@@ -43,7 +46,11 @@ namespace quanergy
           DataPacket01 data_packet;
           deserialize(packet.data(), data_packet);
 
-          PointCloudXYZIPtr pc = PointCloudXYZIPtr(new PointCloudXYZI());
+          PointCloudHVDIRPtr pc = PointCloudHVDIRPtr(new PointCloudHVDIR());
+
+          /*! PCL convention is microseconds, however, we are using
+           *  nanoseconds throughout the system.
+           */
 
           pc->header.stamp = 
             std::uint64_t(data_packet.packet_header.seconds) * 1E9 + 
@@ -58,21 +65,16 @@ namespace quanergy
           for (unsigned int i = 0; i < data_packet.data_header.point_count; ++i)
           {
             DataPoint01 const & point = data_packet.data_points[i];
-            PointCloudXYZI::PointType& pc_point = pc->points[i];
-            // get the distance to the XY plane
-            double xy_distance = static_cast<double>(point.range) * 1E-6 *
-              std::cos(static_cast<double>(point.vertical_angle) * 1E-4);
-            // set x
-            pc_point.x = static_cast<float>(xy_distance *
-                                            std::cos(static_cast<double>(point.horizontal_angle) * 1E-4));
-            // set y
-            pc_point.y = static_cast<float>(xy_distance *
-                                            std::sin(static_cast<double>(point.horizontal_angle) * 1E-4));
-            // set z
-            pc_point.z = static_cast<float>(static_cast<double>(point.range) * 1E-6 *
-                                            std::sin(static_cast<double>(point.vertical_angle) * 1E-4));
-            // set I
+            PointCloudHVDIR::PointType& pc_point = pc->points[i];
+
+            pc_point.h = static_cast<double>(point.horizontal_angle) * 1E-4;
+            pc_point.v = static_cast<double>(point.vertical_angle) * 1E-4;
+            pc_point.d = static_cast<double>(point.range) * 1E-6;
+
             pc_point.intensity = point.intensity;
+
+            /// This generator provides no ring.
+            pc_point.ring = std::numeric_limits<uint16_t>::max();
           }
 
           // signal

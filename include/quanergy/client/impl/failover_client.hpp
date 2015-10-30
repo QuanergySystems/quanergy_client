@@ -16,7 +16,7 @@ namespace quanergy
     FailoverClient<TYPES...>::FailoverClient(std::string const & host, 
                                              std::string const & port, 
                                              std::string const & frame_id)
-      : Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>(host, port, frame_id)
+      : Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>(host, port, frame_id)
       , failover_(false)
     {
     }
@@ -41,7 +41,7 @@ namespace quanergy
       }
       else
       {
-        Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::startDataRead();
+        Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::startDataRead();
       }
     }
 
@@ -51,7 +51,7 @@ namespace quanergy
     {
       try
       {
-        Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::handleReadHeader(error);
+        Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::handleReadHeader(error);
       }
       catch (InvalidHeaderError)
       {
@@ -76,7 +76,7 @@ namespace quanergy
       if (failover_)
         parser_.parse(0xFF, packet);
       else
-        Client<PointCloudXYZIPtr, TYPES..., M8DataPacket>::parse(packet);
+        Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::parse(packet);
     }
 
   } // namespace client

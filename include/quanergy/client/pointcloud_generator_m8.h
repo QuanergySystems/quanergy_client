@@ -28,32 +28,30 @@ namespace quanergy
     const int M8_NUM_ROT_ANGLES = 10400;
 
     /** \brief Not a specialization because it is intended to be used by others. */
-    struct PointCloudGeneratorM8 : PacketParserBase<PointCloudXYZIPtr>
+    struct PointCloudGeneratorM8 : PacketParserBase<PointCloudHVDIRPtr>
     {
       PointCloudGeneratorM8(std::string const & frame_id)
-        : PacketParserBase<PointCloudXYZIPtr>(frame_id)
+        : PacketParserBase<PointCloudHVDIRPtr>(frame_id)
         , packet_counter_(0)
         , cloud_counter_(0)
         , last_azimuth_(65000)
-        , current_cloud_(new PointCloudXYZI())
-        , cos_lookup_table_(M8_NUM_ROT_ANGLES+1)
-        , sin_lookup_table_(M8_NUM_ROT_ANGLES+1)
+        , current_cloud_(new PointCloudHVDIR())
+        , horizontal_angle_lookup_table_(M8_NUM_ROT_ANGLES+1)
       {
         const double to_rad (M_PI / 180.f);
         for (unsigned int i = 0; i <= M8_NUM_ROT_ANGLES; i++)
         {
           double rad = to_rad * ((double (i) / M8_NUM_ROT_ANGLES) * 360.f);
-          cos_lookup_table_[i] = std::cos (rad);
-          sin_lookup_table_[i] = std::sin (rad);
+          horizontal_angle_lookup_table_[i] = rad;
         }
 
         const double* angle_in_radians = M8_VERTICAL_ANGLES;
         for (int i = 0; i < M8_NUM_LASERS; ++i, ++angle_in_radians)
         {
-          sin_vertical_angles_[i] = std::sin (*angle_in_radians);
-          cos_vertical_angles_[i] = std::cos (*angle_in_radians);
+          vertical_angle_lookup_table_[i] = *angle_in_radians;
         }
       }
+
 
       inline void parse(const M8DataPacket& data_packet)
       {
@@ -110,15 +108,12 @@ namespace quanergy
             }
 
             // start a new cloud
-            current_cloud_.reset(new PointCloudXYZI);
+            current_cloud_.reset(new PointCloudHVDIR());
             // at first we assume it is dense
             current_cloud_->is_dense = true;
           }
 
-          // get the cosine corresponding
-          const double cos_horizontal_angle = cos_lookup_table_[data.position];
-          // get the sine corresponding
-          const double sin_horizontal_angle = sin_lookup_table_[data.position];
+          double const horizontal_angle = horizontal_angle_lookup_table_[data.position];
 
           for (int j = 0; j < M8_NUM_LASERS; j++)
           {
@@ -130,19 +125,20 @@ namespace quanergy
               range = std::numeric_limits<float>::quiet_NaN ();
 
             // output point
-            PointCloudXYZI::PointType xyzi;
-            // convert to cartezian coordinates and populate x, y and z members
-            computeXYZ(range, 
-                       cos_horizontal_angle, 
-                       sin_horizontal_angle,
-                       cos_vertical_angles_[j], 
-                       sin_vertical_angles_[j], 
-                       xyzi);
+            PointCloudHVDIR::PointType hvdir;
 
-            // intensity value is fetched directly
-            xyzi.intensity = intensity;
+            double const vertical_angle = vertical_angle_lookup_table_[j];
+
+            hvdir.h = horizontal_angle;
+            hvdir.v = vertical_angle;
+            hvdir.d = range;
+
+            hvdir.intensity = intensity;
+            hvdir.ring = j;
+
             // add the point to the current scan
-            current_cloud_->push_back (xyzi);
+            current_cloud_->push_back (hvdir);
+
             // if the range is NaN, the cloud is not dense, one point is sufficient
             if (current_cloud_->is_dense && std::isnan (range))
               current_cloud_->is_dense = false;
@@ -154,10 +150,10 @@ namespace quanergy
 
     private:
 
-      static void organizeCloud(PointCloudXYZIPtr & current_pc)
+      static void organizeCloud(PointCloudHVDIRPtr & current_pc)
       {
         // transpose the cloud
-        PointCloudXYZIPtr temp_pc(new PointCloudXYZI());  
+        PointCloudHVDIRPtr temp_pc(new PointCloudHVDIR());  
 
         temp_pc->header.stamp = current_pc->header.stamp;
         temp_pc->header.seq = current_pc->header.seq;
@@ -188,27 +184,6 @@ namespace quanergy
         current_pc->width  = width;
       }
 
-      static void computeXYZ (const double range,
-                              const double cos_hz_angle, const double sin_hz_angle,
-                              const double cos_vt_angle, const double sin_vt_angle,
-                              PointCloudXYZI::PointType& point)
-      {
-        if (std::isnan (range))
-        {
-          point.x = point.y = point.z = std::numeric_limits<float>::quiet_NaN ();
-          return;
-        }
-
-        // get the distance to the XY plane
-        double xy_distance = range * cos_vt_angle;
-        // set y
-        point.y = static_cast<float> (xy_distance * sin_hz_angle);
-        // set x
-        point.x = static_cast<float> (xy_distance * cos_hz_angle);
-        // set z
-        point.z = static_cast<float> (range * sin_vt_angle);
-      }
-
       /// global packet counter
       uint32_t packet_counter_;
 
@@ -218,14 +193,13 @@ namespace quanergy
       /// last accounted for azimuth angle
       double last_azimuth_;
 
-      PointCloudXYZIPtr current_cloud_;
+      PointCloudHVDIRPtr current_cloud_;
 
-      /// lookup table for cosines
-      std::vector<double> cos_lookup_table_;
-      /// lookup table for sinus
-      std::vector<double> sin_lookup_table_;
-      double cos_vertical_angles_[M8_NUM_LASERS];
-      double sin_vertical_angles_[M8_NUM_LASERS];
+      /// lookup table for horizontal angle
+      std::vector<double> horizontal_angle_lookup_table_;
+
+      /// lookup table for vertical angle
+      double vertical_angle_lookup_table_[M8_NUM_LASERS];
     };
 
   } // namespace client
