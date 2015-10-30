@@ -155,6 +155,10 @@ namespace quanergy
         // transpose the cloud
         PointCloudXYZIPtr temp_pc(new PointCloudXYZI());  
 
+        temp_pc->header.stamp = current_pc->header.stamp;
+        temp_pc->header.seq = current_pc->header.seq;
+        temp_pc->header.frame_id = current_pc->header.frame_id;
+
         // reserve space
         temp_pc->reserve(current_pc->size());
 

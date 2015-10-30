@@ -44,12 +44,17 @@ namespace quanergy
           deserialize(packet.data(), data_packet);
 
           PointCloudXYZIPtr pc = PointCloudXYZIPtr(new PointCloudXYZI());
+
           pc->header.stamp = 
             std::uint64_t(data_packet.packet_header.seconds) * 1E9 + 
             std::uint64_t(data_packet.packet_header.nanoseconds);
 
           pc->header.seq = data_packet.data_header.sequence;
+
+          pc->header.frame_id = frame_id_;
+
           pc->resize(data_packet.data_header.point_count);
+
           for (unsigned int i = 0; i < data_packet.data_header.point_count; ++i)
           {
             DataPoint01 const & point = data_packet.data_points[i];
