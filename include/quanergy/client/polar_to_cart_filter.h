@@ -39,6 +39,8 @@ namespace quanergy
 
     private:
 
+      static PointCloudXYZIR::PointType polarToCart(PointCloudHVDIR::PointType const & from);
+
       Signal signal_;
     };
 

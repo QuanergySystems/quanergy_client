@@ -22,6 +22,51 @@ namespace quanergy
 
       result.header.stamp = cloud.header.stamp;
       result.header.seq = cloud.header.seq;
+      result.header.frame_id = cloud.header.frame_id;
+
+      result.is_dense = cloud.is_dense;
+
+      result.reserve(cloud.size());
+
+      for (PointCloudHVDIR::const_iterator i = cloud.points.begin();
+           i != cloud.points.end();
+           ++i)
+      {
+        result.push_back(polarToCart(*i));
+      }
+
+      signal_(resultPtr);
+    }
+
+    PointCloudXYZIR::PointType polarToCart(PointCloudHVDIR::PointType const & from)
+    {
+      PointCloudXYZIR::PointType to;
+
+      to.intensity = from.intensity;
+      to.ring = from.ring;
+
+      if (std::isnan (from.ring))
+      {
+        to.x = to.y = to.z = std::numeric_limits<float>::quiet_NaN ();
+        return to;
+      }
+
+      double const cos_horizontal_angle = std::cos(from.h);
+      double const sin_horizontal_angle = std::sin(from.h);
+
+      double const cos_vertical_angle = std::cos(from.v);
+      double const sin_vertical_angle = std::sin(from.v);
+
+      // get the distance to the XY plane
+      double xy_distance = from.d * cos_vertical_angle;
+
+      to.y = static_cast<float> (xy_distance * sin_horizontal_angle);
+
+      to.x = static_cast<float> (xy_distance * cos_horizontal_angle);
+
+      to.z = static_cast<float> (from.d * sin_vertical_angle);
+
+      return to;
     }
 
   } // namespace client

@@ -132,8 +132,12 @@ namespace quanergy
             // output point
             PointCloudXYZI::PointType xyzi;
             // convert to cartezian coordinates and populate x, y and z members
-            computeXYZ(range, cos_horizontal_angle, sin_horizontal_angle,
-                       cos_vertical_angles_[j], sin_vertical_angles_[j], xyzi);
+            computeXYZ(range, 
+                       cos_horizontal_angle, 
+                       sin_horizontal_angle,
+                       cos_vertical_angles_[j], 
+                       sin_vertical_angles_[j], 
+                       xyzi);
 
             // intensity value is fetched directly
             xyzi.intensity = intensity;
