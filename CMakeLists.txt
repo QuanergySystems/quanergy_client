@@ -16,7 +16,7 @@ endif()
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
-set(INSTALL_CMAKE_DIR share/quanergy_client CACHE PATH "Installation directory for CMake files")
+set(INSTALL_CMAKE_DIR share/${PROJECT_NAME} CACHE PATH "Installation directory for CMake files")
 
 option(PACKAGE_FOR_DEV "Create -dev package" ON)
 option(BUILD_APPS "Build applications" OFF)
