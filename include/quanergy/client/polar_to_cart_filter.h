@@ -5,13 +5,14 @@
  **
  ****************************************************************************/
 
-/** \file polar_to_cart.h
+/** \file polar_to_cart_filter.h
  *
- *  \brief Converts point clouds from HVDIR to XYZIR.
+ *  \brief Converts point clouds from polar coordinates to cartesian
+ *  coordinates, i.e. HVDIR to XYZIR.
  */
 
-#ifndef QUANERGY_POLAR_TO_CART_H
-#define QUANERGY_POLAR_TO_CART_H
+#ifndef QUANERGY_POLAR_TO_CART_FILTER_H
+#define QUANERGY_POLAR_TO_CART_FILTER_H
 
 #include <memory>
 
