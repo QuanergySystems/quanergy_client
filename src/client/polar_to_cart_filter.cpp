@@ -27,18 +27,20 @@ namespace quanergy
       result.header.seq = cloud.header.seq;
       result.header.frame_id = cloud.header.frame_id;
 
-      result.width = cloud.width;
-      result.height = cloud.height;
-      result.is_dense = cloud.is_dense;
-
       result.reserve(cloud.size());
 
       for (PointCloudHVDIR::const_iterator i = cloud.points.begin();
            i != cloud.points.end();
            ++i)
       {
-        result.push_back(polarToCart(*i));
+        // use points.push_back instead of cloud.push_back wrapper
+        // cloud.push_back wrapper resets width and height
+        result.points.push_back(polarToCart(*i));
       }
+
+      result.width = cloud.width;
+      result.height = cloud.height;
+      result.is_dense = cloud.is_dense;
 
       signal_(resultPtr);
     }
