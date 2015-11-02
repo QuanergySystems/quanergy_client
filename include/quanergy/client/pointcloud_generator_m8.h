@@ -25,7 +25,8 @@ namespace quanergy
       -0.0557982, 
       0.f, 
       0.0557982 };
-    const int M8_NUM_ROT_ANGLES = 10400;
+
+    const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
     /** \brief Not a specialization because it is intended to be used by others. */
     struct PointCloudGeneratorM8 : PacketParserBase<PointCloudHVDIRPtr>
@@ -38,15 +39,21 @@ namespace quanergy
         , current_cloud_(new PointCloudHVDIR())
         , horizontal_angle_lookup_table_(M8_NUM_ROT_ANGLES+1)
       {
-        const double to_rad (M_PI / 180.f);
-        for (unsigned int i = 0; i <= M8_NUM_ROT_ANGLES; i++)
+        for (std::uint32_t i = 0; i <= M8_NUM_ROT_ANGLES; i++)
         {
-          double rad = to_rad * ((double (i) / M8_NUM_ROT_ANGLES) * 360.f);
+          // Shift by half the rot angles to keep the number positive when wrapping.
+          std::uint32_t j = (i + M8_NUM_ROT_ANGLES/2) % M8_NUM_ROT_ANGLES;
+
+          // normalized
+          double n = static_cast<double>(j) / static_cast<double>(M8_NUM_ROT_ANGLES);
+
+          double rad = n * M_PI * 2.0 - M_PI;
+
           horizontal_angle_lookup_table_[i] = rad;
         }
 
         const double* angle_in_radians = M8_VERTICAL_ANGLES;
-        for (int i = 0; i < M8_NUM_LASERS; ++i, ++angle_in_radians)
+        for (std::uint32_t i = 0; i < M8_NUM_LASERS; ++i, ++angle_in_radians)
         {
           vertical_angle_lookup_table_[i] = *angle_in_radians;
         }
