@@ -44,7 +44,11 @@ ENDIF("${is_system_dir}" STREQUAL "-1")
 
 find_package(Boost COMPONENTS system thread REQUIRED)
 
-find_package(PCL REQUIRED common io visualization)
+if (CMAKE_CROSSCOMPILING)
+  find_package(PCL REQUIRED common io)
+else()
+  find_package(PCL REQUIRED common io visualization)
+endif()
 
 # We only need the headers. Is this necessary?
 find_package(QuanergyCore REQUIRED)
@@ -164,7 +168,9 @@ include(CPack)
 #  test  #
 ##########
 
-add_executable(test src/test/test.cpp)
-target_link_libraries(test quanergy_client ${PCL_LIBRARIES})
+if (PCL_VISUALIZATION_FOUND)
+  add_executable(test src/test/test.cpp)
+  target_link_libraries(test quanergy_client ${PCL_LIBRARIES})
+endif()
 
 message("PCL_LIBRARIES: ${PCL_LIBRARIES}")
