@@ -78,7 +78,7 @@ namespace quanergy
 
 
     float DistanceFilter::getMaximumDistanceThreshold() const {
-      return(max_distance_threshold_);
+      return max_distance_threshold_;
     }
 
 
@@ -88,7 +88,7 @@ namespace quanergy
 
 
     float DistanceFilter::getMinimumDistanceThreshold() const {
-      return(min_distance_threshold_);
+      return min_distance_threshold_;
     }
 
   } // namespace client
