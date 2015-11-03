@@ -21,7 +21,8 @@
 #include <pcl/point_cloud.h>
 
 #include <quanergy/point_hvdir.h>
-#include <quanergy/client/pointcloud_types.h>
+
+#include <quanergy/common/pointcloud_types.h>
 
 
 namespace quanergy

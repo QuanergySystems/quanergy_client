@@ -62,7 +62,10 @@ add_definitions(${PCL_DEFINITIONS})
 
 
 set(client_SRCS
-  src/client/polar_to_cart_filter.cpp)
+  src/modules/polar_to_cart_filter.cpp
+  src/modules/distance_filter.cpp
+  src/modules/ring_intensity_filter.cpp
+)
 
 
 add_library(quanergy_client SHARED ${client_SRCS})

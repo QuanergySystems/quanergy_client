@@ -5,10 +5,11 @@
 #ifndef QUANERGY_POINTCLOUD_GENERATOR_M8_H
 #define QUANERGY_POINTCLOUD_GENERATOR_M8_H
 
-#include <quanergy/client/pointcloud_types.h>
-
 #include <quanergy/client/packet_parser.h>
-#include <quanergy/client/deserialize_00.h>
+
+#include <quanergy/common/pointcloud_types.h>
+
+#include <quanergy/parsers/deserialize_00.h>
 
 
 namespace quanergy

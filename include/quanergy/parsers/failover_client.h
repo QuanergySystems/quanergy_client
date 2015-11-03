@@ -13,10 +13,10 @@
 #ifndef FAILOVER_CLIENT_H
 #define FAILOVER_CLIENT_H
 
-#include <quanergy/client/pointcloud_types.h>
-
-#include <quanergy/client/pointcloud_generator_failover.h>
 #include <quanergy/client/client.h>
+
+#include <quanergy/common/pointcloud_types.h>
+#include <quanergy/parsers/pointcloud_generator_failover.h>
 
 namespace quanergy
 {
@@ -56,6 +56,6 @@ namespace quanergy
 } // namespace quanergy
 
 
-#include <quanergy/client/impl/failover_client.hpp>
+#include <quanergy/parsers/impl/failover_client.hpp>
 
 #endif

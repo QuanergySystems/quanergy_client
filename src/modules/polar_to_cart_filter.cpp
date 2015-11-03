@@ -1,4 +1,4 @@
-#include <quanergy/client/polar_to_cart_filter.h>
+#include <quanergy/modules/polar_to_cart_filter.h>
 
 namespace quanergy
 {
@@ -26,6 +26,10 @@ namespace quanergy
       result.header.stamp = cloud.header.stamp;
       result.header.seq = cloud.header.seq;
       result.header.frame_id = cloud.header.frame_id;
+
+      result.width = cloud.width;
+      result.height = cloud.height;
+      result.is_dense = cloud.is_dense;
 
       result.reserve(cloud.size());
 

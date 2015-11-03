@@ -6,6 +6,8 @@
  ****************************************************************************/
 #include <quanergy/client/client.h>
 
+#include <iostream>
+
 namespace quanergy
 {
   namespace client

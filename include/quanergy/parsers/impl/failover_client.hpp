@@ -5,7 +5,7 @@
  **
  ****************************************************************************/
 
-#include <quanergy/client/failover_client.h>
+#include <quanergy/parsers/failover_client.h>
 
 namespace quanergy
 {

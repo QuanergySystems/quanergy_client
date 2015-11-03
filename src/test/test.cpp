@@ -17,12 +17,14 @@
 #include <pcl/visualization/point_cloud_geometry_handlers.h>
 #include <pcl/console/parse.h>
 
-#include <quanergy/client/deserialize_00.h>
-#include <quanergy/client/pointcloud_generator_00.h>
-#include <quanergy/client/deserialize_01.h>
-#include <quanergy/client/pointcloud_generator_01.h>
-#include <quanergy/client/failover_client.h>
-#include <quanergy/client/polar_to_cart_filter.h>
+#include <quanergy/parsers/failover_client.h>
+
+#include <quanergy/parsers/deserialize_00.h>
+#include <quanergy/parsers/pointcloud_generator_00.h>
+#include <quanergy/parsers/deserialize_01.h>
+#include <quanergy/parsers/pointcloud_generator_01.h>
+
+#include <quanergy/modules/polar_to_cart_filter.h>
 
 
 void usage(char** argv)

@@ -8,10 +8,11 @@
 
 #include <limits>
 
-#include <quanergy/client/pointcloud_types.h>
-
-#include <quanergy/client/deserialize_01.h>
 #include <quanergy/client/packet_parser.h>
+
+#include <quanergy/common/pointcloud_types.h>
+
+#include <quanergy/parsers/deserialize_01.h>
 
 
 namespace quanergy
