@@ -24,7 +24,7 @@
 #include <quanergy/parsers/deserialize_01.h>
 #include <quanergy/parsers/pointcloud_generator_01.h>
 
-#include <quanergy/modules/polar_to_cart_filter.h>
+#include <quanergy/modules/polar_to_cart_converter.h>
 
 
 void usage(char** argv)
@@ -44,7 +44,7 @@ struct Test {
   /// FailoverClient adds a failover to old M8 data
   typedef quanergy::client::FailoverClient<quanergy::client::DataPacket01, quanergy::client::DataPacket00> ClientType;
   typedef pcl::visualization::PCLVisualizer Visualizer;
-  typedef quanergy::client::PolarToCartFilter Filter;
+  typedef quanergy::client::PolarToCartConverter Converter;
 
   Test(std::string const & host, std::string const & port)
     : client_(host, port, "test frame") 
@@ -63,9 +63,9 @@ struct Test {
     viewer_.setCameraClipDistances (0.0, 50.0);
 
     cloud_connection_ = client_.connect([this](const ClientType::Result& pc) 
-                                        { this->filter_.slot(pc); } );
+                                        { this->converter_.slot(pc); } );
 
-    filter_connection_ = filter_.connect([this](const Filter::Result& pc)
+    converter_connection_ = converter_.connect([this](const Converter::Result& pc)
                                          {
                                            pcl::visualization::PointCloudColorHandlerGenericField<quanergy::PointXYZIR> color_handler(pc,"intensity");
                                            if (!this->viewer_.updatePointCloud<quanergy::PointXYZIR>(pc, color_handler, "Quanergy"))
@@ -97,7 +97,7 @@ struct Test {
       viewer_.spinOnce();
     }
 
-    filter_connection_.disconnect();
+    converter_connection_.disconnect();
     cloud_connection_.disconnect();
     client_.stop();
     client_thread.join();
@@ -107,12 +107,12 @@ private:
 
   ClientType client_;
   boost::signals2::connection cloud_connection_;
-  boost::signals2::connection filter_connection_;
+  boost::signals2::connection converter_connection_;
 
   std::mutex viewer_spin_mutex_;
 
   Visualizer viewer_;
-  Filter filter_;
+  Converter converter_;
 
   // run client on separate thread
   std::atomic_bool kill_prog_;

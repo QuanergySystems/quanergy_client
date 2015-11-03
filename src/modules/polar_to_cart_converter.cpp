@@ -1,16 +1,16 @@
-#include <quanergy/modules/polar_to_cart_filter.h>
+#include <quanergy/modules/polar_to_cart_converter.h>
 
 namespace quanergy
 {
   namespace client
   {
 
-    boost::signals2::connection PolarToCartFilter::connect(const typename Signal::slot_type& subscriber)
+    boost::signals2::connection PolarToCartConverter::connect(const typename Signal::slot_type& subscriber)
     {
       return signal_.connect(subscriber);
     }
 
-    void PolarToCartFilter::slot(PointCloudHVDIRConstPtr const & cloudPtr)
+    void PolarToCartConverter::slot(PointCloudHVDIRConstPtr const & cloudPtr)
     {
       if (!cloudPtr) return;
 
@@ -49,7 +49,7 @@ namespace quanergy
       signal_(resultPtr);
     }
 
-    PointCloudXYZIR::PointType PolarToCartFilter::polarToCart(PointCloudHVDIR::PointType const & from)
+    PointCloudXYZIR::PointType PolarToCartConverter::polarToCart(PointCloudHVDIR::PointType const & from)
     {
       PointCloudXYZIR::PointType to;
 

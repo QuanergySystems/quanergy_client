@@ -1,4 +1,4 @@
-# Visual Studio 2013 Build of M8Client
+# Visual Studio 2013 Build of QuanergyClient
 
 Prerequisites:
 <ul>
@@ -33,7 +33,7 @@ Steps:
     </li>
     </ul>
 </li>
-<li>Get copy of M8Client source from GitHub.
+<li>Get copy of QuanergyClient source from GitHub.
 </li>
 <li>Open CMake 3.2.3 to start converting cmake files to Visual Studio 2013 solutions.
     <ul>
@@ -62,13 +62,13 @@ Steps:
           </li>
           </ul>
     </li>
-    <li>Press "Generate" to create the Visual Studio 2013 solution of M8Client
+    <li>Press "Generate" to create the Visual Studio 2013 solution of QuanergyClient
     </li>
     </ul>
 </li>
-<li>Configuring and Building M8Client in Visual Studio 2013
+<li>Configuring and Building QuanergyClient in Visual Studio 2013
     <ul>
-    <li>Open M8Client.sln in C:\location\of\m8client_build
+    <li>Open QuanergyClient.sln in C:\location\of\m8client_build
     </li>
     <li>Right-click on m8_client in the Solution Explorer and select "Properties".  Under "Configuration Properties" -> "General", 
      change "Target Extension" from ".dll" to ".lib".  Set the "Configuration Type" to "Static library(.lib)".

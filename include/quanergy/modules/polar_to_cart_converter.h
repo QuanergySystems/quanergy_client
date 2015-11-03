@@ -5,14 +5,14 @@
  **
  ****************************************************************************/
 
-/** \file polar_to_cart_filter.h
+/** \file polar_to_cart_converter.h
  *
  *  \brief Converts point clouds from polar coordinates to cartesian
  *  coordinates, i.e. HVDIR to XYZIR.
  */
 
-#ifndef QUANERGY_POLAR_TO_CART_FILTER_H
-#define QUANERGY_POLAR_TO_CART_FILTER_H
+#ifndef QUANERGY_POLAR_TO_CART_CONVERTER_H
+#define QUANERGY_POLAR_TO_CART_CONVERTER_H
 
 #include <memory>
 
@@ -29,9 +29,9 @@ namespace quanergy
 {
   namespace client
   {
-    struct PolarToCartFilter
+    struct PolarToCartConverter
     {
-      typedef std::shared_ptr<PolarToCartFilter> Ptr;
+      typedef std::shared_ptr<PolarToCartConverter> Ptr;
 
       typedef PointCloudXYZIRPtr Result;
 
@@ -48,7 +48,7 @@ namespace quanergy
       Signal signal_;
     };
 
-  } // namespace filters
+  } // namespace client
 
 } // namespace quanergy
 

@@ -2,7 +2,7 @@ project(QuanergyClient)
 cmake_minimum_required(VERSION 2.8)
 
 #  This should match what's in include/quanergy/client/version.h
-set(QUANERGY_CLIENT_VERSION "1.0.0")
+set(QUANERGY_CLIENT_VERSION "2.0.0")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -62,7 +62,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 
 set(client_SRCS
-  src/modules/polar_to_cart_filter.cpp
+  src/modules/polar_to_cart_converter.cpp
   src/modules/distance_filter.cpp
   src/modules/ring_intensity_filter.cpp
 )
