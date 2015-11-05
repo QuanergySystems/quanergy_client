@@ -20,7 +20,7 @@
 
 #include <pcl/point_cloud.h>
 
-#include <quanergy/point_hvdir.h>
+#include <quanergy/common/point_hvdir.h>
 #include <quanergy/common/pointcloud_types.h>
 
 
