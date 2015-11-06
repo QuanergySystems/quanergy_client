@@ -43,16 +43,46 @@ namespace quanergy
 
     PointXYZ (float _x, float _y, float _z)
       : x(_x)
-      , y(_y)
+      , y(_y)   
       , z(_z)
     {
       data[3] = 1.f;
+    }
+
+    inline float const & operator[](std::size_t index) const
+    {
+      return data[index];
+    }
+
+    inline float & operator[](std::size_t index)
+    {
+      return data[index];
+    }
+
+    operator Eigen::Vector3f() 
+    {
+      return Eigen::Vector3f(x, y, z);
     }
 
     friend std::ostream& operator<< (std::ostream &out, const PointXYZ &point);
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
+
+  PointXYZ operator+(PointXYZ const &, float);
+  PointXYZ operator-(PointXYZ const &, float);
+  PointXYZ operator*(PointXYZ const &, float);
+  PointXYZ operator/(PointXYZ const &, float);
+  PointXYZ operator+(PointXYZ const &, PointXYZ const &);
+  PointXYZ operator-(PointXYZ const &, PointXYZ const &);
+
+  PointXYZ operator-(PointXYZ const &);
+
+  float norm(PointXYZ const & p);        // magnitude
+  PointXYZ normalize(PointXYZ const &);
+  float squaredNorm(PointXYZ const &);
+  float dot(PointXYZ const &, PointXYZ const &);
+  PointXYZ cross(PointXYZ const &, PointXYZ const &);
 
 } // namespace quanergy
 
@@ -68,17 +98,5 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(quanergy::PointXYZ,
                                   (float, y, y)
                                   (float, z, z))
 
-PointXYZ operator+(PointXYZ const &, float);
-PointXYZ operator-(PointXYZ const &, float);
-PointXYZ operator*(PointXYZ const &, float);
-PointXYZ operator/(PointXYZ const &, float);
-PointXYZ operator+(PointXYZ const &, PointXYZ const &);
-PointXYZ operator-(PointXYZ const &, PointXYZ const &);
-
-float norm(PointXYZ const & p);        // magnitude
-PointXYZ normalize(PointXYZ const &);
-float squaredNorm(PointXYZ const &);
-float dot (PointXYZ const &, PointXYZ const &);
-PointXYZ cross (PointXYZ const &, PointXYZ const &)
 
 #endif

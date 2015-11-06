@@ -69,6 +69,7 @@ set(client_SRCS
   src/modules/polar_to_cart_converter.cpp
   src/modules/distance_filter.cpp
   src/modules/ring_intensity_filter.cpp
+  src/common/point_xyz.cpp
 )
 
 
