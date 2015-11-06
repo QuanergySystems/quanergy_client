@@ -20,6 +20,8 @@
 
 #include <pcl/point_types.h>
 
+#include <quanergy/common/point_xyz.h>
+
 namespace quanergy
 {
   /** Euclidean coordinate, including intensity and ring number. */
@@ -65,6 +67,22 @@ namespace quanergy
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW     // ensure proper alignment
   } EIGEN_ALIGN16;
+
+  PointXYZ operator+(PointXYZIR const &, float);
+  PointXYZ operator-(PointXYZIR const &, float);
+  PointXYZ operator*(PointXYZIR const &, float);
+  PointXYZ operator/(PointXYZIR const &, float);
+  PointXYZ operator+(PointXYZIR const &, PointXYZIR const &);
+  PointXYZ operator-(PointXYZIR const &, PointXYZIR const &);
+
+  PointXYZ operator-(PointXYZIR const &);
+
+  float norm(PointXYZIR const & p);        // magnitude
+  PointXYZ normalize(PointXYZIR const &);
+  float squaredNorm(PointXYZIR const &);
+  float dot(PointXYZIR const &, PointXYZIR const &);
+  PointXYZ cross(PointXYZIR const &, PointXYZIR const &);
+
 
 } // namespace quanergy
 

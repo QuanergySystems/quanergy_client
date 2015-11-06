@@ -50,9 +50,6 @@ else()
   find_package(PCL REQUIRED common io visualization)
 endif()
 
-# We only need the headers. Is this necessary?
-find_package(QuanergyCore REQUIRED)
-
 include_directories(
   include
   ${Boost_INCLUDE_DIR}
@@ -70,6 +67,7 @@ set(client_SRCS
   src/modules/distance_filter.cpp
   src/modules/ring_intensity_filter.cpp
   src/common/point_xyz.cpp
+  src/common/point_xyzir.cpp
 )
 
 
@@ -122,7 +120,6 @@ configure_file(cmake/QuanergyClientConfigVersion.cmake.in
 
 if (PACKAGE_FOR_DEV)
   # Install the QuanergyClientConfig.cmake and QuanergyClientConfigVersion.cmake
-
 
   message("config: ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/QuanergyClientConfig.cmake")
 
