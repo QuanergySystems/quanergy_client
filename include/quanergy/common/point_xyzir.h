@@ -15,7 +15,16 @@
 #ifndef QUANERGY_COMMON_POINT_XYZIR_H
 #define QUANERGY_COMMON_POINT_XYZIR_H
 
+#if 0
+/// Using c++11 is broken with ROS Indigo before patch #484
+/// (August 4th, 2014)
+/// So not using std::uint16_t for now
+
 #include <cstdint>
+#else
+#include <stdint.h>
+#endif 
+
 #include <limits>
 
 #include <pcl/point_types.h>
@@ -29,7 +38,7 @@ namespace quanergy
   {
     PCL_ADD_POINT4D;                    // quad-word XYZ
     float               intensity;      ///< laser intensity reading
-    std::uint16_t       ring;           ///< laser ring number
+    uint16_t            ring;           ///< laser ring number
 
     PointXYZIR (const PointXYZIR& p)
       : x(p.x)
@@ -46,7 +55,7 @@ namespace quanergy
       , y(0.0f)
       , z(0.0f)
       , intensity(0.0f)
-      , ring(std::numeric_limits<std::uint16_t>::max())
+      , ring(std::numeric_limits<uint16_t>::max())
     {
       data[3] = 1.f;
     }
@@ -55,7 +64,7 @@ namespace quanergy
                 float _y, 
                 float _z, 
                 float _intensity = 0.0f, 
-                uint16_t _ring = std::numeric_limits<std::uint16_t>::max())
+                uint16_t _ring = std::numeric_limits<uint16_t>::max())
       : x(_x)
       , y(_y)
       , z(_z)

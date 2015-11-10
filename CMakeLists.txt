@@ -83,14 +83,26 @@ endif(DOXYGEN_FOUND)
 
 
 #  This is the export CMake stuff form.
-set_target_properties(quanergy_client 
-  PROPERTIES SOVERSION ${QUANERGY_CLIENT_VERSION})
-install(TARGETS quanergy_client
-  EXPORT QuanergyClientTargets
-  LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 
-install(DIRECTORY include/quanergy
-  DESTINATION "${INSTALL_INCLUDE_DIR}")
+if (PACKAGE_FOR_DEV)
+
+  install(DIRECTORY include/quanergy
+    DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev)
+
+  install(TARGETS quanergy_client
+    EXPORT QuanergyClientTargets
+    LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib)
+
+else()
+
+  set_target_properties(quanergy_client 
+    PROPERTIES SOVERSION ${QUANERGY_CLIENT_VERSION})
+
+  install(TARGETS quanergy_client
+    EXPORT QuanergyClientTargets
+    LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib NAMELINK_SKIP)
+
+endif()
 
 
 # Add all targets to the build-tree export set
@@ -138,11 +150,11 @@ if(PACKAGE_FOR_DEV)
   set(CPACK_DEBIAN_PACKAGE_NAME "quanergy-client-dev")
   set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Quanergy client library - development")
   set(CPACK_DEBIAN_PACKAGE_SECTION libdevel)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "quanergy-core-dev (>= 0.1.0), libpcl-common-1.7-dev (>= 1.7.0), libpcl-io-1.7-dev (>= 1.7.0), libboost-dev (>= 1.54), libboost-system1.54.0, quanergy-client")
-#  configure_file(debian/postinst-dev.in "${PROJECT_BINARY_DIR}/postinst")
-#  configure_file(debian/preinst-dev.in "${PROJECT_BINARY_DIR}/preinst")
-#  configure_file(debian/postrm-dev.in "${PROJECT_BINARY_DIR}/postrm")
-#  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/preinst;${PROJECT_BINARY_DIR}/postinst;${PROJECT_BINARY_DIR}/postrm;")
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libpcl-common-1.7-dev (>= 1.7.0), libpcl-io-1.7-dev (>= 1.7.0), libboost-dev (>= 1.54), libboost-system1.54.0, quanergy-client")
+  configure_file(debian/postinst-dev.in "${PROJECT_BINARY_DIR}/postinst")
+  configure_file(debian/preinst-dev.in "${PROJECT_BINARY_DIR}/preinst")
+  configure_file(debian/postrm-dev.in "${PROJECT_BINARY_DIR}/postrm")
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/preinst;${PROJECT_BINARY_DIR}/postinst;${PROJECT_BINARY_DIR}/postrm;")
 else()
   set(CPACK_PACKAGE_FILE_NAME "quanergy-client-${QUANERGY_CLIENT_VERSION}")
   set(CPACK_DEBIAN_PACKAGE_NAME "quanergy-client")

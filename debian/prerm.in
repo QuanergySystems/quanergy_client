@@ -1,0 +1,14 @@
+#!/bin/sh
+# prerm script for quanergy-client
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# source debconf library
+. /usr/share/debconf/confmodule
+
+# Source dbconfig-common functions
+if [ -L ${INSTALL_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}quanergy_client${CMAKE_SHARED_LIBRARY_SUFFIX} ]; then
+    rm ${INSTALL_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}quanergy_client${CMAKE_SHARED_LIBRARY_SUFFIX}
+fi
