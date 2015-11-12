@@ -1,9 +1,9 @@
-/******************************************************************
- **                                                              **
- ** Copyright (C) 2015 -- Quanergy Systems. All Rights Reserved. **
- ** Contact: http://www.quanergy.com                             **
- **                                                              **
- ******************************************************************/
+/********************************************************************
+ **                                                                **
+ **  Copyright (C) 2015 -- Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                              **
+ **                                                                **
+ ********************************************************************/
 
 #ifndef QUANERGY_CLIENT_VERSION_HPP
 #define QUANERGY_CLIENT_VERSION_HPP

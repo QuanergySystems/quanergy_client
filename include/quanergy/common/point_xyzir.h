@@ -1,14 +1,13 @@
-/*************************************************
- **                                             **
- **  Copyright 2014-2015 Quanergy Systems, Inc  **
- **  All Rights Reserved.                       **
- **                                             **
- *************************************************/
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
 
-
-/** \file
+/** \file point_xyzir.h
  *
- *  Point Cloud Library point structures for cartesian M8 data.
+ *  \brief Point Cloud Library point structures for cartesian M8 data.
  *
  */
 

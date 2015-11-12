@@ -1,17 +1,18 @@
-/****************************************************************************
- **
- ** Copyright(C) 2014-- Quanergy Systems. All Rights Reserved.
- ** Contact: http://www.quanergy.com
- **
- ****************************************************************************/
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
 
 /** \file failover_client.h
  *
  *  \brief Provide fallback support for old m8 sensor data format.
  */
 
-#ifndef FAILOVER_CLIENT_H
-#define FAILOVER_CLIENT_H
+#ifndef QUANERGY_PARSERS_FAILOVER_CLIENT_H
+#define QUANERGY_PARSERS_FAILOVER_CLIENT_H
 
 #include <quanergy/client/client.h>
 

@@ -1,5 +1,20 @@
-#ifndef QUANERGY_DESERIALIZE_00_H
-#define QUANERGY_DESERIALIZE_00_H
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
+/**  \file deserialize_00.h
+  *
+  *  \brief Provide deserialization functionality for M8 data packet
+  *  type 0x00.
+  *
+  */
+
+
+#ifndef QUANERGY_PARSERS_DESERIALIZE_00_H
+#define QUANERGY_PARSERS_DESERIALIZE_00_H
 
 #include <quanergy/client/deserialize.h>
 

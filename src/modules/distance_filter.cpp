@@ -1,3 +1,10 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
 #include <quanergy/modules/distance_filter.h>
 
 #include <limits>

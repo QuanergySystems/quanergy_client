@@ -1,11 +1,18 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
 /** \file packet_parser.h
  * \brief Provide base packet parser functionality.
  *
  * Individual message types will need to specialize the functionality provided here.
  */
 
-#ifndef QUANERGY_PACKET_PARSER_GENERATOR_H
-#define QUANERGY_PACKET_PARSER_GENERATOR_H
+#ifndef QUANERGY_CLIENT_PACKET_PARSER_GENERATOR_H
+#define QUANERGY_CLIENT_PACKET_PARSER_GENERATOR_H
 
 #include <memory>
 #include <string>

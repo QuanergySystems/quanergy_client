@@ -1,17 +1,17 @@
-/****************************************************************************
- **
- ** Copyright(C) 2015-- Quanergy Systems. All Rights Reserved.
- ** Contact: http://www.quanergy.com
- **
- ****************************************************************************/
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
 
-/** \file pointcloud_types.h
- *
- *  \brief Provide typedefs for standard point clouds.
- */
+/**  \file pointcloud_types.h
+  *
+  *  \brief Provide typedefs for standard point clouds.
+  */
 
-#ifndef QUANERGY_POINTCLOUD_TYPES_H
-#define QUANERGY_POINTCLOUD_TYPES_H
+#ifndef QUANERGY_CLIENT_POINTCLOUD_TYPES_H
+#define QUANERGY_CLIENT_POINTCLOUD_TYPES_H
 
 #include <memory>
 #include <boost/shared_ptr.hpp>

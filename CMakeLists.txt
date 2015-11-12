@@ -110,7 +110,12 @@ export(TARGETS quanergy_client FILE "${PROJECT_BINARY_DIR}/QuanergyClientTargets
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
-export(PACKAGE QuanergyClient)
+
+# Which of these is correct? The latter follows the pattern set by
+# quanergy_core.
+
+# export(PACKAGE QuanergyClient)
+export(PACKAGE quanergy_client)
 
 # Create the QuanergyClientConfig.cmake and QuanergyClientConfigVersion files
 file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" ${INSTALL_INCLUDE_DIR})

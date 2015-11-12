@@ -1,9 +1,12 @@
-/****************************************************************************
- **
- ** Copyright(C) 2014-- Quanergy Systems. All Rights Reserved.
- ** Contact: http://www.quanergy.com
- **
- ****************************************************************************/
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
+#ifndef QUANERGY_PARSERS_FAILOVER_CLIENT_HPP
+#define QUANERGY_PARSERS_FAILOVER_CLIENT_HPP
 
 #include <quanergy/parsers/failover_client.h>
 
@@ -82,3 +85,5 @@ namespace quanergy
   } // namespace client
 
 } // namespace quanergy
+
+#endif

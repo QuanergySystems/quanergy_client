@@ -1,3 +1,15 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
+/** \file exceptions.h
+  * \brief Define specific sensor client run-time exceptions.
+  *
+  */
+
 #ifndef QUANERGY_CLIENT_EXCEPTIONS_H
 #define QUANERGY_CLIENT_EXCEPTIONS_H
 

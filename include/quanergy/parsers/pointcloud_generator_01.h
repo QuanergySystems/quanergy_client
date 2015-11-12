@@ -1,10 +1,18 @@
-/** \file pointcloud_generator_01.h
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
+/**  \file pointcloud_generator_01.h
  *
- *  \brief Provide pointcloud generator functionality for data type 0x01.
+ *   \brief Provide pointcloud generator functionality for data type
+ *   0x01.
  */
 
-#ifndef QUANERGY_POINTCLOUD_GENERATOR_01_H
-#define QUANERGY_POINTCLOUD_GENERATOR_01_H
+#ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_01_H
+#define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_01_H
 
 #include <limits>
 

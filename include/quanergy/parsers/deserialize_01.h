@@ -1,9 +1,20 @@
-/** \file deserialize_01.h
-  * \brief provide deserialization functionality for data type 0x01
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
+/**  \file deserialize_00.h
+  *
+  *  \brief Provide deserialization functionality for M8 data packet
+  *  type 0x01.
+  *
   */
 
-#ifndef QUANERGY_DESERIALIZE_01_H
-#define QUANERGY_DESERIALIZE_01_H
+
+#ifndef QUANERGY_PARSERS_DESERIALIZE_01_H
+#define QUANERGY_PARSERS_DESERIALIZE_01_H
 
 #include <iostream>
 

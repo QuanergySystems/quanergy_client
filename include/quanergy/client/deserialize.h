@@ -1,12 +1,19 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
 /** \file deserialize.h
-  * \brief provide base deserialization functionality
+  * \brief Provide base deserialization functionality.
   *
   * Individual message types will need to specialize the functionality
   * provided here.
   */
 
-#ifndef QUANERGY_DESERIALIZE_H
-#define QUANERGY_DESERIALIZE_H
+#ifndef QUANERGY_CLIENT_DESERIALIZE_H
+#define QUANERGY_CLIENT_DESERIALIZE_H
 
 #include <cstdint>
 #include <vector>

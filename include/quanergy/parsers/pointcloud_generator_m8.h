@@ -1,9 +1,17 @@
-/** \file pointcloud_generator_failover.h
- * \brief provide pointcloud generator functionality for m8 data
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
+
+/**  \file pointcloud_generator_failover.h
+ *   \brief Provide pointcloud generator functionality for m8 data.
  */
 
-#ifndef QUANERGY_POINTCLOUD_GENERATOR_M8_H
-#define QUANERGY_POINTCLOUD_GENERATOR_M8_H
+#ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_M8_H
+#define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_M8_H
 
 #include <quanergy/client/packet_parser.h>
 
