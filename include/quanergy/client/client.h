@@ -10,8 +10,8 @@
  *  \brief Provide generalized (parameterized) sensor client service.
  */
 
-#ifndef QUANERGY_CLIENT_H
-#define QUANERGY_CLIENT_H
+#ifndef QUANERGY_CLIENT_CLIENT_H
+#define QUANERGY_CLIENT_CLIENT_H
 
 #include <queue>
 #include <mutex>

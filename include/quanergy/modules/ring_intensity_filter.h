@@ -10,8 +10,8 @@
  *  \brief Filters HVDIR points based on intensity for a given ring.
  */
 
-#ifndef QUANERGY_RING_INTENSITY_FILTER_H
-#define QUANERGY_RING_INTENSITY_FILTER_H
+#ifndef QUANERGY_MODULES_RING_INTENSITY_FILTER_H
+#define QUANERGY_MODULES_RING_INTENSITY_FILTER_H
 
 #include <memory>
 #include <cstdint>
