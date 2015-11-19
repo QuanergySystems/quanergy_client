@@ -7,7 +7,7 @@
 
 /** \file point_xyzir.h
  *
- *  \brief Point Cloud Library point structures for cartesian M8 data.
+ *  \brief Point Cloud Library point structures for cartesian data with intensity and ring number.
  *
  */
 

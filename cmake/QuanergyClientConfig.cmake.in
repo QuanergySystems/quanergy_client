@@ -1,6 +1,6 @@
 # - Config file for the QuanergyClient package
 #  It defines the following variables
-#  QUANERGY_CLIENT_INCLUDE_DIRS - include directories for M8Client
+#  QUANERGY_CLIENT_INCLUDE_DIRS - include directories for QuanergyClient
 #  QUANERGY_CLIENT_LIBRARIES    - libraries to link against
 
 # Compute paths

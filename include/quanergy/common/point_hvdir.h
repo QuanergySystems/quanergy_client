@@ -7,7 +7,7 @@
 
 /** \file
  *
- *  Point Cloud Library point structures for polar M8 data.
+ *  Point Cloud Library point structures for polar data with intensity and ring.
  *
  */
 
@@ -45,7 +45,7 @@ namespace quanergy
   PCL_ADD_UNION_POINT4D_HVD \
   PCL_ADD_EIGEN_MAPS_POINT4D
 
-  /** Polar M8 coordinate, including intensity and ring number. */
+  /** Polar coordinate, including intensity and ring number. */
   struct PointHVDIR
   {
     PCL_ADD_POINT4D_HVD;                    // quad-word HVD

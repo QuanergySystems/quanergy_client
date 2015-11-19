@@ -7,8 +7,7 @@
 
 /**  \file deserialize_00.h
   *
-  *  \brief Provide deserialization functionality for M8 data packet
-  *  type 0x01.
+  *  \brief Provide deserialization functionality for data packet type 0x01.
   *
   */
 

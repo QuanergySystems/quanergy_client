@@ -8,6 +8,8 @@
 /** \file ring_intensity_filter.h
  *
  *  \brief Filters HVDIR points based on intensity for a given ring.
+ *
+ *  This filter is designed to remove ring artifacts that are sometimes found in prototype M8 sensors
  */
 
 #ifndef QUANERGY_MODULES_RING_INTENSITY_FILTER_H

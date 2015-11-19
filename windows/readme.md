@@ -37,9 +37,9 @@ Steps:
 </li>
 <li>Open CMake 3.2.3 to start converting cmake files to Visual Studio 2013 solutions.
     <ul>
-    <li>Set "Where is the source code:" to C:\location\of\m8client
+    <li>Set "Where is the source code:" to C:\location\of\quanergy_client
     </li>
-    <li>Set "Where to build the binaries:" to C:\location\of\m8client_build
+    <li>Set "Where to build the binaries:" to C:\location\of\quanergy_client_build
     </li>
     <li>Press "Configure" and select "Visual Studio 12 2013" or "Visual Studio 12 2013 Win64" as the generator.  Use default native compilers.
         If an error occurs where it cannot find the VTK install in PCL, add the variable:
@@ -68,9 +68,9 @@ Steps:
 </li>
 <li>Configuring and Building QuanergyClient in Visual Studio 2013
     <ul>
-    <li>Open QuanergyClient.sln in C:\location\of\m8client_build
+    <li>Open QuanergyClient.sln in C:\location\of\quanergy_client_build
     </li>
-    <li>Right-click on m8_client in the Solution Explorer and select "Properties".  Under "Configuration Properties" -> "General", 
+    <li>Right-click on quanergy_client in the Solution Explorer and select "Properties".  Under "Configuration Properties" -> "General", 
      change "Target Extension" from ".dll" to ".lib".  Set the "Configuration Type" to "Static library(.lib)".
      Apply this step to both the Debug and Release builds.
     </li>

@@ -7,8 +7,9 @@
 
 /**  \file deserialize_00.h
   *
-  *  \brief Provide deserialization functionality for M8 data packet
-  *  type 0x00.
+  *  \brief Provide deserialization functionality for data packet type 0x00
+  *
+  *  data packet is a wrapper for the old m8 data.
   *
   */
 
