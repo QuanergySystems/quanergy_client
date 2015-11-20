@@ -55,13 +55,13 @@ PointXYZ operator-(PointXYZIR const & p)
 
 float norm(PointXYZIR const & p)
 {
-  return sqrtf(p.x*p.x + p.y*p.y + p.z*p.z);
+  return std::sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
 }
 
 
 PointXYZ normalize(PointXYZIR const & p)
 {
-  float norm = sqrtf(p.x*p.x + p.y*p.y + p.z*p.z);
+  float norm = std::sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
 
   float s = 1.0f / norm;
 

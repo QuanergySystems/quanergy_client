@@ -23,6 +23,7 @@ namespace quanergy
 {
   namespace client
   {
+    /** \brief base class for packet parsers, providing the signal and frame id */
     template <class RESULT>
     struct PacketParserBase
     {
@@ -47,7 +48,6 @@ namespace quanergy
 
 
     /** \brief Recursive case for the PacketParer variadic template. */
-
     template <class RESULT, class TYPE, class... TYPES>
     struct PacketParser : public PacketParserBase<RESULT>
     {

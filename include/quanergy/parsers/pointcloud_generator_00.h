@@ -7,8 +7,7 @@
 
 /**  \file pointcloud_generator_00.h
  *
- *   \brief Provide pointcloud generator functionality for data type
- *   0x00.
+ *   \brief Provide pointcloud generator functionality for data type 0x00.
  */
 
 #ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_00_H

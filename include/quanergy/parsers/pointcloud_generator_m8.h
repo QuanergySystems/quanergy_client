@@ -94,19 +94,21 @@ namespace quanergy
 
         ++packet_counter_;
 
+        // get spin direction
         int direction = 0;
         if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 0)
           direction = (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 4000) ? 1 : -1;
         else
           direction = (data_packet.data[M8_FIRING_PER_PKT-1].position - data_packet.data[0].position > 4000) ? -1 : 1;
 
+        // for each firing
         for (int i = 0; i < M8_FIRING_PER_PKT; ++i)
         {
           const M8FiringData &data = data_packet.data[i];
 
           // calculate the angle in degrees
           double azimuth_angle = (static_cast<double> ((data.position+(M8_NUM_ROT_ANGLES/2))%M8_NUM_ROT_ANGLES) / (M8_NUM_ROT_ANGLES) * 360.0) - 180.;
-          // check that the sensor is not spinning backward
+          // check for wrap which indicates completion of a scan
           if (direction * azimuth_angle < direction * last_azimuth_)
           {
             if (current_cloud_->size () > 0)
