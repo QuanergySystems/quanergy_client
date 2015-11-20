@@ -22,5 +22,3 @@ fi
 mkdir docs/html
 # copy docs
 cp -R build/doc/html/* docs/html/
-# remove references to local folders
-perl -pi -e 's/\/home.*include/include/g' docs/html/*.html
