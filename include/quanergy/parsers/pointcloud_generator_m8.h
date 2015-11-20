@@ -83,14 +83,15 @@ namespace quanergy
           return; // don't process if sensor in error
         }
 
-        time_t time;
+        // this time is used for the cloud stamp which is a 64 bit integer in units of microseconds
+        std::uint64_t time;
         if (data_packet.version <= 3)
         {
           // early versions of API put 10 ns increments in this field
-          time = data_packet.seconds * 1e9 + data_packet.nanoseconds * 10;
+          time = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-2;
         }
         else
-          time = data_packet.seconds * 1e9 + data_packet.nanoseconds;
+          time = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-3;
 
         ++packet_counter_;
 
