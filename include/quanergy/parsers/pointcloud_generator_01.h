@@ -57,13 +57,10 @@ namespace quanergy
 
           PointCloudHVDIRPtr pc = PointCloudHVDIRPtr(new PointCloudHVDIR());
 
-          /*! PCL convention is microseconds, however, we are using
-           *  nanoseconds throughout the system.
-           */
-
+          // pcl pointcloud uses microseconds
           pc->header.stamp = 
-            std::uint64_t(data_packet.packet_header.seconds) * 1E9 + 
-            std::uint64_t(data_packet.packet_header.nanoseconds);
+            std::uint64_t(data_packet.packet_header.seconds) * 1E6 +
+            std::uint64_t(data_packet.packet_header.nanoseconds) * 1E-3;
 
           pc->header.seq = data_packet.data_header.sequence;
 
