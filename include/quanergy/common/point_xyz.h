@@ -79,6 +79,7 @@ namespace quanergy
   PointXYZ operator-(PointXYZ const &);
 
   float norm(PointXYZ const & p);        // magnitude
+  //! if norm is zero, this give invalid value
   PointXYZ normalize(PointXYZ const &);
   float squaredNorm(PointXYZ const &);
   float dot(PointXYZ const &, PointXYZ const &);

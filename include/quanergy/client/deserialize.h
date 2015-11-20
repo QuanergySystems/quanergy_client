@@ -7,9 +7,6 @@
 
 /** \file deserialize.h
   * \brief Provide base deserialization functionality.
-  *
-  * Individual message types will need to specialize the functionality
-  * provided here.
   */
 
 #ifndef QUANERGY_CLIENT_DESERIALIZE_H
@@ -28,9 +25,6 @@ namespace quanergy
   {
     /// useful consts
     const std::uint32_t SIGNATURE     = 0x75bd7e97;
-    const std::uint8_t  VERSION_MAJOR = 0;
-    const std::uint8_t  VERSION_MINOR = 1;
-    const std::uint8_t  VERSION_PATCH = 0;
 
 #pragma pack(push, 1)
     /** \brief Header shared by all messages */
@@ -78,12 +72,7 @@ namespace quanergy
       return ntohl(net_long);
     }
 
-    /** \brief interface for deserialize; to be specialized elsewhere */
-    template<class T>
-    inline void deserialize(const char* network_buffer, T& object) = delete;
-
-    /** \brief deserialize specialization for header */
-    template<>
+    /** \brief deserialize function for header */
     inline void deserialize(const char* network_buffer, PacketHeader& object)
     {
       const PacketHeader& network_order = *reinterpret_cast<const PacketHeader*>(network_buffer);

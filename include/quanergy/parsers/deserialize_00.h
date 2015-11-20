@@ -9,7 +9,7 @@
   *
   *  \brief Provide deserialization functionality for data packet type 0x00
   *
-  *  data packet is a wrapper for the old m8 data.
+  *  data packet 00 is a wrapper for the old m8 data with the new header.
   *
   */
 
@@ -60,7 +60,6 @@ namespace quanergy
     };
 #pragma pack(pop)
 
-    template<>
     inline void deserialize(const char* network_buffer, M8FiringData& object)
     {
       const M8FiringData& network_order = *reinterpret_cast<const M8FiringData*>(network_buffer);
@@ -99,7 +98,6 @@ namespace quanergy
                     });
     }
 
-    template<>
     inline void deserialize(const char* network_buffer, M8DataPacket& object)
     {
       const M8DataPacket& network_order = *reinterpret_cast<const M8DataPacket*>(network_buffer);
@@ -119,7 +117,6 @@ namespace quanergy
                     });
     }
 
-    template<>
     inline void deserialize(const char* network_buffer, DataPacket00& object)
     {
       deserialize(network_buffer, object.packet_header);

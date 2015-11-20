@@ -56,7 +56,6 @@ namespace quanergy
       std::vector<DataPoint01>  data_points;
     };
 
-    template<>
     inline void deserialize(const char* network_buffer, DataHeader01& object)
     {
       const DataHeader01& network_order = *reinterpret_cast<const DataHeader01*>(network_buffer);
@@ -67,7 +66,6 @@ namespace quanergy
       object.reserved    = deserialize(network_order.reserved);
     }
 
-    template<>
     inline void deserialize(const char* network_buffer, DataPoint01& object)
     {
       const DataPoint01& network_order = *reinterpret_cast<const DataPoint01*>(network_buffer);
@@ -80,7 +78,6 @@ namespace quanergy
       object.reserved          = deserialize(network_order.reserved);
     }
 
-    template<>
     inline void deserialize(const char* network_buffer, DataPacket01& object)
     {
       deserialize(network_buffer, object.packet_header);

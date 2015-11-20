@@ -12,18 +12,22 @@
  */
 #define PCL_NO_PRECOMPILE
 
+// pcl visualizer and parser
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/point_cloud_color_handlers.h>
 #include <pcl/visualization/point_cloud_geometry_handlers.h>
 #include <pcl/console/parse.h>
 
+// client; failover adds support for old M8 data
 #include <quanergy/parsers/failover_client.h>
 
+// point cloud generation for the two types we support
 #include <quanergy/parsers/deserialize_00.h>
 #include <quanergy/parsers/pointcloud_generator_00.h>
 #include <quanergy/parsers/deserialize_01.h>
 #include <quanergy/parsers/pointcloud_generator_01.h>
 
+// coversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>
 
 
@@ -37,8 +41,7 @@ void usage(char** argv)
   return;
 }
 
-
-
+/** \brief struct contains the intelligence of the test application */
 struct Test {
 
   /// FailoverClient adds a failover to old M8 data
@@ -52,6 +55,7 @@ struct Test {
     , kill_prog_(false)
   {
 
+    /// basic visualization setup
 #if (PCL_MAJOR_VERSION == 1 && PCL_MINOR_VERSION == 7 && PCL_REVISION_VERSION <= 2)
     viewer_.addCoordinateSystem(1.0);
 #else
@@ -62,9 +66,11 @@ struct Test {
     viewer_.setCameraPosition (0.0, 0.0, 30.0, 0.0, 1.0, 0.0, 0);
     viewer_.setCameraClipDistances (0.0, 50.0);
 
+    /// connect client Polar output to the PolarToCartConverter
     cloud_connection_ = client_.connect([this](const ClientType::Result& pc) 
                                         { this->converter_.slot(pc); } );
 
+    /// connect PolarToCartConverter Cartesian output to this lambda to update the visualization
     converter_connection_ = converter_.connect([this](const Converter::Result& pc)
                                          {
                                            pcl::visualization::PointCloudColorHandlerGenericField<quanergy::PointXYZIR> color_handler(pc,"intensity");
@@ -76,8 +82,10 @@ struct Test {
                                          });
   }
 
+  /** \brief run the application */
   void run()
   {
+    /// thread for client to run on
     std::thread client_thread([this]
                               {
                                 try
@@ -91,12 +99,14 @@ struct Test {
                                 }
                               });
 
+    /// spin loop for updating visualizer
     while (!viewer_.wasStopped() && !kill_prog_)
     {
       std::unique_lock<std::mutex> lock(viewer_spin_mutex_);
       viewer_.spinOnce();
     }
 
+    /// shut things down
     converter_connection_.disconnect();
     cloud_connection_.disconnect();
     client_.stop();

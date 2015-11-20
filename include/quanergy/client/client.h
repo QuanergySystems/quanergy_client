@@ -19,12 +19,18 @@
 #include <thread>
 #include <memory>
 
+// networking
 #include <boost/asio.hpp>
+// signals for output
 #include <boost/signals2.hpp>
 
+// interface for parsing
 #include <quanergy/client/packet_parser.h>
 
+// exception library
 #include <quanergy/client/exceptions.h>
+
+// basic deserialization functions
 #include <quanergy/client/deserialize.h>
 
 
@@ -32,7 +38,11 @@ namespace quanergy
 {
   namespace client
   {
-
+    /** \brief Client class connects to a sensor and uses template specialization to appropriately parse the data
+     *
+     *  \tparam RESULT specifies the expected return type (type for the signal)
+     *  \tparam TYPES... the data packet types that we expect to receive and want to be able to handle
+     */
     template <class RESULT, class... TYPES>
     class Client
     {
@@ -46,7 +56,9 @@ namespace quanergy
 
       typedef PacketParser<RESULT, TYPES...> Parser;
 
-      /** \brief Constructor taking a host and port. */
+      /** \brief Constructor taking a host, port, and a string that differentiates instances of the client.
+       *  parsers are not required to use the frame_id but some may use it to differentiate instances of the client
+       */
       Client(std::string const & host, 
              std::string const & port,
              std::string const & frame_id = std::string());
