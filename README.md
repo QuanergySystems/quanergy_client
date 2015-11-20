@@ -1,5 +1,5 @@
-# m8client Build Procedure
-Mark 8 sensor driver sample source
+# quanergy_client Build Procedure
+Sample source for connecting to Quanergy sensors
 
 # Linux Build Instructions (tested on Ubuntu 14.04 LTS)
 ###
@@ -8,7 +8,7 @@ Mark 8 sensor driver sample source
 Install the following libraries (and git)
 
 ```
-sudo apt-get install libpcap-dev git build-essential libboost-all-dev 
+sudo apt-get install git build-essential libboost-all-dev 
 ```
 Install PCL
 
@@ -22,13 +22,13 @@ Clone the SDK repository
 ```
 mkdir ~/QuanergySystems
 cd ~/QuanergySystems
-git clone https://github.com/QuanergySystems/m8client.git
+git clone https://github.com/QuanergySystems/quanergy_client.git
 git checkout master
 ```
-Build m8client code and test application
+Build quanergy_client code and test application
 
 ```
-cd m8client
+cd quanergy_client
 mkdir build
 cd build
 cmake ..

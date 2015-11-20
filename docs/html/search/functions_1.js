@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['isrunning',['isRunning',['../classM8Client.html#acdae7380fb8845c7c96b7dd7325df5f6',1,'M8Client']]]
+  ['failoverclient',['FailoverClient',['../classquanergy_1_1client_1_1FailoverClient.html#abb7f359947601369969d0d5f69b1d6b5',1,'quanergy::client::FailoverClient']]]
 ];

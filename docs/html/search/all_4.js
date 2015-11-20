@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['pointcloud',['PointCloud',['../classM8Client.html#a3d651bd016c47804ce1391825442ae92',1,'M8Client']]],
-  ['pointcloudconstptr',['PointCloudConstPtr',['../classM8Client.html#ac7ec6ec8625564a0a32aa86dc3814d45',1,'M8Client']]],
-  ['pointcloudptr',['PointCloudPtr',['../classM8Client.html#aac090a8526e96c4f061b9300b7211113',1,'M8Client']]]
+  ['getringfilterminimumintensitythreshold',['getRingFilterMinimumIntensityThreshold',['../structquanergy_1_1client_1_1RingIntensityFilter.html#ae872b5db1be0f7fdf068f23a01729a19',1,'quanergy::client::RingIntensityFilter']]],
+  ['getringfilterminimumrangethreshold',['getRingFilterMinimumRangeThreshold',['../structquanergy_1_1client_1_1RingIntensityFilter.html#aafbba638a6d327081160ee286b2904e9',1,'quanergy::client::RingIntensityFilter']]]
 ];
