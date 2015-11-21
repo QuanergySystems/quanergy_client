@@ -19,13 +19,19 @@
 #include <quanergy/common/pointcloud_types.h>
 #include <quanergy/parsers/pointcloud_generator_failover.h>
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+#else
+  #define DLLEXPORT
+#endif
+
 namespace quanergy
 {
   namespace client
   {
 
     template <class... TYPES>
-    class FailoverClient : public Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>
+	class DLLEXPORT FailoverClient : public Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>
     {
     public:
       typedef std::shared_ptr<FailoverClient<TYPES...> > Ptr;

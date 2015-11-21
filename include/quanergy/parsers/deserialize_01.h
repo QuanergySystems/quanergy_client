@@ -19,6 +19,12 @@
 
 #include <quanergy/client/deserialize.h>
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+#else
+  #define DLLEXPORT
+#endif
+
 namespace quanergy
 {
 
@@ -27,7 +33,7 @@ namespace quanergy
 
 #pragma pack(push, 1)
     /** \brief data header 0x01 */
-    struct DataHeader01
+    struct DLLEXPORT DataHeader01
     {
       std::uint32_t sequence;
       std::uint32_t status;
@@ -36,7 +42,7 @@ namespace quanergy
     };
 
     /** \brief data point 0x01 */
-    struct DataPoint01
+    struct DLLEXPORT DataPoint01
     {
       std::int16_t  horizontal_angle; // [-31416, 31416], 1/10,000 radians, +left, -right
       std::int16_t  vertical_angle;   // [-31416, 31416], 1/10,000 radians, +up, -down
@@ -48,7 +54,7 @@ namespace quanergy
 #pragma pack(pop)
 
     /** \brief data packet 0x01 */
-    struct DataPacket01
+    struct DLLEXPORT DataPacket01
     {
       PacketHeader              packet_header;
       DataHeader01              data_header;
@@ -56,7 +62,7 @@ namespace quanergy
       std::vector<DataPoint01>  data_points;
     };
 
-    inline void deserialize(const char* network_buffer, DataHeader01& object)
+	inline DLLEXPORT void deserialize(const char* network_buffer, DataHeader01& object)
     {
       const DataHeader01& network_order = *reinterpret_cast<const DataHeader01*>(network_buffer);
 
@@ -66,7 +72,7 @@ namespace quanergy
       object.reserved    = deserialize(network_order.reserved);
     }
 
-    inline void deserialize(const char* network_buffer, DataPoint01& object)
+	inline DLLEXPORT void deserialize(const char* network_buffer, DataPoint01& object)
     {
       const DataPoint01& network_order = *reinterpret_cast<const DataPoint01*>(network_buffer);
 
@@ -78,7 +84,7 @@ namespace quanergy
       object.reserved          = deserialize(network_order.reserved);
     }
 
-    inline void deserialize(const char* network_buffer, DataPacket01& object)
+	inline DLLEXPORT void deserialize(const char* network_buffer, DataPacket01& object)
     {
       deserialize(network_buffer, object.packet_header);
       network_buffer += sizeof(PacketHeader);

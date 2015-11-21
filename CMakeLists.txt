@@ -89,18 +89,30 @@ if (PACKAGE_FOR_DEV)
   install(DIRECTORY include/quanergy
     DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev)
 
+  if(WIN32)
+  install(TARGETS quanergy_client
+    EXPORT QuanergyClientTargets
+    RUNTIME DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib)
+  else()
   install(TARGETS quanergy_client
     EXPORT QuanergyClientTargets
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib)
+  endif()
 
 else()
 
   set_target_properties(quanergy_client 
     PROPERTIES SOVERSION ${QUANERGY_CLIENT_VERSION})
 
+  if(WIN32)
+  install(TARGETS quanergy_client
+    EXPORT QuanergyClientTargets
+    RUNTIME DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib NAMELINK_SKIP)
+  else()
   install(TARGETS quanergy_client
     EXPORT QuanergyClientTargets
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib NAMELINK_SKIP)
+  endif()
 
 endif()
 
