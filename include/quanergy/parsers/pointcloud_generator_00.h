@@ -20,6 +20,11 @@
 #include <quanergy/parsers/deserialize_00.h>
 #include <quanergy/parsers/pointcloud_generator_m8.h>
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+#else
+  #define DLLEXPORT
+#endif
 
 namespace quanergy
 {
@@ -28,7 +33,7 @@ namespace quanergy
 
     /** \brief specialization for DataPacket00 */
     template <>
-    struct PacketParser<PointCloudHVDIRPtr, DataPacket00> 
+	struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, DataPacket00>
       : public PointCloudGeneratorM8
     {
     public:

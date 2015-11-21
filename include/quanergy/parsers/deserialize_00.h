@@ -19,6 +19,12 @@
 
 #include <quanergy/client/deserialize.h>
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+#else
+  #define DLLEXPORT
+#endif
+
 namespace quanergy
 {
   namespace client
@@ -33,7 +39,7 @@ namespace quanergy
 
 #pragma pack(push, 1)
     /// \brief structure that holds the sensor firing output
-    struct M8FiringData
+	struct DLLEXPORT M8FiringData
     {
       std::uint16_t position;
       std::uint16_t padding;
@@ -43,7 +49,7 @@ namespace quanergy
     }; // 132 bytes
 
     /// \brief structure that holds multiple sensor firings and gets sent in the TCP packet
-    struct M8DataPacket
+	struct DLLEXPORT M8DataPacket
     {
       M8FiringData  data[M8_FIRING_PER_PKT];
       std::uint32_t seconds;     // seconds from Jan 1 1970
@@ -53,14 +59,14 @@ namespace quanergy
     }; // 6612 bytes
 
     /** \brief data packet 0x00 */
-    struct DataPacket00
+	struct DLLEXPORT DataPacket00
     {
       PacketHeader packet_header;
       M8DataPacket data_body;
     };
 #pragma pack(pop)
 
-    inline void deserialize(const char* network_buffer, M8FiringData& object)
+	inline DLLEXPORT void deserialize(const char* network_buffer, M8FiringData& object)
     {
       const M8FiringData& network_order = *reinterpret_cast<const M8FiringData*>(network_buffer);
 
@@ -98,7 +104,7 @@ namespace quanergy
                     });
     }
 
-    inline void deserialize(const char* network_buffer, M8DataPacket& object)
+	inline DLLEXPORT void deserialize(const char* network_buffer, M8DataPacket& object)
     {
       const M8DataPacket& network_order = *reinterpret_cast<const M8DataPacket*>(network_buffer);
 
@@ -117,7 +123,7 @@ namespace quanergy
                     });
     }
 
-    inline void deserialize(const char* network_buffer, DataPacket00& object)
+	inline DLLEXPORT void deserialize(const char* network_buffer, DataPacket00& object)
     {
       deserialize(network_buffer, object.packet_header);
       network_buffer += sizeof(PacketHeader);

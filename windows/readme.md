@@ -70,10 +70,6 @@ Steps:
     <ul>
     <li>Open QuanergyClient.sln in C:\location\of\quanergy_client_build
     </li>
-    <li>Right-click on quanergy_client in the Solution Explorer and select "Properties".  Under "Configuration Properties" -> "General", 
-     change "Target Extension" from ".dll" to ".lib".  Set the "Configuration Type" to "Static library(.lib)".
-     Apply this step to both the Debug and Release builds.
-    </li>
     <li>Right-click on ALL_BUILD in the Solution Explorer and select "Build".  Do this for both Debug and Release builds.
     </li>
     </ul>

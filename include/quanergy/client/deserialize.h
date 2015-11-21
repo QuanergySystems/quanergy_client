@@ -14,8 +14,13 @@
 
 #include <cstdint>
 #include <vector>
-#include <arpa/inet.h>
 #include <algorithm>
+
+#ifdef _MSC_VER
+  #include <Winsock2.h>
+#else
+  #include <arpa/inet.h>
+#endif
 
 #include <quanergy/client/exceptions.h>
 

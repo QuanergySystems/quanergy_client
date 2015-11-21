@@ -24,12 +24,19 @@
 
 #include <quanergy/common/pointcloud_types.h>
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+  #define TYPENAME
+#else
+  #define DLLEXPORT
+  #define TYPENAME typename
+#endif
 
 namespace quanergy
 {
   namespace client
   {
-    struct PolarToCartConverter
+    struct DLLEXPORT PolarToCartConverter
     {
       typedef std::shared_ptr<PolarToCartConverter> Ptr;
 
@@ -37,7 +44,7 @@ namespace quanergy
 
       typedef boost::signals2::signal<void (Result const &)> Signal;
 
-      boost::signals2::connection connect(const typename Signal::slot_type& subscriber);
+	  boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
 
       void slot(PointCloudHVDIRConstPtr const &);
 

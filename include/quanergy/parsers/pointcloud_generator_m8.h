@@ -19,6 +19,11 @@
 
 #include <quanergy/parsers/deserialize_00.h>
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+#else
+  #define DLLEXPORT
+#endif
 
 namespace quanergy
 {
@@ -38,7 +43,7 @@ namespace quanergy
     const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
     /** \brief Not a specialization because it is intended to be used by others. */
-    struct PointCloudGeneratorM8 : PacketParserBase<PointCloudHVDIRPtr>
+	struct DLLEXPORT PointCloudGeneratorM8 : PacketParserBase<PointCloudHVDIRPtr>
     {
       PointCloudGeneratorM8(std::string const & frame_id)
         : PacketParserBase<PointCloudHVDIRPtr>(frame_id)
