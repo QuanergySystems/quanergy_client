@@ -20,9 +20,9 @@ namespace quanergy
       : buff_(sizeof(PacketHeader))
       , parser_(frame_id)
       , host_query_(host, port)
-      , kill_(false)
       , signal_(new Signal)
     {
+      kill_ = false;
       read_socket_.reset(new boost::asio::ip::tcp::socket(io_service_));
       // parser gets a pointer to the signal to call after parsing
       parser_.setSignal(signal_);

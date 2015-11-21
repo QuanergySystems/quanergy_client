@@ -25,15 +25,21 @@
 #include <quanergy/common/point_hvdir.h>
 #include <quanergy/common/pointcloud_types.h>
 
-// for M8_NUM_LASERS
-#include <quanergy/parsers/deserialize_00.h>
+#define M8_NUM_LASERS 8
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+  #define TYPENAME
+#else
+  #define DLLEXPORT
+  #define TYPENAME typename
+#endif
 
 namespace quanergy
 {
   namespace client
   {
-    struct RingIntensityFilter
+    struct DLLEXPORT RingIntensityFilter
     {
       typedef std::shared_ptr<RingIntensityFilter> Ptr;
 
@@ -43,7 +49,7 @@ namespace quanergy
 
       RingIntensityFilter();
 
-      boost::signals2::connection connect(const typename Signal::slot_type& subscriber);
+	  boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
 
       void slot(PointCloudHVDIRConstPtr const &);
 

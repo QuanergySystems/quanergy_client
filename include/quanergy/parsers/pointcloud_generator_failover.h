@@ -21,13 +21,19 @@
 
 #include <quanergy/parsers/pointcloud_generator_m8.h>
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+#else
+  #define DLLEXPORT
+#endif
+
 namespace quanergy
 {
   namespace client
   {
     /** \brief specialization for M8DataPacket */
     template <>
-    struct PacketParser<PointCloudHVDIRPtr, M8DataPacket> : public PointCloudGeneratorM8
+	struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, M8DataPacket> : public PointCloudGeneratorM8
     {
       PacketParser(std::string const & frame_id)
         : PointCloudGeneratorM8(frame_id)

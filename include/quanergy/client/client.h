@@ -19,6 +19,10 @@
 #include <thread>
 #include <memory>
 
+#ifdef _MSC_VER
+  #include <atomic>
+#endif
+
 // networking
 #include <boost/asio.hpp>
 // signals for output

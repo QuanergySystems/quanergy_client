@@ -22,6 +22,11 @@
 
 #include <quanergy/parsers/deserialize_01.h>
 
+#ifdef _MSC_VER
+  #define DLLEXPORT __declspec(dllexport)
+#else
+  #define DLLEXPORT
+#endif
 
 namespace quanergy
 {
@@ -30,7 +35,7 @@ namespace quanergy
 
     /** \brief specialization for DataPacket01 */
     template <>
-    struct PacketParser<PointCloudHVDIRPtr, DataPacket01> 
+	struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, DataPacket01>
       : PacketParserBase<PointCloudHVDIRPtr>
     {
       PacketParser<PointCloudHVDIRPtr, DataPacket01>(std::string const & frame_id)

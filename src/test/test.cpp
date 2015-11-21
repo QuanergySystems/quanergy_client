@@ -52,9 +52,8 @@ struct Test {
   Test(std::string const & host, std::string const & port)
     : client_(host, port, "test frame") 
     , viewer_("Cloud Viewer")
-    , kill_prog_(false)
   {
-
+    kill_prog_ = false;
     /// basic visualization setup
 #if (PCL_MAJOR_VERSION == 1 && PCL_MINOR_VERSION == 7 && PCL_REVISION_VERSION <= 2)
     viewer_.addCoordinateSystem(1.0);
