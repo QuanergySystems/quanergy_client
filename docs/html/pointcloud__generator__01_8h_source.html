@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">QuanergyClient
-   &#160;<span id="projectnumber">2.0.0</span>
+   &#160;<span id="projectnumber">2.0.2</span>
    </div>
   </td>
  </tr>
@@ -106,93 +106,96 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &lt;quanergy/parsers/deserialize_01.h&gt;</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">namespace </span>quanergy</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;{</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keyword">namespace </span>client</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  {</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keyword">template</span> &lt;&gt;</div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html">   33</a></span>&#160;    <span class="keyword">struct </span><a class="code" href="structquanergy_1_1client_1_1PacketParser.html">PacketParser</a>&lt;PointCloudHVDIRPtr, <a class="code" href="structquanergy_1_1client_1_1DataPacket01.html">DataPacket01</a>&gt; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;      : <a class="code" href="structquanergy_1_1client_1_1PacketParserBase.html">PacketParserBase</a>&lt;PointCloudHVDIRPtr&gt;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    {</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      <a class="code" href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html">PacketParser&lt;PointCloudHVDIRPtr, DataPacket01&gt;</a>(std::string <span class="keyword">const</span> &amp; frame_id)</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        : <a class="code" href="structquanergy_1_1client_1_1PacketParserBase.html">PacketParserBase&lt;PointCloudHVDIRPtr&gt;</a>(frame_id)</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      {</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      }</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      <span class="keyword">static</span> <span class="keywordtype">bool</span> match(std::uint8_t type)</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      {</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        <span class="keywordflow">return</span> type == 0x01;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#ifdef _MSC_VER</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor"></span><span class="preprocessor">  #define DLLEXPORT __declspec(dllexport)</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor"></span><span class="preprocessor">  #define DLLEXPORT</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">namespace </span>quanergy</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;{</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keyword">namespace </span>client</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keyword">template</span> &lt;&gt;</div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html">   38</a></span>&#160;    <span class="keyword">struct </span>DLLEXPORT <a class="code" href="structquanergy_1_1client_1_1PacketParser.html">PacketParser</a>&lt;PointCloudHVDIRPtr, <a class="code" href="structquanergy_1_1client_1_1DataPacket01.html">DataPacket01</a>&gt;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      : <a class="code" href="structquanergy_1_1client_1_1PacketParserBase.html">PacketParserBase</a>&lt;PointCloudHVDIRPtr&gt;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    {</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      <a class="code" href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html">PacketParser&lt;PointCloudHVDIRPtr, DataPacket01&gt;</a>(std::string <span class="keyword">const</span> &amp; frame_id)</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        : <a class="code" href="structquanergy_1_1client_1_1PacketParserBase.html">PacketParserBase&lt;PointCloudHVDIRPtr&gt;</a>(frame_id)</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;      {</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      }</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html#af0194ec9f3da529c341e9361748fe8c4">   47</a></span>&#160;      <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html#af0194ec9f3da529c341e9361748fe8c4">parse</a>(std::uint8_t type, <span class="keyword">const</span> std::vector&lt;char&gt;&amp; packet)</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      {</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="keywordflow">if</span> (match(type))</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        {</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;          <span class="comment">// don&#39;t do the work unless someone is listening</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;          <span class="keywordflow">if</span> (<a class="code" href="structquanergy_1_1client_1_1PacketParserBase.html#a7d482fc53689f980a890230132d83790">signal_</a> &amp;&amp; <a class="code" href="structquanergy_1_1client_1_1PacketParserBase.html#a7d482fc53689f980a890230132d83790">signal_</a>-&gt;num_slots() == 0)</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;            <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;          <a class="code" href="structquanergy_1_1client_1_1DataPacket01.html">DataPacket01</a> data_packet;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;          deserialize(packet.data(), data_packet);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;          PointCloudHVDIRPtr pc = PointCloudHVDIRPtr(<span class="keyword">new</span> PointCloudHVDIR());</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      <span class="keyword">static</span> <span class="keywordtype">bool</span> match(std::uint8_t type)</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      {</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordflow">return</span> type == 0x01;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      }</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html#af0194ec9f3da529c341e9361748fe8c4">   52</a></span>&#160;      <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html#af0194ec9f3da529c341e9361748fe8c4">parse</a>(std::uint8_t type, <span class="keyword">const</span> std::vector&lt;char&gt;&amp; packet)</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      {</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        <span class="keywordflow">if</span> (match(type))</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        {</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;          <span class="comment">// don&#39;t do the work unless someone is listening</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;          <span class="keywordflow">if</span> (signal_ &amp;&amp; signal_-&gt;num_slots() == 0)</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;            <span class="keywordflow">return</span>;</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;          <span class="comment">// pcl pointcloud uses microseconds</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;          pc-&gt;header.stamp = </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;            std::uint64_t(data_packet.packet_header.seconds) * 1E6 +</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;            std::uint64_t(data_packet.packet_header.nanoseconds) * 1E-3;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;          <a class="code" href="structquanergy_1_1client_1_1DataPacket01.html">DataPacket01</a> data_packet;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;          deserialize(packet.data(), data_packet);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;          PointCloudHVDIRPtr pc = PointCloudHVDIRPtr(<span class="keyword">new</span> PointCloudHVDIR());</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;          pc-&gt;header.seq = data_packet.data_header.sequence;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;          pc-&gt;header.frame_id = <a class="code" href="structquanergy_1_1client_1_1PacketParserBase.html#af71c574362a162387856a7659271e4f5">frame_id_</a>;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;          pc-&gt;resize(data_packet.data_header.point_count);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;          <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i = 0; i &lt; data_packet.data_header.point_count; ++i)</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;          {</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;            <a class="code" href="structquanergy_1_1client_1_1DataPoint01.html">DataPoint01</a> <span class="keyword">const</span> &amp; point = data_packet.<a class="code" href="structquanergy_1_1client_1_1DataPacket01.html#a399433c3f9f58954e5b7c9dd10c0232a">data_points</a>[i];</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            PointCloudHVDIR::PointType&amp; pc_point = pc-&gt;points[i];</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;          <span class="comment">// pcl pointcloud uses microseconds</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;          pc-&gt;header.stamp = </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;            std::uint64_t(data_packet.packet_header.seconds) * 1E6 +</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;            std::uint64_t(data_packet.packet_header.nanoseconds) * 1E-3;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;          pc-&gt;header.seq = data_packet.data_header.sequence;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;          pc-&gt;header.frame_id = frame_id_;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;          pc-&gt;resize(data_packet.data_header.point_count);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            pc_point.h = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(point.horizontal_angle) * 1E-4;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            pc_point.v = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(point.vertical_angle) * 1E-4;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;            pc_point.d = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(point.range) * 1E-6;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;            pc_point.intensity = point.intensity;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;            pc_point.ring = std::numeric_limits&lt;uint16_t&gt;::max();</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;          }</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;          <span class="comment">// signal</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;          (*signal_)(pc);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        }</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;          <span class="keywordflow">throw</span> <a class="code" href="structquanergy_1_1client_1_1InvalidDataTypeError.html">InvalidDataTypeError</a>();</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;      }</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    };</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  } <span class="comment">// namespace client</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;} <span class="comment">// namespace quanergy</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="structquanergy_1_1client_1_1PacketParserBase_html_af71c574362a162387856a7659271e4f5"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParserBase.html#af71c574362a162387856a7659271e4f5">quanergy::client::PacketParserBase::frame_id_</a></div><div class="ttdeci">std::string frame_id_</div><div class="ttdoc">Coordinate frame ID. </div><div class="ttdef"><b>Definition:</b> packet_parser.h:46</div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1DataPacket01_html"><div class="ttname"><a href="structquanergy_1_1client_1_1DataPacket01.html">quanergy::client::DataPacket01</a></div><div class="ttdoc">data packet 0x01 </div><div class="ttdef"><b>Definition:</b> deserialize_01.h:51</div></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;          <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i = 0; i &lt; data_packet.data_header.point_count; ++i)</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;          {</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;            <a class="code" href="structquanergy_1_1client_1_1DataPoint01.html">DataPoint01</a> <span class="keyword">const</span> &amp; point = data_packet.<a class="code" href="structquanergy_1_1client_1_1DataPacket01.html#a399433c3f9f58954e5b7c9dd10c0232a">data_points</a>[i];</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;            PointCloudHVDIR::PointType&amp; pc_point = pc-&gt;points[i];</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;            pc_point.h = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(point.horizontal_angle) * 1E-4;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;            pc_point.v = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(point.vertical_angle) * 1E-4;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;            pc_point.d = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(point.range) * 1E-6;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;            pc_point.intensity = point.intensity;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;            pc_point.ring = std::numeric_limits&lt;uint16_t&gt;::max();</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;          }</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;          <span class="comment">// signal</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;          (*signal_)(pc);</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        }</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;          <span class="keywordflow">throw</span> <a class="code" href="structquanergy_1_1client_1_1InvalidDataTypeError.html">InvalidDataTypeError</a>();</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;      }</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    };</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  } <span class="comment">// namespace client</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;} <span class="comment">// namespace quanergy</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="structquanergy_1_1client_1_1DataPacket01_html"><div class="ttname"><a href="structquanergy_1_1client_1_1DataPacket01.html">quanergy::client::DataPacket01</a></div><div class="ttdoc">data packet 0x01 </div><div class="ttdef"><b>Definition:</b> deserialize_01.h:57</div></div>
 <div class="ttc" id="structquanergy_1_1client_1_1InvalidDataTypeError_html"><div class="ttname"><a href="structquanergy_1_1client_1_1InvalidDataTypeError.html">quanergy::client::InvalidDataTypeError</a></div><div class="ttdoc">Invalid data type in header; no parser available. </div><div class="ttdef"><b>Definition:</b> exceptions.h:50</div></div>
 <div class="ttc" id="pointcloud__types_8h_html"><div class="ttname"><a href="pointcloud__types_8h.html">pointcloud_types.h</a></div><div class="ttdoc">Provide typedefs for standard point clouds. </div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4_html"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html">quanergy::client::PacketParser&lt; PointCloudHVDIRPtr, DataPacket01 &gt;</a></div><div class="ttdoc">specialization for DataPacket01 </div><div class="ttdef"><b>Definition:</b> pointcloud_generator_01.h:33</div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1PacketParserBase_html_a7d482fc53689f980a890230132d83790"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParserBase.html#a7d482fc53689f980a890230132d83790">quanergy::client::PacketParserBase::signal_</a></div><div class="ttdeci">std::shared_ptr&lt; Signal &gt; signal_</div><div class="ttdoc">Signal that gets fired whenever a result is ready. </div><div class="ttdef"><b>Definition:</b> packet_parser.h:43</div></div>
+<div class="ttc" id="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4_html"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html">quanergy::client::PacketParser&lt; PointCloudHVDIRPtr, DataPacket01 &gt;</a></div><div class="ttdoc">specialization for DataPacket01 </div><div class="ttdef"><b>Definition:</b> pointcloud_generator_01.h:38</div></div>
 <div class="ttc" id="structquanergy_1_1client_1_1PacketParser_html"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParser.html">quanergy::client::PacketParser</a></div><div class="ttdoc">Recursive case for the PacketParer variadic template. </div><div class="ttdef"><b>Definition:</b> packet_parser.h:52</div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1DataPoint01_html"><div class="ttname"><a href="structquanergy_1_1client_1_1DataPoint01.html">quanergy::client::DataPoint01</a></div><div class="ttdoc">data point 0x01 </div><div class="ttdef"><b>Definition:</b> deserialize_01.h:39</div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4_html_af0194ec9f3da529c341e9361748fe8c4"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html#af0194ec9f3da529c341e9361748fe8c4">quanergy::client::PacketParser&lt; PointCloudHVDIRPtr, DataPacket01 &gt;::parse</a></div><div class="ttdeci">void parse(std::uint8_t type, const std::vector&lt; char &gt; &amp;packet)</div><div class="ttdef"><b>Definition:</b> pointcloud_generator_01.h:47</div></div>
+<div class="ttc" id="structquanergy_1_1client_1_1DataPoint01_html"><div class="ttname"><a href="structquanergy_1_1client_1_1DataPoint01.html">quanergy::client::DataPoint01</a></div><div class="ttdoc">data point 0x01 </div><div class="ttdef"><b>Definition:</b> deserialize_01.h:45</div></div>
+<div class="ttc" id="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4_html_af0194ec9f3da529c341e9361748fe8c4"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParser_3_01PointCloudHVDIRPtr_00_01DataPacket01_01_4.html#af0194ec9f3da529c341e9361748fe8c4">quanergy::client::PacketParser&lt; PointCloudHVDIRPtr, DataPacket01 &gt;::parse</a></div><div class="ttdeci">void parse(std::uint8_t type, const std::vector&lt; char &gt; &amp;packet)</div><div class="ttdef"><b>Definition:</b> pointcloud_generator_01.h:52</div></div>
 <div class="ttc" id="packet__parser_8h_html"><div class="ttname"><a href="packet__parser_8h.html">packet_parser.h</a></div><div class="ttdoc">Provide base packet parser functionality. </div></div>
 <div class="ttc" id="structquanergy_1_1client_1_1PacketParserBase_html"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParserBase.html">quanergy::client::PacketParserBase</a></div><div class="ttdoc">base class for packet parsers, providing the signal and frame id </div><div class="ttdef"><b>Definition:</b> packet_parser.h:28</div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1DataPacket01_html_a399433c3f9f58954e5b7c9dd10c0232a"><div class="ttname"><a href="structquanergy_1_1client_1_1DataPacket01.html#a399433c3f9f58954e5b7c9dd10c0232a">quanergy::client::DataPacket01::data_points</a></div><div class="ttdeci">std::vector&lt; DataPoint01 &gt; data_points</div><div class="ttdef"><b>Definition:</b> deserialize_01.h:56</div></div>
+<div class="ttc" id="structquanergy_1_1client_1_1DataPacket01_html_a399433c3f9f58954e5b7c9dd10c0232a"><div class="ttname"><a href="structquanergy_1_1client_1_1DataPacket01.html#a399433c3f9f58954e5b7c9dd10c0232a">quanergy::client::DataPacket01::data_points</a></div><div class="ttdeci">std::vector&lt; DataPoint01 &gt; data_points</div><div class="ttdef"><b>Definition:</b> deserialize_01.h:62</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Nov 20 2015 10:54:01 for QuanergyClient by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Nov 24 2015 13:07:20 for QuanergyClient by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

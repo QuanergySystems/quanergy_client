@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">QuanergyClient
-   &#160;<span id="projectnumber">2.0.0</span>
+   &#160;<span id="projectnumber">2.0.2</span>
    </div>
   </td>
  </tr>
@@ -108,64 +108,65 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="point__hvdir_8h.html">quanergy/common/point_hvdir.h</a>&gt;</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="pointcloud__types_8h.html">quanergy/common/pointcloud_types.h</a>&gt;</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">// for M8_NUM_LASERS</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="deserialize__00_8h.html">quanergy/parsers/deserialize_00.h</a>&gt;</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">namespace </span>quanergy</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;{</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keyword">namespace </span>client</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  {</div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="structquanergy_1_1client_1_1RingIntensityFilter.html">   36</a></span>&#160;    <span class="keyword">struct </span><a class="code" href="structquanergy_1_1client_1_1RingIntensityFilter.html">RingIntensityFilter</a></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    {</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      <span class="keyword">typedef</span> std::shared_ptr&lt;RingIntensityFilter&gt; Ptr;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      <span class="keyword">typedef</span> PointCloudHVDIRPtr Result;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      <span class="keyword">typedef</span> boost::signals2::signal&lt;void (Result const &amp;)&gt; Signal;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      <a class="code" href="structquanergy_1_1client_1_1RingIntensityFilter.html">RingIntensityFilter</a>();</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#define M8_NUM_LASERS 8</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#ifdef _MSC_VER</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor"></span><span class="preprocessor">  #define DLLEXPORT __declspec(dllexport)</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor"></span><span class="preprocessor">  #define TYPENAME</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor"></span><span class="preprocessor">  #define DLLEXPORT</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor"></span><span class="preprocessor">  #define TYPENAME typename</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">namespace </span>quanergy</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;{</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keyword">namespace </span>client</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  {</div>
+<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="structquanergy_1_1client_1_1RingIntensityFilter.html">   42</a></span>&#160;    <span class="keyword">struct </span>DLLEXPORT <a class="code" href="structquanergy_1_1client_1_1RingIntensityFilter.html">RingIntensityFilter</a></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    {</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      <span class="keyword">typedef</span> std::shared_ptr&lt;RingIntensityFilter&gt; Ptr;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      boost::signals2::connection connect(<span class="keyword">const</span> <span class="keyword">typename</span> Signal::slot_type&amp; subscriber);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      <span class="keyword">typedef</span> PointCloudHVDIRPtr Result;</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="keywordtype">void</span> slot(PointCloudHVDIRConstPtr <span class="keyword">const</span> &amp;);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="keyword">typedef</span> boost::signals2::signal&lt;void (Result const &amp;)&gt; Signal;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      <span class="keywordtype">float</span> <a class="code" href="structquanergy_1_1client_1_1RingIntensityFilter.html#aafbba638a6d327081160ee286b2904e9">getRingFilterMinimumRangeThreshold</a> (<span class="keyword">const</span> std::uint16_t laser_beam) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;      <span class="keywordtype">void</span> <a class="code" href="structquanergy_1_1client_1_1RingIntensityFilter.html#ada863df252c1fa6d5179464acc515ae5">setRingFilterMinimumRangeThreshold</a> (<span class="keyword">const</span> std::uint16_t laser_beam, <span class="keyword">const</span> <span class="keywordtype">float</span> min_threshold);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;      uint8_t <a class="code" href="structquanergy_1_1client_1_1RingIntensityFilter.html#ae872b5db1be0f7fdf068f23a01729a19">getRingFilterMinimumIntensityThreshold</a> (<span class="keyword">const</span> std::uint16_t laser_beam) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;      <span class="keywordtype">void</span> <a class="code" href="structquanergy_1_1client_1_1RingIntensityFilter.html#a8e3e385038a4cba1f079012c0208f76d">setRingFilterMinimumIntensityThreshold</a> (<span class="keyword">const</span> uint16_t laser_beam, <span class="keyword">const</span> uint8_t min_threshold);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;      PointCloudHVDIR::PointType filterGhosts(PointCloudHVDIR::PointType <span class="keyword">const</span> &amp; from) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;      Signal signal_;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      <a class="code" href="structquanergy_1_1client_1_1RingIntensityFilter.html">RingIntensityFilter</a>();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      boost::signals2::connection connect(<span class="keyword">const</span> TYPENAME Signal::slot_type&amp; subscriber);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      <span class="keywordtype">void</span> slot(PointCloudHVDIRConstPtr <span class="keyword">const</span> &amp;);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;      <span class="keywordtype">float</span> getRingFilterMinimumRangeThreshold (<span class="keyword">const</span> std::uint16_t laser_beam) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;      <span class="keywordtype">void</span> setRingFilterMinimumRangeThreshold (<span class="keyword">const</span> std::uint16_t laser_beam, <span class="keyword">const</span> <span class="keywordtype">float</span> min_threshold);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;      uint8_t getRingFilterMinimumIntensityThreshold (<span class="keyword">const</span> std::uint16_t laser_beam) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;      <span class="keywordtype">void</span> setRingFilterMinimumIntensityThreshold (<span class="keyword">const</span> uint16_t laser_beam, <span class="keyword">const</span> uint8_t min_threshold);</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;      <span class="keywordtype">float</span> ring_filter_range_[M8_NUM_LASERS];</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;      std::uint8_t ring_filter_intensity_[M8_NUM_LASERS];</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    };</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;      PointCloudHVDIR::PointType filterGhosts(PointCloudHVDIR::PointType <span class="keyword">const</span> &amp; from) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  } <span class="comment">// namespace filters</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      Signal signal_;</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;} <span class="comment">// namespace quanergy</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="structquanergy_1_1client_1_1RingIntensityFilter_html_ada863df252c1fa6d5179464acc515ae5"><div class="ttname"><a href="structquanergy_1_1client_1_1RingIntensityFilter.html#ada863df252c1fa6d5179464acc515ae5">quanergy::client::RingIntensityFilter::setRingFilterMinimumRangeThreshold</a></div><div class="ttdeci">void setRingFilterMinimumRangeThreshold(const std::uint16_t laser_beam, const float min_threshold)</div><div class="ttdoc">For ring filtering: Set the minimum range filter threshold for the given beam, in meters This value i...</div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1RingIntensityFilter_html_a8e3e385038a4cba1f079012c0208f76d"><div class="ttname"><a href="structquanergy_1_1client_1_1RingIntensityFilter.html#a8e3e385038a4cba1f079012c0208f76d">quanergy::client::RingIntensityFilter::setRingFilterMinimumIntensityThreshold</a></div><div class="ttdeci">void setRingFilterMinimumIntensityThreshold(const uint16_t laser_beam, const uint8_t min_threshold)</div><div class="ttdoc">For ring filtering: Set the minimum intensity filter threshold for the given beam, in meters This value is an integer between 0-255. Defaults to 0. </div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1RingIntensityFilter_html_aafbba638a6d327081160ee286b2904e9"><div class="ttname"><a href="structquanergy_1_1client_1_1RingIntensityFilter.html#aafbba638a6d327081160ee286b2904e9">quanergy::client::RingIntensityFilter::getRingFilterMinimumRangeThreshold</a></div><div class="ttdeci">float getRingFilterMinimumRangeThreshold(const std::uint16_t laser_beam) const </div><div class="ttdoc">For ring filtering: Returns the minimum range filter threshold for the given beam, in meters. </div></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      <span class="keywordtype">float</span> ring_filter_range_[M8_NUM_LASERS];</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      std::uint8_t ring_filter_intensity_[M8_NUM_LASERS];</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    };</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  } <span class="comment">// namespace filters</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;} <span class="comment">// namespace quanergy</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="pointcloud__types_8h_html"><div class="ttname"><a href="pointcloud__types_8h.html">pointcloud_types.h</a></div><div class="ttdoc">Provide typedefs for standard point clouds. </div></div>
-<div class="ttc" id="deserialize__00_8h_html"><div class="ttname"><a href="deserialize__00_8h.html">deserialize_00.h</a></div><div class="ttdoc">Provide deserialization functionality for data packet type 0x00. </div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1RingIntensityFilter_html"><div class="ttname"><a href="structquanergy_1_1client_1_1RingIntensityFilter.html">quanergy::client::RingIntensityFilter</a></div><div class="ttdef"><b>Definition:</b> ring_intensity_filter.h:36</div></div>
+<div class="ttc" id="structquanergy_1_1client_1_1RingIntensityFilter_html"><div class="ttname"><a href="structquanergy_1_1client_1_1RingIntensityFilter.html">quanergy::client::RingIntensityFilter</a></div><div class="ttdef"><b>Definition:</b> ring_intensity_filter.h:42</div></div>
 <div class="ttc" id="point__hvdir_8h_html"><div class="ttname"><a href="point__hvdir_8h.html">point_hvdir.h</a></div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1RingIntensityFilter_html_ae872b5db1be0f7fdf068f23a01729a19"><div class="ttname"><a href="structquanergy_1_1client_1_1RingIntensityFilter.html#ae872b5db1be0f7fdf068f23a01729a19">quanergy::client::RingIntensityFilter::getRingFilterMinimumIntensityThreshold</a></div><div class="ttdeci">uint8_t getRingFilterMinimumIntensityThreshold(const std::uint16_t laser_beam) const </div><div class="ttdoc">For ring filtering: Returns the minimum intensity filter threshold for the given beam. </div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Nov 20 2015 10:54:01 for QuanergyClient by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Nov 24 2015 13:07:20 for QuanergyClient by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

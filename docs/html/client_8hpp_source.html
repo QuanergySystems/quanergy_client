@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">QuanergyClient
-   &#160;<span id="projectnumber">2.0.0</span>
+   &#160;<span id="projectnumber">2.0.2</span>
    </div>
   </td>
  </tr>
@@ -110,9 +110,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;      : buff_(sizeof(<a class="code" href="structquanergy_1_1client_1_1PacketHeader.html">PacketHeader</a>))</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;      , parser_(frame_id)</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;      , host_query_(host, port)</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;      , kill_(false)</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;      , signal_(new Signal)</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    {</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;      , signal_(new Signal)</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    {</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;      kill_ = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;      read_socket_.reset(<span class="keyword">new</span> boost::asio::ip::tcp::socket(io_service_));</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;      <span class="comment">// parser gets a pointer to the signal to call after parsing</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;      parser_.setSignal(signal_);</div>
@@ -313,8 +313,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="classquanergy_1_1client_1_1Client_html_a01ae9f5141393995387720f6291f6a2a"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a01ae9f5141393995387720f6291f6a2a">quanergy::client::Client::connect</a></div><div class="ttdeci">boost::signals2::connection connect(const typename Signal::slot_type &amp;subscriber)</div><div class="ttdoc">Connect a slot to the signal which will be emitted when a new RESULT is available. </div><div class="ttdef"><b>Definition:</b> client.hpp:40</div></div>
 <div class="ttc" id="classquanergy_1_1client_1_1Client_html_a04ac26bb97433d7831c06afa1fa33c40"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a04ac26bb97433d7831c06afa1fa33c40">quanergy::client::Client::run</a></div><div class="ttdeci">virtual void run()</div><div class="ttdoc">Starts processing the Quanergy packets. </div><div class="ttdef"><b>Definition:</b> client.hpp:47</div></div>
 <div class="ttc" id="structquanergy_1_1client_1_1InvalidHeaderError_html"><div class="ttname"><a href="structquanergy_1_1client_1_1InvalidHeaderError.html">quanergy::client::InvalidHeaderError</a></div><div class="ttdoc">error parsing header </div><div class="ttdef"><b>Definition:</b> exceptions.h:38</div></div>
-<div class="ttc" id="structquanergy_1_1client_1_1PacketHeader_html"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketHeader.html">quanergy::client::PacketHeader</a></div><div class="ttdoc">Header shared by all messages. </div><div class="ttdef"><b>Definition:</b> deserialize.h:31</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html">quanergy::client::Client</a></div><div class="ttdoc">Client class connects to a sensor and uses template specialization to appropriately parse the data...</div><div class="ttdef"><b>Definition:</b> client.h:47</div></div>
+<div class="ttc" id="structquanergy_1_1client_1_1PacketHeader_html"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketHeader.html">quanergy::client::PacketHeader</a></div><div class="ttdoc">Header shared by all messages. </div><div class="ttdef"><b>Definition:</b> deserialize.h:36</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html">quanergy::client::Client</a></div><div class="ttdoc">Client class connects to a sensor and uses template specialization to appropriately parse the data...</div><div class="ttdef"><b>Definition:</b> client.h:51</div></div>
 <div class="ttc" id="classquanergy_1_1client_1_1Client_html_a3784816f6ceecae4d92de0c95dfaa295"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a3784816f6ceecae4d92de0c95dfaa295">quanergy::client::Client::startDataRead</a></div><div class="ttdeci">virtual void startDataRead()</div><div class="ttdoc">Asynchronously read from socket. </div><div class="ttdef"><b>Definition:</b> client.hpp:122</div></div>
 <div class="ttc" id="classquanergy_1_1client_1_1Client_html_adddde1cfe6efadf241366990b2835af4"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#adddde1cfe6efadf241366990b2835af4">quanergy::client::Client::parse</a></div><div class="ttdeci">virtual void parse(const std::vector&lt; char &gt; &amp;packet)</div><div class="ttdoc">Converts packet to RESULT and signals completion as needed. </div><div class="ttdef"><b>Definition:</b> client.hpp:214</div></div>
 <div class="ttc" id="structquanergy_1_1client_1_1SocketBindError_html"><div class="ttname"><a href="structquanergy_1_1client_1_1SocketBindError.html">quanergy::client::SocketBindError</a></div><div class="ttdoc">error binding to socket </div><div class="ttdef"><b>Definition:</b> exceptions.h:24</div></div>
@@ -329,7 +329,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Nov 20 2015 10:54:01 for QuanergyClient by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Nov 24 2015 13:07:20 for QuanergyClient by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
