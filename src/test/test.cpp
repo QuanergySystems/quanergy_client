@@ -71,15 +71,23 @@ struct Test {
 
     /// connect PolarToCartConverter Cartesian output to this lambda to update the visualization
     converter_connection_ = converter_.connect([this](const Converter::Result& pc)
-                                         {
-                                           pcl::visualization::PointCloudColorHandlerGenericField<quanergy::PointXYZIR> color_handler(pc,"intensity");
-                                           if (!this->viewer_.updatePointCloud<quanergy::PointXYZIR>(pc, color_handler, "Quanergy"))
-                                           {
-                                             std::unique_lock<std::mutex> lock(this->viewer_spin_mutex_);
-                                             this->viewer_.addPointCloud<quanergy::PointXYZIR>(pc, color_handler, "Quanergy");
-                                           }
-                                         });
+                                               {      
+                                                 std::unique_lock<std::mutex> lock(this->pc_mutex_);
+                                                 new_point_cloud_ = pc;
+                                               });
   }
+
+  bool newCloud()
+  {
+    std::unique_lock<std::mutex> lock(pc_mutex_);
+    if (new_point_cloud_ != point_cloud_)
+    {
+      point_cloud_ = new_point_cloud_;
+      return true;
+    }
+    return false;
+  }
+
 
   /** \brief run the application */
   void run()
@@ -98,10 +106,19 @@ struct Test {
                                 }
                               });
 
+    
+
     /// spin loop for updating visualizer
     while (!viewer_.wasStopped() && !kill_prog_)
     {
-      std::unique_lock<std::mutex> lock(viewer_spin_mutex_);
+      if (newCloud())
+      {
+        pcl::visualization::PointCloudColorHandlerGenericField<quanergy::PointXYZIR> color_handler(point_cloud_, "intensity");
+        if (!this->viewer_.updatePointCloud<quanergy::PointXYZIR>(point_cloud_, color_handler, "Quanergy"))
+        {
+          this->viewer_.addPointCloud<quanergy::PointXYZIR>(point_cloud_, color_handler, "Quanergy");
+        }
+      }
       viewer_.spinOnce();
     }
 
@@ -118,10 +135,13 @@ private:
   boost::signals2::connection cloud_connection_;
   boost::signals2::connection converter_connection_;
 
-  std::mutex viewer_spin_mutex_;
+  std::mutex pc_mutex_;
 
   Visualizer viewer_;
   Converter converter_;
+
+  Converter::Result new_point_cloud_;
+  Converter::Result point_cloud_;
 
   // run client on separate thread
   std::atomic_bool kill_prog_;
