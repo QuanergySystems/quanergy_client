@@ -25,7 +25,8 @@
 #include <quanergy/common/point_hvdir.h>
 #include <quanergy/common/pointcloud_types.h>
 
-#define M8_NUM_LASERS 8
+// For M8_NUM_LASERS
+#include <quanergy/parsers/deserialize_00.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
