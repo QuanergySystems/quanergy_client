@@ -97,24 +97,34 @@ namespace quanergy
       std::cout << "Attempting to connect..." << std::endl;
       boost::asio::ip::tcp::resolver resolver(io_service_);
 
-      auto endpoint_iterator = resolver.resolve(host_query_);
+      try
+      {
+        auto endpoint_iterator = resolver.resolve(host_query_);
 
-      boost::asio::async_connect(*read_socket_, endpoint_iterator,
-                                 [this](boost::system::error_code error, boost::asio::ip::tcp::resolver::iterator)
-                                 {
-                                   if (error)
+        boost::asio::async_connect(*read_socket_, endpoint_iterator,
+                                   [this](boost::system::error_code error, boost::asio::ip::tcp::resolver::iterator)
                                    {
-                                     std::cerr << "Unable to bind to socket (" << host_query_.host_name()
-                                               << ":" << host_query_.service_name() << ")! "
-                                               << error.message() << std::endl;
-                                     throw SocketBindError(error.message());
-                                   }
-                                   else
-                                   {
-                                     std::cout << "Connection established" << std::endl;
-                                     startDataRead();
-                                   }
-                                 });
+                                     if (error)
+                                     {
+                                       std::cerr << "Unable to bind to socket (" << host_query_.host_name()
+                                                 << ":" << host_query_.service_name() << ")! "
+                                                 << error.message() << std::endl;
+                                       throw SocketBindError(error.message());
+                                     }
+                                     else
+                                     {
+                                       std::cout << "Connection established" << std::endl;
+                                       startDataRead();
+                                     }
+                                   });
+      }
+      catch (boost::system::system_error& e)
+      {
+        std::cerr << "Unable to resolve host (" << host_query_.host_name()
+                  << ":" << host_query_.service_name() << ")! "
+                  << e.what() << std::endl;
+        throw SocketBindError(e.what());
+      }
     }
 
 

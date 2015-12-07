@@ -71,7 +71,8 @@ namespace quanergy
       to.h = from.h;
       to.v = from.v;
 
-      to.d = ((from.d < ring_filter_range_[from.ring]) && 
+      to.d = ((from.ring < M8_NUM_LASERS) &&
+              (from.d < ring_filter_range_[from.ring]) &&
               (from.intensity < ring_filter_intensity_[from.ring]))
         ?
         std::numeric_limits<float>::quiet_NaN()
