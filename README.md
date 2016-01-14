@@ -34,4 +34,6 @@ cd build
 cmake ..
 make
 ```
-To test, run the test application and follow the usage instructions
+To test, run the test application and follow the usage instructions (Sensor IP address is xx.xx.xx.xx)
+./test -host xx.xx.xx.xx 
+
