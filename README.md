@@ -23,7 +23,6 @@ Clone the SDK repository
 mkdir ~/QuanergySystems
 cd ~/QuanergySystems
 git clone https://github.com/QuanergySystems/quanergy_client.git
-git checkout master
 ```
 Build quanergy_client code and test application
 
