@@ -36,18 +36,28 @@ namespace quanergy
 
       result.reserve(cloud.size());
 
+      bool is_dense = cloud.is_dense;
+
       for (PointCloudHVDIR::const_iterator i = cloud.points.begin();
            i != cloud.points.end();
            ++i)
       {
+        PointCloudXYZIR::PointType pt = polarToCart(*i);
+
         // use points.push_back instead of cloud.push_back wrapper
         // cloud.push_back wrapper resets width and height
-        result.points.push_back(polarToCart(*i));
+        result.points.push_back(pt);
+
+        // Check if the resulting point cloud is no longer dense
+        if (std::isnan(pt.x) || std::isnan(pt.y) || std::isnan(pt.z))
+        {
+            is_dense = false;
+        }
       }
 
       result.width = cloud.width;
       result.height = cloud.height;
-      result.is_dense = cloud.is_dense;
+      result.is_dense = is_dense;
 
       signal_(resultPtr);
     }
