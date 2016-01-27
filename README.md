@@ -23,7 +23,6 @@ Clone the SDK repository
 mkdir ~/QuanergySystems
 cd ~/QuanergySystems
 git clone https://github.com/QuanergySystems/quanergy_client.git
-git checkout master
 ```
 Build quanergy_client code and test application
 
@@ -34,4 +33,6 @@ cd build
 cmake ..
 make
 ```
-To test, run the test application and follow the usage instructions
+To test, run the test application and follow the usage instructions (Sensor IP address is xx.xx.xx.xx)
+./test -host xx.xx.xx.xx 
+
