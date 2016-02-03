@@ -36,10 +36,12 @@ namespace quanergy
     public:
       typedef std::shared_ptr<FailoverClient<TYPES...> > Ptr;
 
-      /** \brief Constructor taking a host and port. */
-      FailoverClient<TYPES...>(std::string const & host, std::string const & port, std::string const & frame_id);
+      FailoverClient(std::string const & host,
+           std::string const & port,
+           std::size_t max_queue_size = 100,
+           std::string const & frame_id = std::string());
 
-      virtual ~FailoverClient();
+      virtual ~FailoverClient() = default;
 
     protected:
 
@@ -51,7 +53,7 @@ namespace quanergy
 
     private:
       /// variable for automatic packet failover to old m8 packet parsing
-      bool failover_;
+      bool failover_ = false;
 
       using Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::read_socket_;
       using Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::buff_;

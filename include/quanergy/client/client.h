@@ -60,12 +60,20 @@ namespace quanergy
 
       typedef PacketParser<RESULT, TYPES...> Parser;
 
-      /** \brief Constructor taking a host, port, and a string that differentiates instances of the client.
+      /** \brief Constructor taking a host, port, queue size, and a string that differentiates instances of the client.
        *  parsers are not required to use the frame_id but some may use it to differentiate instances of the client
        */
-      Client(std::string const & host, 
+      Client(std::string const & host,
              std::string const & port,
+             std::size_t max_queue_size = 100,
              std::string const & frame_id = std::string());
+
+      // no default constructor
+      Client() = delete;
+
+      // noncopyable
+      Client(const Client&) = delete;
+      Client& operator=(const Client&) = delete;
 
       virtual ~Client();
 
@@ -111,6 +119,7 @@ namespace quanergy
       std::unique_ptr<std::thread>              parse_thread_;
 
       std::queue<std::shared_ptr<std::vector<char>>> buff_queue_;
+      std::size_t max_queue_size_;
       std::mutex                  buff_queue_mutex_;
       std::condition_variable     buff_queue_conditional_;
       std::atomic_bool            kill_;
