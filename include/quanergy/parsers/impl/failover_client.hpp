@@ -16,17 +16,11 @@ namespace quanergy
   {
 
     template <class... TYPES>
-    FailoverClient<TYPES...>::FailoverClient(std::string const & host, 
-                                             std::string const & port, 
-                                             std::string const & frame_id)
-      : Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>(host, port, frame_id)
-      , failover_(false)
-    {
-    }
-
-
-    template <class... TYPES>
-    FailoverClient<TYPES...>::~FailoverClient()
+    FailoverClient<TYPES...>::FailoverClient(std::string const & host,
+                                             std::string const & port,
+                                             std::string const & frame_id,
+                                             std::size_t max_queue_size)
+      : Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>(host, port, frame_id, max_queue_size)
     {
     }
 

@@ -14,12 +14,14 @@ namespace quanergy
   {
 
     template <class RESULT, class... TYPES>
-    Client<RESULT, TYPES...>::Client(std::string const & host, 
+    Client<RESULT, TYPES...>::Client(std::string const & host,
                                      std::string const & port,
-                                     std::string const & frame_id)
+                                     std::string const & frame_id,
+                                     std::size_t max_queue_size)
       : buff_(sizeof(PacketHeader))
       , parser_(frame_id)
       , host_query_(host, port)
+      , max_queue_size_(max_queue_size)
       , signal_(new Signal)
     {
       kill_ = false;
@@ -190,6 +192,12 @@ namespace quanergy
         // copy into shared_ptr
         buff_queue_.push(std::make_shared<std::vector<char>>(buff_));
 
+        if (buff_queue_.size() > max_queue_size_)
+        {
+          std::cout << "Warning: Client dropped packet due to full buffer" << std::endl;
+          buff_queue_.pop();
+        }
+
         lk.unlock();
         buff_queue_conditional_.notify_one();
       }
@@ -202,11 +210,15 @@ namespace quanergy
     template <class RESULT, class... TYPES>
     void Client<RESULT, TYPES...>::parsePackets()
     {
+      // define condition to continue: something in buffer or kill flag set
+      auto continue_condition = [this]{return (!buff_queue_.empty() || kill_);};
+
       for (;;)
       {
         std::unique_lock<std::mutex> lk(buff_queue_mutex_);
-        // wait for something in the queue
-        buff_queue_conditional_.wait(lk, [this]{return (!buff_queue_.empty() || kill_);});
+        // if queue is empty, wait for something to be in the queue
+        if (!continue_condition())
+          buff_queue_conditional_.wait(lk, continue_condition);
 
         if (kill_)
           return;

@@ -78,7 +78,7 @@ configure_file(docs/doxyfile.in
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-  add_custom_target(doc ALL "${DOXYGEN_EXECUTABLE}" "${PROJECT_BINARY_DIR}/doxyfile")
+  add_custom_target(doc "${DOXYGEN_EXECUTABLE}" "${PROJECT_BINARY_DIR}/doxyfile")
 endif(DOXYGEN_FOUND)
 
 

@@ -34,9 +34,8 @@
 void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
-      << " -host <host> [-port <port>] [-h | --help]" << std::endl
-      << "-host hostname or IP address of the sensor" << std::endl
-      << "-port TCP port used by the sensor 4141[default]" << std::endl;
+      << " -host <host> [-h | --help]" << std::endl
+      << "-host hostname or IP address of the sensor" << std::endl;
   std::cout << "\t-h | --help : shows this help and exit" << std::endl;
   return;
 }
@@ -50,7 +49,7 @@ struct Test {
   typedef quanergy::client::PolarToCartConverter Converter;
 
   Test(std::string const & host, std::string const & port)
-    : client_(host, port, "test frame") 
+    : client_(host, port, "test frame", 100)
     , viewer_("Cloud Viewer")
   {
     kill_prog_ = false;
@@ -161,7 +160,6 @@ int main(int argc, char** argv)
   std::string port = "4141";
 
   pcl::console::parse_argument (argc, argv, "-host", host);
-  pcl::console::parse_argument (argc, argv, "-port", port);
 
   Test test(host, port);
 
