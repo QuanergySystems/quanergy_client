@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">QuanergyClient
-   &#160;<span id="projectnumber">2.0.4</span>
+   &#160;<span id="projectnumber">2.0.6</span>
    </div>
   </td>
  </tr>
@@ -140,77 +140,85 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;      <span class="keyword">typedef</span> <a class="code" href="structquanergy_1_1client_1_1PacketParser.html">PacketParser</a>&lt;RESULT, TYPES...&gt; <a class="code" href="structquanergy_1_1client_1_1PacketParser.html">Parser</a>;</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;      <a class="code" href="classquanergy_1_1client_1_1Client.html#a4355a87c02e036b4f7271b4d33cb7bea">Client</a>(std::string <span class="keyword">const</span> &amp; host, </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;      <a class="code" href="classquanergy_1_1client_1_1Client.html">Client</a>(std::string <span class="keyword">const</span> &amp; host,</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;             std::string <span class="keyword">const</span> &amp; port,</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;             std::string <span class="keyword">const</span> &amp; frame_id = std::string());</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;      <span class="keyword">virtual</span> ~<a class="code" href="classquanergy_1_1client_1_1Client.html">Client</a>();</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;      boost::signals2::connection <a class="code" href="classquanergy_1_1client_1_1Client.html#a01ae9f5141393995387720f6291f6a2a">connect</a>(<span class="keyword">const</span> <span class="keyword">typename</span> Signal::slot_type&amp; subscriber);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a04ac26bb97433d7831c06afa1fa33c40">run</a>();</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;             std::string <span class="keyword">const</span> &amp; frame_id = std::string(),</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;             std::size_t max_queue_size = 100);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;      <span class="comment">// no default constructor</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;      <a class="code" href="classquanergy_1_1client_1_1Client.html">Client</a>() = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;      <span class="comment">// noncopyable</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;      <a class="code" href="classquanergy_1_1client_1_1Client.html">Client</a>(<span class="keyword">const</span> <a class="code" href="classquanergy_1_1client_1_1Client.html">Client</a>&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      <a class="code" href="classquanergy_1_1client_1_1Client.html">Client</a>&amp; operator=(<span class="keyword">const</span> <a class="code" href="classquanergy_1_1client_1_1Client.html">Client</a>&amp;) = <span class="keyword">delete</span>;</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#af785165166f00f2a4a6e06e87476d66c">stop</a>();</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      <span class="keyword">virtual</span> ~<a class="code" href="classquanergy_1_1client_1_1Client.html">Client</a>();</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;      boost::signals2::connection <a class="code" href="classquanergy_1_1client_1_1Client.html#a01ae9f5141393995387720f6291f6a2a">connect</a>(<span class="keyword">const</span> <span class="keyword">typename</span> Signal::slot_type&amp; subscriber);</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a358554fef505370388d531da76ac962f">startDataConnect</a>();</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a04ac26bb97433d7831c06afa1fa33c40">run</a>();</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a3784816f6ceecae4d92de0c95dfaa295">startDataRead</a>();</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#af785165166f00f2a4a6e06e87476d66c">stop</a>();</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a44722a8edcd1526a0698f7988470951f">handleReadHeader</a>(<span class="keyword">const</span> boost::system::error_code&amp; error);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a1e19ca5570620f389b117805056585a8">handleReadBody</a>(<span class="keyword">const</span> boost::system::error_code&amp; error);</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#ab6c9debe450b9a059e2c895552bee6e0">parsePackets</a>();</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#adddde1cfe6efadf241366990b2835af4">parse</a>(<span class="keyword">const</span> std::vector&lt;char&gt;&amp; packet);</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;      std::unique_ptr&lt;boost::asio::ip::tcp::socket&gt;       read_socket_;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;      std::vector&lt;char&gt;                                   buff_;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;      <a class="code" href="structquanergy_1_1client_1_1PacketParser.html">Parser</a>                                              parser_;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;      boost::asio::io_service                       io_service_;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;      boost::asio::ip::tcp::resolver::query         host_query_;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;      std::unique_ptr&lt;std::thread&gt;              parse_thread_;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a358554fef505370388d531da76ac962f">startDataConnect</a>();</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a3784816f6ceecae4d92de0c95dfaa295">startDataRead</a>();</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a44722a8edcd1526a0698f7988470951f">handleReadHeader</a>(<span class="keyword">const</span> boost::system::error_code&amp; error);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#a1e19ca5570620f389b117805056585a8">handleReadBody</a>(<span class="keyword">const</span> boost::system::error_code&amp; error);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#ab6c9debe450b9a059e2c895552bee6e0">parsePackets</a>();</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;      <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classquanergy_1_1client_1_1Client.html#adddde1cfe6efadf241366990b2835af4">parse</a>(<span class="keyword">const</span> std::vector&lt;char&gt;&amp; packet);</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;      std::unique_ptr&lt;boost::asio::ip::tcp::socket&gt;       read_socket_;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;      std::vector&lt;char&gt;                                   buff_;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;      <a class="code" href="structquanergy_1_1client_1_1PacketParser.html">Parser</a>                                              parser_;</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;      std::queue&lt;std::shared_ptr&lt;std::vector&lt;char&gt;&gt;&gt; buff_queue_;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;      std::mutex                  buff_queue_mutex_;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;      std::condition_variable     buff_queue_conditional_;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;      std::atomic_bool            kill_;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;      boost::asio::io_service                       io_service_;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;      boost::asio::ip::tcp::resolver::query         host_query_;</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;      std::shared_ptr&lt;Signal&gt;     signal_;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    };</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;      std::unique_ptr&lt;std::thread&gt;              parse_thread_;</div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  } <span class="comment">// namespace client</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;} <span class="comment">// namespace quanergy</span></div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="preprocessor">#include &lt;quanergy/client/impl/client.hpp&gt;</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;      std::queue&lt;std::shared_ptr&lt;std::vector&lt;char&gt;&gt;&gt; buff_queue_;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;      std::size_t max_queue_size_;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;      std::mutex                  buff_queue_mutex_;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;      std::condition_variable     buff_queue_conditional_;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;      std::atomic_bool            kill_;</div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;      std::shared_ptr&lt;Signal&gt;     signal_;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    };</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  } <span class="comment">// namespace client</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;} <span class="comment">// namespace quanergy</span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="preprocessor">#include &lt;quanergy/client/impl/client.hpp&gt;</span></div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="deserialize_8h_html"><div class="ttname"><a href="deserialize_8h.html">deserialize.h</a></div><div class="ttdoc">Provide base deserialization functionality. </div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a01ae9f5141393995387720f6291f6a2a"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a01ae9f5141393995387720f6291f6a2a">quanergy::client::Client::connect</a></div><div class="ttdeci">boost::signals2::connection connect(const typename Signal::slot_type &amp;subscriber)</div><div class="ttdoc">Connect a slot to the signal which will be emitted when a new RESULT is available. </div><div class="ttdef"><b>Definition:</b> client.hpp:40</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a04ac26bb97433d7831c06afa1fa33c40"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a04ac26bb97433d7831c06afa1fa33c40">quanergy::client::Client::run</a></div><div class="ttdeci">virtual void run()</div><div class="ttdoc">Starts processing the Quanergy packets. </div><div class="ttdef"><b>Definition:</b> client.hpp:47</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a01ae9f5141393995387720f6291f6a2a"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a01ae9f5141393995387720f6291f6a2a">quanergy::client::Client::connect</a></div><div class="ttdeci">boost::signals2::connection connect(const typename Signal::slot_type &amp;subscriber)</div><div class="ttdoc">Connect a slot to the signal which will be emitted when a new RESULT is available. </div><div class="ttdef"><b>Definition:</b> client.hpp:42</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a04ac26bb97433d7831c06afa1fa33c40"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a04ac26bb97433d7831c06afa1fa33c40">quanergy::client::Client::run</a></div><div class="ttdeci">virtual void run()</div><div class="ttdoc">Starts processing the Quanergy packets. </div><div class="ttdef"><b>Definition:</b> client.hpp:49</div></div>
 <div class="ttc" id="exceptions_8h_html"><div class="ttname"><a href="exceptions_8h.html">exceptions.h</a></div><div class="ttdoc">Define specific sensor client run-time exceptions. </div></div>
 <div class="ttc" id="classquanergy_1_1client_1_1Client_html"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html">quanergy::client::Client</a></div><div class="ttdoc">Client class connects to a sensor and uses template specialization to appropriately parse the data...</div><div class="ttdef"><b>Definition:</b> client.h:51</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a3784816f6ceecae4d92de0c95dfaa295"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a3784816f6ceecae4d92de0c95dfaa295">quanergy::client::Client::startDataRead</a></div><div class="ttdeci">virtual void startDataRead()</div><div class="ttdoc">Asynchronously read from socket. </div><div class="ttdef"><b>Definition:</b> client.hpp:132</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_adddde1cfe6efadf241366990b2835af4"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#adddde1cfe6efadf241366990b2835af4">quanergy::client::Client::parse</a></div><div class="ttdeci">virtual void parse(const std::vector&lt; char &gt; &amp;packet)</div><div class="ttdoc">Converts packet to RESULT and signals completion as needed. </div><div class="ttdef"><b>Definition:</b> client.hpp:224</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a3784816f6ceecae4d92de0c95dfaa295"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a3784816f6ceecae4d92de0c95dfaa295">quanergy::client::Client::startDataRead</a></div><div class="ttdeci">virtual void startDataRead()</div><div class="ttdoc">Asynchronously read from socket. </div><div class="ttdef"><b>Definition:</b> client.hpp:134</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_adddde1cfe6efadf241366990b2835af4"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#adddde1cfe6efadf241366990b2835af4">quanergy::client::Client::parse</a></div><div class="ttdeci">virtual void parse(const std::vector&lt; char &gt; &amp;packet)</div><div class="ttdoc">Converts packet to RESULT and signals completion as needed. </div><div class="ttdef"><b>Definition:</b> client.hpp:236</div></div>
 <div class="ttc" id="structquanergy_1_1client_1_1PacketParser_html"><div class="ttname"><a href="structquanergy_1_1client_1_1PacketParser.html">quanergy::client::PacketParser</a></div><div class="ttdoc">Recursive case for the PacketParer variadic template. </div><div class="ttdef"><b>Definition:</b> packet_parser.h:52</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_ab6c9debe450b9a059e2c895552bee6e0"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#ab6c9debe450b9a059e2c895552bee6e0">quanergy::client::Client::parsePackets</a></div><div class="ttdeci">virtual void parsePackets()</div><div class="ttdoc">Pulls packets off buffer queue and calls parse. </div><div class="ttdef"><b>Definition:</b> client.hpp:203</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a358554fef505370388d531da76ac962f"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a358554fef505370388d531da76ac962f">quanergy::client::Client::startDataConnect</a></div><div class="ttdeci">virtual void startDataConnect()</div><div class="ttdoc">Asynchronously wait for connection. </div><div class="ttdef"><b>Definition:</b> client.hpp:95</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a4355a87c02e036b4f7271b4d33cb7bea"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a4355a87c02e036b4f7271b4d33cb7bea">quanergy::client::Client::Client</a></div><div class="ttdeci">Client(std::string const &amp;host, std::string const &amp;port, std::string const &amp;frame_id=std::string())</div><div class="ttdoc">Constructor taking a host, port, and a string that differentiates instances of the client...</div><div class="ttdef"><b>Definition:</b> client.hpp:17</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_ab6c9debe450b9a059e2c895552bee6e0"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#ab6c9debe450b9a059e2c895552bee6e0">quanergy::client::Client::parsePackets</a></div><div class="ttdeci">virtual void parsePackets()</div><div class="ttdoc">Pulls packets off buffer queue and calls parse. </div><div class="ttdef"><b>Definition:</b> client.hpp:211</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a358554fef505370388d531da76ac962f"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a358554fef505370388d531da76ac962f">quanergy::client::Client::startDataConnect</a></div><div class="ttdeci">virtual void startDataConnect()</div><div class="ttdoc">Asynchronously wait for connection. </div><div class="ttdef"><b>Definition:</b> client.hpp:97</div></div>
 <div class="ttc" id="packet__parser_8h_html"><div class="ttname"><a href="packet__parser_8h.html">packet_parser.h</a></div><div class="ttdoc">Provide base packet parser functionality. </div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_af785165166f00f2a4a6e06e87476d66c"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#af785165166f00f2a4a6e06e87476d66c">quanergy::client::Client::stop</a></div><div class="ttdeci">virtual void stop()</div><div class="ttdoc">Stops processing the Quanergy packets. </div><div class="ttdef"><b>Definition:</b> client.hpp:85</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a44722a8edcd1526a0698f7988470951f"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a44722a8edcd1526a0698f7988470951f">quanergy::client::Client::handleReadHeader</a></div><div class="ttdeci">virtual void handleReadHeader(const boost::system::error_code &amp;error)</div><div class="ttdoc">Handle read of packet header. </div><div class="ttdef"><b>Definition:</b> client.hpp:142</div></div>
-<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a1e19ca5570620f389b117805056585a8"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a1e19ca5570620f389b117805056585a8">quanergy::client::Client::handleReadBody</a></div><div class="ttdeci">virtual void handleReadBody(const boost::system::error_code &amp;error)</div><div class="ttdoc">Handle read of packet body. </div><div class="ttdef"><b>Definition:</b> client.hpp:178</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_af785165166f00f2a4a6e06e87476d66c"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#af785165166f00f2a4a6e06e87476d66c">quanergy::client::Client::stop</a></div><div class="ttdeci">virtual void stop()</div><div class="ttdoc">Stops processing the Quanergy packets. </div><div class="ttdef"><b>Definition:</b> client.hpp:87</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a44722a8edcd1526a0698f7988470951f"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a44722a8edcd1526a0698f7988470951f">quanergy::client::Client::handleReadHeader</a></div><div class="ttdeci">virtual void handleReadHeader(const boost::system::error_code &amp;error)</div><div class="ttdoc">Handle read of packet header. </div><div class="ttdef"><b>Definition:</b> client.hpp:144</div></div>
+<div class="ttc" id="classquanergy_1_1client_1_1Client_html_a1e19ca5570620f389b117805056585a8"><div class="ttname"><a href="classquanergy_1_1client_1_1Client.html#a1e19ca5570620f389b117805056585a8">quanergy::client::Client::handleReadBody</a></div><div class="ttdeci">virtual void handleReadBody(const boost::system::error_code &amp;error)</div><div class="ttdoc">Handle read of packet body. </div><div class="ttdef"><b>Definition:</b> client.hpp:180</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Jan 27 2016 12:08:38 for QuanergyClient by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Feb 4 2016 09:30:09 for QuanergyClient by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

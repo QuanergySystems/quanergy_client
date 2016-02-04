@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['getringfilterminimumintensitythreshold',['getRingFilterMinimumIntensityThreshold',['../structquanergy_1_1client_1_1RingIntensityFilter.html#ae872b5db1be0f7fdf068f23a01729a19',1,'quanergy::client::RingIntensityFilter']]],
-  ['getringfilterminimumrangethreshold',['getRingFilterMinimumRangeThreshold',['../structquanergy_1_1client_1_1RingIntensityFilter.html#aafbba638a6d327081160ee286b2904e9',1,'quanergy::client::RingIntensityFilter']]]
+  ['handlereadbody',['handleReadBody',['../classquanergy_1_1client_1_1Client.html#a1e19ca5570620f389b117805056585a8',1,'quanergy::client::Client']]],
+  ['handlereadheader',['handleReadHeader',['../classquanergy_1_1client_1_1Client.html#a44722a8edcd1526a0698f7988470951f',1,'quanergy::client::Client::handleReadHeader()'],['../classquanergy_1_1client_1_1FailoverClient.html#a0abb3278713b63d8a14e7865debf1f98',1,'quanergy::client::FailoverClient::handleReadHeader()']]]
 ];
