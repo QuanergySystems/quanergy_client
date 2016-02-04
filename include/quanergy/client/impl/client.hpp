@@ -16,8 +16,8 @@ namespace quanergy
     template <class RESULT, class... TYPES>
     Client<RESULT, TYPES...>::Client(std::string const & host,
                                      std::string const & port,
-                                     std::size_t max_queue_size,
-                                     std::string const & frame_id)
+                                     std::string const & frame_id,
+                                     std::size_t max_queue_size)
       : buff_(sizeof(PacketHeader))
       , parser_(frame_id)
       , host_query_(host, port)

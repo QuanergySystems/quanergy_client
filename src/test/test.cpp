@@ -49,7 +49,7 @@ struct Test {
   typedef quanergy::client::PolarToCartConverter Converter;
 
   Test(std::string const & host, std::string const & port)
-    : client_(host, port, 100, "test frame")
+    : client_(host, port, "test frame", 100)
     , viewer_("Cloud Viewer")
   {
     kill_prog_ = false;

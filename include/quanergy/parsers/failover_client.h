@@ -37,9 +37,9 @@ namespace quanergy
       typedef std::shared_ptr<FailoverClient<TYPES...> > Ptr;
 
       FailoverClient(std::string const & host,
-           std::string const & port,
-           std::size_t max_queue_size = 100,
-           std::string const & frame_id = std::string());
+                     std::string const & port,
+                     std::string const & frame_id = std::string(),
+                     std::size_t max_queue_size = 100);
 
       virtual ~FailoverClient() = default;
 
