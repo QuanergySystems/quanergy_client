@@ -70,8 +70,12 @@ set(client_SRCS
   src/common/point_xyzir.cpp
 )
 
+file(GLOB_RECURSE project_HEADERS
+    "*.h"
+    "*.hpp"
+)
 
-add_library(quanergy_client SHARED ${client_SRCS})
+add_library(quanergy_client SHARED ${client_SRCS} ${project_HEADERS})
 
 configure_file(docs/doxyfile.in
   "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
@@ -192,12 +196,12 @@ endif()
 include(CPack)
 
 ##########
-#  test  #
+#  apps  #
 ##########
 
 if (PCL_VISUALIZATION_FOUND)
-  add_executable(test src/test/test.cpp)
-  target_link_libraries(test quanergy_client ${PCL_LIBRARIES})
+  add_executable(visualizer apps/visualizer.cpp apps/visualizer_module.cpp)
+  target_link_libraries(visualizer quanergy_client ${PCL_LIBRARIES})
 endif()
 
 message("PCL_LIBRARIES: ${PCL_LIBRARIES}")
