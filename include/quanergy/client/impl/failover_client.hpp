@@ -5,50 +5,43 @@
  **                                                            **
  ****************************************************************/
 
-#ifndef QUANERGY_PARSERS_FAILOVER_CLIENT_HPP
-#define QUANERGY_PARSERS_FAILOVER_CLIENT_HPP
+#include <quanergy/client/failover_client.h>
 
-#include <quanergy/parsers/failover_client.h>
+#include <quanergy/parsers/deserialize_00.h>
 
 namespace quanergy
 {
   namespace client
   {
 
-    template <class... TYPES>
-    FailoverClient<TYPES...>::FailoverClient(std::string const & host,
-                                             std::string const & port,
-                                             std::string const & frame_id,
-                                             std::size_t max_queue_size)
-      : Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>(host, port, frame_id, max_queue_size)
+    FailoverClient::FailoverClient(std::string const & host,
+                                   std::string const & port,
+                                   std::size_t max_queue_size)
+      : SensorClient(host, port, max_queue_size)
     {
     }
 
-
-    template <class... TYPES>
-    void FailoverClient<TYPES...>::startDataRead()
+    void FailoverClient::startDataRead()
     {
       if (failover_)
       {
         // skip straight to body
         boost::asio::async_read(*read_socket_,
                                 boost::asio::buffer(buff_.data(), sizeof(M8DataPacket)),
-                                boost::bind(&FailoverClient<TYPES...>::handleReadBody, this,
+                                boost::bind(&FailoverClient::handleReadBody, this,
                                             boost::asio::placeholders::error));
       }
       else
       {
-        Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::startDataRead();
+        SensorClient::startDataRead();
       }
     }
 
-
-    template <class... TYPES>
-    void FailoverClient<TYPES...>::handleReadHeader(const boost::system::error_code& error)
+    void FailoverClient::handleReadHeader(const boost::system::error_code& error)
     {
       try
       {
-        Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::handleReadHeader(error);
+        SensorClient::handleReadHeader(error);
       }
       catch (InvalidHeaderError)
       {
@@ -60,24 +53,13 @@ namespace quanergy
 
         // read the rest of the packet
         boost::asio::async_read(*read_socket_,
-                                boost::asio::buffer(buff_.data() + sizeof(PacketHeader),
-                                                    sizeof(M8DataPacket) - sizeof(PacketHeader)),
-                                boost::bind(&FailoverClient<TYPES...>::handleReadBody, this,
+                                boost::asio::buffer(buff_.data() + sizeof(HeaderType),
+                                                    sizeof(M8DataPacket) - sizeof(HeaderType)),
+                                boost::bind(&FailoverClient::handleReadBody, this,
                                             boost::asio::placeholders::error));
       }
-    }
-
-    template <class... TYPES>
-    void FailoverClient<TYPES...>::parse(const std::vector<char>& packet)
-    {
-      if (failover_)
-        parser_.parse(0xFF, packet);
-      else
-        Client<PointCloudHVDIRPtr, TYPES..., M8DataPacket>::parse(packet);
     }
 
   } // namespace client
 
 } // namespace quanergy
-
-#endif

@@ -12,7 +12,7 @@
 #include <pcl/console/parse.h>
 
 // client; failover adds support for old M8 data
-#include <quanergy/parsers/failover_client.h>
+#include <quanergy/client/failover_client.h>
 
 // point cloud generation for the two types we support
 #include <quanergy/parsers/deserialize_00.h>

@@ -92,6 +92,24 @@ namespace quanergy
       object.packet_type   = deserialize(network_order.packet_type);
     }
 
+    inline bool validateHeader(const PacketHeader& object)
+    {
+      if (deserialize(object.signature) != SIGNATURE)
+      {
+        std::cerr << "Invalid header signature: " << std::hex << std::showbase
+                  << object.signature << std::dec << std::noshowbase << std::endl;
+
+        return false;
+      }
+
+      return true;
+    }
+
+    inline std::size_t getPacketSize(const PacketHeader& object)
+    {
+      return deserialize(object.size);
+    }
+
   } // namespace client
 
 } // namespace quanergy

@@ -5,77 +5,63 @@
  **                                                                **
  ********************************************************************/
 
-/** \file client.h
+/** \file tcp_client.h
  *
- *  \brief Provide generalized (parameterized) sensor client service.
+ *  \brief Provide basic tcp_client to get packets
  */
 
-#ifndef QUANERGY_CLIENT_CLIENT_H
-#define QUANERGY_CLIENT_CLIENT_H
+#ifndef QUANERGY_CLIENT_TCP_CLIENT_H
+#define QUANERGY_CLIENT_TCP_CLIENT_H
 
 #include <queue>
 #include <mutex>
 #include <condition_variable>
 #include <thread>
 #include <memory>
-
-#ifdef _MSC_VER
-  #include <atomic>
-#endif
+#include <atomic>
 
 // networking
 #include <boost/asio.hpp>
 // signals for output
 #include <boost/signals2.hpp>
 
-// interface for parsing
-#include <quanergy/client/packet_parser.h>
-
 // exception library
 #include <quanergy/client/exceptions.h>
-
-// basic deserialization functions
-#include <quanergy/client/deserialize.h>
-
 
 namespace quanergy
 {
   namespace client
   {
-    /** \brief Client class connects to a sensor and uses template specialization to appropriately parse the data
-     *
-     *  \tparam RESULT specifies the expected return type (type for the signal)
-     *  \tparam TYPES... the data packet types that we expect to receive and want to be able to handle
+    /** \brief TCPClient is a generic TCP data receiver that outputs packets based on header
+     *  \tparam HEADER is the packet header type
+     *  \attention The following two functions must be provided for HEADER type
+     *             bool validateHeader(const HEADER&); // returns true if valid
+     *             std::size_t getPacketSize(const HEADER&);  // returns the size of the full packet including header
      */
-    template <class RESULT, class... TYPES>
-    class Client
+    template <class HEADER>
+    class TCPClient
     {
     public:
     
-      typedef RESULT Result;
+      /// give access to HEADER to derived classes
+      typedef HEADER HeaderType;
+      /// The packet is output on a signal
+      typedef boost::signals2::signal<void (const std::shared_ptr<std::vector<char>>&)> Signal;
 
-      typedef std::shared_ptr<Client<RESULT, TYPES...> > Ptr;
-
-      typedef boost::signals2::signal<void (RESULT const &)> Signal;
-
-      typedef PacketParser<RESULT, TYPES...> Parser;
-
-      /** \brief Constructor taking a host, port, queue size, and a string that differentiates instances of the client.
-       *  parsers are not required to use the frame_id but some may use it to differentiate instances of the client
+      /** \brief Constructor taking a host, port, and queue size.
        */
-      Client(std::string const & host,
+      TCPClient(std::string const & host,
              std::string const & port,
-             std::string const & frame_id = std::string(),
              std::size_t max_queue_size = 100);
 
       // no default constructor
-      Client() = delete;
+      TCPClient() = delete;
 
       // noncopyable
-      Client(const Client&) = delete;
-      Client& operator=(const Client&) = delete;
+      TCPClient(const TCPClient&) = delete;
+      TCPClient& operator=(const TCPClient&) = delete;
 
-      virtual ~Client();
+      virtual ~TCPClient();
 
       /** \brief Connect a slot to the signal which will be emitted when a new RESULT is available */
       boost::signals2::connection connect(const typename Signal::slot_type& subscriber);
@@ -100,23 +86,19 @@ namespace quanergy
       /** \brief Handle read of packet body. */
       virtual void handleReadBody(const boost::system::error_code& error);
 
-      /** \brief Pulls packets off buffer queue and calls parse. */
-      virtual void parsePackets();
-
-      /** \brief Converts packet to RESULT and signals completion as needed. */
-      virtual void parse(const std::vector<char>& packet);
+      /** \brief Pulls packets off buffer queue and calls signal. */
+      virtual void signalPackets();
 
       std::unique_ptr<boost::asio::ip::tcp::socket>       read_socket_;
       std::vector<char>                                   buff_;
-      Parser                                              parser_;
 
     private:
 
       boost::asio::io_service                       io_service_;
       boost::asio::ip::tcp::resolver::query         host_query_;
 
-      /// thread for running parsing
-      std::unique_ptr<std::thread>              parse_thread_;
+      /// thread for running signals
+      std::unique_ptr<std::thread> signal_thread_;
 
       std::queue<std::shared_ptr<std::vector<char>>> buff_queue_;
       std::size_t max_queue_size_;
@@ -131,6 +113,6 @@ namespace quanergy
 
 } // namespace quanergy
 
-#include <quanergy/client/impl/client.hpp>
+#include <quanergy/client/impl/tcp_client.hpp>
 
 #endif
