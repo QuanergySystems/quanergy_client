@@ -15,9 +15,9 @@
 #include <quanergy/client/failover_client.h>
 
 // point cloud generation for the two types we support
-#include <quanergy/parsers/deserialize_00.h>
+#include <quanergy/parsers/data_packet_00.h>
 #include <quanergy/parsers/pointcloud_generator_00.h>
-#include <quanergy/parsers/deserialize_01.h>
+#include <quanergy/parsers/data_packet_01.h>
 #include <quanergy/parsers/pointcloud_generator_01.h>
 
 // conversion module from polar to Cartesian

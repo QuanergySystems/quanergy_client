@@ -14,7 +14,7 @@
 #ifndef QUANERGY_CLIENT_SENSOR_CLIENT_H
 #define QUANERGY_CLIENT_SENSOR_CLIENT_H
 
-#include <quanergy/client/deserialize.h>
+#include <quanergy/client/packet_header.h>
 #include <quanergy/client/tcp_client.h>
 
 namespace quanergy

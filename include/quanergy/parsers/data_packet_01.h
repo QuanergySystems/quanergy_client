@@ -12,12 +12,12 @@
   */
 
 
-#ifndef QUANERGY_PARSERS_DESERIALIZE_01_H
-#define QUANERGY_PARSERS_DESERIALIZE_01_H
+#ifndef QUANERGY_PARSERS_DATA_PACKET_01_H
+#define QUANERGY_PARSERS_DATA_PACKET_01_H
 
 #include <iostream>
 
-#include <quanergy/client/deserialize.h>
+#include <quanergy/client/packet_header.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
@@ -62,7 +62,7 @@ namespace quanergy
       std::vector<DataPoint01>  data_points;
     };
 
-	inline DLLEXPORT void deserialize(const char* network_buffer, DataHeader01& object)
+    inline DLLEXPORT void deserialize(const char* network_buffer, DataHeader01& object)
     {
       const DataHeader01& network_order = *reinterpret_cast<const DataHeader01*>(network_buffer);
 
@@ -72,7 +72,7 @@ namespace quanergy
       object.reserved    = deserialize(network_order.reserved);
     }
 
-	inline DLLEXPORT void deserialize(const char* network_buffer, DataPoint01& object)
+    inline DLLEXPORT void deserialize(const char* network_buffer, DataPoint01& object)
     {
       const DataPoint01& network_order = *reinterpret_cast<const DataPoint01*>(network_buffer);
 
@@ -84,7 +84,7 @@ namespace quanergy
       object.reserved          = deserialize(network_order.reserved);
     }
 
-	inline DLLEXPORT void deserialize(const char* network_buffer, DataPacket01& object)
+    inline DLLEXPORT void deserialize(const char* network_buffer, DataPacket01& object)
     {
       deserialize(network_buffer, object.packet_header);
       network_buffer += sizeof(PacketHeader);

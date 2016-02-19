@@ -13,11 +13,11 @@
 #ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_M8_H
 #define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_M8_H
 
-#include <quanergy/client/packet_parser.h>
+#include <quanergy/parsers/packet_parser.h>
 
 #include <quanergy/common/pointcloud_types.h>
 
-#include <quanergy/parsers/deserialize_00.h>
+#include <quanergy/client/m8_data_packet.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)

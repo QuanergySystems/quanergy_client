@@ -13,11 +13,11 @@
 #ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_00_H
 #define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_00_H
 
-#include <quanergy/client/packet_parser.h>
+#include <quanergy/parsers/packet_parser.h>
 
 #include <quanergy/common/pointcloud_types.h>
 
-#include <quanergy/parsers/deserialize_00.h>
+#include <quanergy/parsers/data_packet_00.h>
 #include <quanergy/parsers/pointcloud_generator_m8.h>
 
 #ifdef _MSC_VER

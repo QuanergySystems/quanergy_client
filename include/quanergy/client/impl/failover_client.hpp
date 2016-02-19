@@ -7,7 +7,7 @@
 
 #include <quanergy/client/failover_client.h>
 
-#include <quanergy/parsers/deserialize_00.h>
+#include <quanergy/client/m8_data_packet.h>
 
 namespace quanergy
 {

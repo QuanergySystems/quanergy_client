@@ -16,11 +16,11 @@
 
 #include <limits>
 
-#include <quanergy/client/packet_parser.h>
+#include <quanergy/parsers/packet_parser.h>
 
 #include <quanergy/common/pointcloud_types.h>
 
-#include <quanergy/parsers/deserialize_01.h>
+#include <quanergy/parsers/data_packet_01.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
