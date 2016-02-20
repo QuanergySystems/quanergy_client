@@ -146,10 +146,6 @@ namespace quanergy
         // validate
         if (validateHeader(*h))
         {
-          throw InvalidHeaderError();
-        }
-        else
-        {
           std::size_t size = getPacketSize(*h);
           buff_.resize(size); // invalidates h pointer because of potential reallocate and move
 
@@ -158,6 +154,10 @@ namespace quanergy
                                                       size - sizeof(HEADER)),
                                   boost::bind(&TCPClient<HEADER>::handleReadBody, this,
                                               boost::asio::placeholders::error));
+        }
+        else
+        {
+          throw InvalidHeaderError();
         }
       }
     }
