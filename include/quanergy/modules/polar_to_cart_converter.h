@@ -40,11 +40,11 @@ namespace quanergy
     {
       typedef std::shared_ptr<PolarToCartConverter> Ptr;
 
-      typedef PointCloudXYZIRPtr Result;
+      typedef PointCloudXYZIRPtr ResultType;
 
-      typedef boost::signals2::signal<void (Result const &)> Signal;
+      typedef boost::signals2::signal<void (const ResultType&)> Signal;
 
-	  boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
+      boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
 
       void slot(PointCloudHVDIRConstPtr const &);
 

@@ -33,32 +33,29 @@ namespace quanergy
 
     /** \brief specialization for DataPacket00 */
     template <>
-	struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, DataPacket00>
+    struct DLLEXPORT VariadicPacketParser<PointCloudHVDIRPtr, DataPacket00>
       : public PointCloudGeneratorM8
     {
-    public:
-      PacketParser<PointCloudHVDIRPtr, DataPacket00>(std::string const & frame_id)
-        : PointCloudGeneratorM8(frame_id)
+      VariadicPacketParser<PointCloudHVDIRPtr, DataPacket00>()
+        : PointCloudGeneratorM8()
+      {}
+
+      inline virtual bool validate(const std::vector<char>& packet)
       {
+        const PacketHeader* h = reinterpret_cast<const PacketHeader*>(packet.data());
+
+        return (deserialize(h->packet_type) == 0x00);
       }
 
-      static bool match(std::uint8_t type)
+      inline virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result)
       {
-        return type == 0x00;
-      }
-
-      inline void parse(std::uint8_t type, const std::vector<char>& packet)
-      {
-        if (match(type))
-        {
-          DataPacket00 data_packet;
-          deserialize(packet.data(), data_packet);
-          PointCloudGeneratorM8::parse(data_packet.data_body);
-        }
-        else
-          throw InvalidDataTypeError();
+        DataPacket00 data_packet;
+        deserialize(packet.data(), data_packet);
+        return PointCloudGeneratorM8::parse(data_packet.data_body, result);
       }
     };
+
+    typedef VariadicPacketParser<PointCloudHVDIRPtr, DataPacket00> DataPacket00Parser;
 
   } // namespace client
 

@@ -42,11 +42,12 @@ namespace quanergy
     class TCPClient
     {
     public:
+      typedef std::shared_ptr<std::vector<char>> ResultType;
     
       /// give access to HEADER to derived classes
       typedef HEADER HeaderType;
       /// The packet is output on a signal
-      typedef boost::signals2::signal<void (const std::shared_ptr<std::vector<char>>&)> Signal;
+      typedef boost::signals2::signal<void (const ResultType&)> Signal;
 
       /** \brief Constructor taking a host, port, and queue size.
        */
@@ -106,7 +107,7 @@ namespace quanergy
       std::condition_variable     buff_queue_conditional_;
       std::atomic_bool            kill_;
 
-      std::shared_ptr<Signal>     signal_;
+      Signal signal_;
     };
 
   } // namespace client

@@ -35,66 +35,57 @@ namespace quanergy
 
     /** \brief specialization for DataPacket01 */
     template <>
-	struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, DataPacket01>
-      : PacketParserBase<PointCloudHVDIRPtr>
+    struct DLLEXPORT VariadicPacketParser<PointCloudHVDIRPtr, DataPacket01>
+      : public PacketParserBase<PointCloudHVDIRPtr>
     {
-      PacketParser<PointCloudHVDIRPtr, DataPacket01>(std::string const & frame_id)
-        : PacketParserBase<PointCloudHVDIRPtr>(frame_id)
+      VariadicPacketParser<PointCloudHVDIRPtr, DataPacket01>()
+        : PacketParserBase<PointCloudHVDIRPtr>()
       {
       }
 
-      static bool match(std::uint8_t type)
+      inline virtual bool validate(const std::vector<char>& packet)
       {
-        return type == 0x01;
+        const PacketHeader* h = reinterpret_cast<const PacketHeader*>(packet.data());
+
+        return (deserialize(h->packet_type) == 0x01);
       }
 
-
-      inline void parse(std::uint8_t type, const std::vector<char>& packet)
+      inline virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result)
       {
-        if (match(type))
+        DataPacket01 data_packet;
+        deserialize(packet.data(), data_packet);
+
+        result.reset(new PointCloudHVDIR());
+
+        // pcl pointcloud uses microseconds
+        result->header.stamp =
+          std::uint64_t(data_packet.packet_header.seconds) * 1E6 +
+          std::uint64_t(data_packet.packet_header.nanoseconds) * 1E-3;
+
+        result->header.seq = data_packet.data_header.sequence;
+
+        result->resize(data_packet.data_header.point_count);
+
+        for (unsigned int i = 0; i < data_packet.data_header.point_count; ++i)
         {
-          // don't do the work unless someone is listening
-          if (signal_ && signal_->num_slots() == 0)
-            return;
+          DataPoint01 const & point = data_packet.data_points[i];
+          PointCloudHVDIR::PointType& pc_point = result->points[i];
 
-          DataPacket01 data_packet;
-          deserialize(packet.data(), data_packet);
+          pc_point.h = static_cast<double>(point.horizontal_angle) * 1E-4;
+          pc_point.v = static_cast<double>(point.vertical_angle) * 1E-4;
+          pc_point.d = static_cast<double>(point.range) * 1E-6;
 
-          PointCloudHVDIRPtr pc = PointCloudHVDIRPtr(new PointCloudHVDIR());
+          pc_point.intensity = point.intensity;
 
-          // pcl pointcloud uses microseconds
-          pc->header.stamp = 
-            std::uint64_t(data_packet.packet_header.seconds) * 1E6 +
-            std::uint64_t(data_packet.packet_header.nanoseconds) * 1E-3;
-
-          pc->header.seq = data_packet.data_header.sequence;
-
-          pc->header.frame_id = frame_id_;
-
-          pc->resize(data_packet.data_header.point_count);
-
-          for (unsigned int i = 0; i < data_packet.data_header.point_count; ++i)
-          {
-            DataPoint01 const & point = data_packet.data_points[i];
-            PointCloudHVDIR::PointType& pc_point = pc->points[i];
-
-            pc_point.h = static_cast<double>(point.horizontal_angle) * 1E-4;
-            pc_point.v = static_cast<double>(point.vertical_angle) * 1E-4;
-            pc_point.d = static_cast<double>(point.range) * 1E-6;
-
-            pc_point.intensity = point.intensity;
-
-            /// This generator provides no ring.
-            pc_point.ring = std::numeric_limits<uint16_t>::max();
-          }
-
-          // signal
-          (*signal_)(pc);
+          /// This generator provides no ring.
+          pc_point.ring = std::numeric_limits<uint16_t>::max();
         }
-        else
-          throw InvalidDataTypeError();
+
+        return true;
       }
     };
+
+    typedef VariadicPacketParser<PointCloudHVDIRPtr, DataPacket01> DataPacket01Parser;
 
   } // namespace client
 

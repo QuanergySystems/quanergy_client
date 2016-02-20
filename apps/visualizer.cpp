@@ -19,6 +19,7 @@
 #include <quanergy/parsers/pointcloud_generator_00.h>
 #include <quanergy/parsers/data_packet_01.h>
 #include <quanergy/parsers/pointcloud_generator_01.h>
+#include <quanergy/parsers/pointcloud_generator_failover.h>
 
 // conversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>
@@ -32,9 +33,12 @@ void usage(char** argv)
   return;
 }
 
-/// FailoverClient adds a failover to old M8 data
-typedef quanergy::client::FailoverClient<quanergy::client::DataPacket01, quanergy::client::DataPacket00> ClientType;
-typedef quanergy::client::PolarToCartConverter Converter;
+/// FailoverClient allows packets to pass through that don't have a header (for old M8 data)
+typedef quanergy::client::FailoverClient ClientType;
+/// templates are return type and then packets to support
+typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr, quanergy::client::M8DataPacket, quanergy::client::DataPacket00, quanergy::client::DataPacket01> ParserType;
+typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
+typedef quanergy::client::PolarToCartConverter ConverterType;
 
 int main(int argc, char** argv)
 {
@@ -52,14 +56,16 @@ int main(int argc, char** argv)
   pcl::console::parse_argument(argc, argv, "--host", host);
 
   // create modules
-  ClientType client(host, port, "test frame", 100);
-  Converter converter;
+  ClientType client(host, port, 100);
+  ParserModuleType parser;
+  ConverterType converter;
   VisualizerModule visualizer;
 
   // connect modules
   std::vector<boost::signals2::connection> connections;
-  connections.push_back(client.connect([&converter](const ClientType::Result& pc){ converter.slot(pc); }));
-  connections.push_back(converter.connect([&visualizer](const Converter::Result& pc){ visualizer.slot(pc); }));
+  connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
+  connections.push_back(parser.connect([&converter](const ParserModuleType::ResultType& pc){ converter.slot(pc); }));
+  connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
 
   // start client on a separate thread
   std::thread client_thread([&client, &visualizer]

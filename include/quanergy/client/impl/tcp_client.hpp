@@ -20,7 +20,6 @@ namespace quanergy
       : buff_(sizeof(HEADER))
       , host_query_(host, port)
       , max_queue_size_(max_queue_size)
-      , signal_(new Signal)
     {
       kill_ = false;
       read_socket_.reset(new boost::asio::ip::tcp::socket(io_service_));
@@ -35,7 +34,7 @@ namespace quanergy
     template <class HEADER>
     boost::signals2::connection TCPClient<HEADER>::connect(const typename Signal::slot_type& subscriber)
     {
-      return signal_->connect(subscriber);
+      return signal_.connect(subscriber);
     }
 
     template <class HEADER>

@@ -15,7 +15,8 @@
 #ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_FAILOVER_H
 #define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_FAILOVER_H
 
-#include <quanergy/client/packet_parser.h>
+#include <quanergy/parsers/packet_parser.h>
+#include <quanergy/client/packet_header.h>
 
 #include <quanergy/common/pointcloud_types.h>
 
@@ -33,30 +34,31 @@ namespace quanergy
   {
     /** \brief specialization for M8DataPacket */
     template <>
-	struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, M8DataPacket> : public PointCloudGeneratorM8
+    struct DLLEXPORT VariadicPacketParser<PointCloudHVDIRPtr, M8DataPacket> : public PointCloudGeneratorM8
     {
-      PacketParser(std::string const & frame_id)
-        : PointCloudGeneratorM8(frame_id)
+      VariadicPacketParser()
+        : PointCloudGeneratorM8()
       {
       }
 
-      static bool match(std::uint8_t type)
+      inline virtual bool validate(const std::vector<char>& packet)
       {
-        return type == 0xFF;
+        const PacketHeader* h = reinterpret_cast<const PacketHeader*>(packet.data());
+
+        return (deserialize(h->signature) != SIGNATURE);
       }
 
-      inline void parse(std::uint8_t type, const std::vector<char>& packet)
+      inline virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result)
       {
-        if (match(type))
-        {
-          // old data was sent in little endian
-          const M8DataPacket& data_packet = *reinterpret_cast<const M8DataPacket*>(packet.data());
-          PointCloudGeneratorM8::parse(data_packet);
-        }
-        else
-          throw InvalidDataTypeError();
+        if (packet.size() != sizeof(M8DataPacket))
+          throw SizeMismatchError();
+
+        const M8DataPacket* data_packet = reinterpret_cast<const M8DataPacket*>(packet.data());
+        return PointCloudGeneratorM8::parse(*data_packet, result);
       }
     };
+
+    typedef VariadicPacketParser<PointCloudHVDIRPtr, M8DataPacket> M8DataPacketParser;
 
   } // namespace client
 

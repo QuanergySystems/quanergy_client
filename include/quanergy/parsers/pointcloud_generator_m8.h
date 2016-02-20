@@ -43,10 +43,10 @@ namespace quanergy
     const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
     /** \brief Not a specialization because it is intended to be used by others. */
-	struct DLLEXPORT PointCloudGeneratorM8 : PacketParserBase<PointCloudHVDIRPtr>
+    struct DLLEXPORT PointCloudGeneratorM8 : PacketParserBase<PointCloudHVDIRPtr>
     {
-      PointCloudGeneratorM8(std::string const & frame_id)
-        : PacketParserBase<PointCloudHVDIRPtr>(frame_id)
+      PointCloudGeneratorM8()
+        : PacketParserBase<PointCloudHVDIRPtr>()
         , packet_counter_(0)
         , cloud_counter_(0)
         , last_azimuth_(65000)
@@ -73,19 +73,15 @@ namespace quanergy
         }
       }
 
-
-      inline void parse(const M8DataPacket& data_packet)
+      virtual inline bool parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result)
       {
-        // don't do the work unless someone is listening
-        if (signal_ && signal_->num_slots() == 0)
-          return;
-
+        bool ret = false;
         if (data_packet.status != 0)
         {
           std::cerr << "Sensor status nonzero: " << data_packet.status;
           if (data_packet.status == 1)
             throw FirmwareVersionMismatchError();
-          return; // don't process if sensor in error
+          return ret; // don't process if sensor in error
         }
 
         // this time is used for the cloud stamp which is a 64 bit integer in units of microseconds
@@ -123,12 +119,12 @@ namespace quanergy
 
               current_cloud_->header.stamp = time;
               current_cloud_->header.seq = cloud_counter_;
-              current_cloud_->header.frame_id = frame_id_;
 
               ++cloud_counter_;
 
               // fire the signal that we have a new cloud
-              (*signal_)(current_cloud_);
+              result = current_cloud_;
+              ret = true;
             }
 
             // start a new cloud
@@ -170,10 +166,11 @@ namespace quanergy
 
           last_azimuth_ = azimuth_angle;
         }
+
+        return ret;
       }
 
-    private:
-
+    protected:
       static void organizeCloud(PointCloudHVDIRPtr & current_pc)
       {
         // transpose the cloud
