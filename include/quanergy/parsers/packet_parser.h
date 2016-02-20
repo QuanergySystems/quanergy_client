@@ -54,42 +54,6 @@ namespace quanergy
         typename PARSER::ResultType result;
     };
 
-    /** \brief VariadicPacketParer takes a list of parsers and iterates through them. */
-    template <class RESULT, class... TYPES>
-    struct VariadicPacketParser : std::tuple<TYPES...>
-    {
-      typedef RESULT ResultType;
-
-      VariadicPacketParser() = default;
-
-      /** \brief check packet validity for TYPE and parse if a match; otherwise try TYPES
-       *  \return true if result updated; false otherwise
-       *  \throws InvalidPacketError if no valid parser found
-       */
-      inline bool validateParse(const std::vector<char>& packet, RESULT& result)
-      {
-        return parse<0>(packet, result);
-      }
-
-    private:
-      /// do nothing if I >= tuple size, end of recursion
-      template<std::size_t I = 0>
-      inline typename std::enable_if<I >= sizeof...(TYPES), bool>::type parse(const std::vector<char>&, RESULT&)
-      {
-        throw InvalidPacketError();
-      }
-
-      /// find parser and recurse if I < NUM_SENSORS
-      template<std::size_t I = 0>
-      inline typename std::enable_if<I < sizeof...(TYPES), bool>::type parse(const std::vector<char>& packet, RESULT& result)
-      {
-        if (std::get<I>(*this).validate(packet))
-          return std::get<I>(*this).parse(packet, result);
-        else
-          return parse<I+1>(packet, result);
-      }
-    };
-
     /** \brief base class for packet parsers */
     template <class RESULT>
     struct PacketParserBase
@@ -100,7 +64,7 @@ namespace quanergy
        *  \return true if result updated; false otherwise
        *  \throws InvalidPacketError if not a valid packet
        */
-      inline bool validateParse(const std::vector<char>& packet, RESULT& result)
+      inline virtual bool validateParse(const std::vector<char>& packet, RESULT& result)
       {
         if (validate(packet))
           return parse(packet, result);
@@ -117,6 +81,84 @@ namespace quanergy
        *          (some parsers may require multiple packets before updating result)
        */
       virtual bool parse(const std::vector<char>& packet, RESULT& result) = 0;
+    };
+
+    /** \brief VariadicPacketParer takes a list of parsers and iterates through them. */
+    template <class RESULT, class... PARSERS>
+    struct VariadicPacketParser : public PacketParserBase<RESULT>
+    {
+      typedef RESULT ResultType;
+
+      VariadicPacketParser() = default;
+
+      /** \brief provide access to the individual parsers */
+      template <std::size_t I>
+      auto get() -> decltype(std::get<I>(std::tuple<PARSERS...>()))&
+      {
+        return std::get<I>(parsers);
+      }
+
+      /** \brief iterate through parsers to find first match and parse */
+      inline virtual bool validateParse(const std::vector<char>& packet, RESULT& result)
+      {
+        return parse<0>(packet, result);
+      }
+
+      /** \brief iterate through parsers to see if there is a match */
+      inline virtual bool validate(const std::vector<char> &packet)
+      {
+        return validate<0>(packet);
+      }
+
+      /** \brief parse using validateParse but catch throw */
+      inline virtual bool parse(const std::vector<char> &packet, RESULT &result)
+      {
+        try
+        {
+          return validateParse(packet, result);
+        }
+        catch (InvalidPacketError())
+        {
+          return false;
+        }
+      }
+
+    private:
+      /// didn't find matching parser if I >= number of parsers, end of recursion
+      template<std::size_t I = 0>
+      inline typename std::enable_if<I >= sizeof...(PARSERS), bool>::type parse(const std::vector<char>&, RESULT&)
+      {
+        throw InvalidPacketError();
+      }
+
+      /// find parser and recurse if I < number of parsers
+      template<std::size_t I = 0>
+      inline typename std::enable_if<I < sizeof...(PARSERS), bool>::type parse(const std::vector<char>& packet, RESULT& result)
+      {
+        if (std::get<I>(parsers).validate(packet))
+          return std::get<I>(parsers).parse(packet, result);
+        else
+          return parse<I+1>(packet, result);
+      }
+
+      /// didn't find matching parser if I >= number of parsers, end of recursion
+      template<std::size_t I = 0>
+      inline typename std::enable_if<I >= sizeof...(PARSERS), bool>::type validate(const std::vector<char>&)
+      {
+        return false;
+      }
+
+      /// find parser and recurse if I < number of parsers
+      template<std::size_t I = 0>
+      inline typename std::enable_if<I < sizeof...(PARSERS), bool>::type validate(const std::vector<char>& packet)
+      {
+        if (std::get<I>(parsers).validate(packet))
+          return true;
+        else
+          return validate<I+1>(packet);
+      }
+
+      std::tuple<PARSERS...> parsers;
     };
 
   } // namespace client

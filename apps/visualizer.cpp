@@ -61,6 +61,8 @@ int main(int argc, char** argv)
   ConverterType converter;
   VisualizerModule visualizer;
 
+  // setup modules
+
   // connect modules
   std::vector<boost::signals2::connection> connections;
   connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
