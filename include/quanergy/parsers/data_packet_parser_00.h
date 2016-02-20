@@ -5,20 +5,20 @@
  **                                                            **
  ****************************************************************/
 
-/**  \file pointcloud_generator_00.h
+/**  \file data_packet_parser_00.h
  *
- *   \brief Provide pointcloud generator functionality for data type 0x00.
+ *   \brief Provide pointcloud parser functionality for data type 0x00.
  */
 
-#ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_00_H
-#define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_00_H
+#ifndef QUANERGY_PARSERS_DATA_PACKET_PARSER_00_H
+#define QUANERGY_PARSERS_DATA_PACKET_PARSER_00_H
 
 #include <quanergy/parsers/packet_parser.h>
 
 #include <quanergy/common/pointcloud_types.h>
 
 #include <quanergy/parsers/data_packet_00.h>
-#include <quanergy/parsers/pointcloud_generator_m8.h>
+#include <quanergy/parsers/data_packet_parser_m8.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
@@ -34,10 +34,10 @@ namespace quanergy
     /** \brief specialization for DataPacket00 */
     template <>
     struct DLLEXPORT VariadicPacketParser<PointCloudHVDIRPtr, DataPacket00>
-      : public PointCloudGeneratorM8
+      : public DataPacketParserM8
     {
       VariadicPacketParser<PointCloudHVDIRPtr, DataPacket00>()
-        : PointCloudGeneratorM8()
+        : DataPacketParserM8()
       {}
 
       inline virtual bool validate(const std::vector<char>& packet)
@@ -51,11 +51,11 @@ namespace quanergy
       {
         DataPacket00 data_packet;
         deserialize(packet.data(), data_packet);
-        return PointCloudGeneratorM8::parse(data_packet.data_body, result);
+        return DataPacketParserM8::parse(data_packet.data_body, result);
       }
     };
 
-    typedef VariadicPacketParser<PointCloudHVDIRPtr, DataPacket00> DataPacket00Parser;
+    typedef VariadicPacketParser<PointCloudHVDIRPtr, DataPacket00> DataPacketParser00;
 
   } // namespace client
 

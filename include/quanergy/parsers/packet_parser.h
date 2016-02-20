@@ -11,8 +11,8 @@
  * Individual message types will need to specialize the functionality provided here.
  */
 
-#ifndef QUANERGY_CLIENT_PACKET_PARSER_GENERATOR_H
-#define QUANERGY_CLIENT_PACKET_PARSER_GENERATOR_H
+#ifndef QUANERGY_CLIENT_PACKET_PARSER_H
+#define QUANERGY_CLIENT_PACKET_PARSER_H
 
 #include <memory>
 #include <string>

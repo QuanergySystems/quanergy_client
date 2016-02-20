@@ -5,14 +5,13 @@
  **                                                            **
  ****************************************************************/
 
-/**  \file pointcloud_generator_01.h
+/**  \file data_packet_parser_01.h
  *
- *   \brief Provide pointcloud generator functionality for data type
- *   0x01.
+ *   \brief Provide pointcloud parser functionality for data type 0x01.
  */
 
-#ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_01_H
-#define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_01_H
+#ifndef QUANERGY_PARSERS_DATA_PACKET_PARSER_01_H
+#define QUANERGY_PARSERS_DATA_PACKET_PARSER_01_H
 
 #include <limits>
 
@@ -85,7 +84,7 @@ namespace quanergy
       }
     };
 
-    typedef VariadicPacketParser<PointCloudHVDIRPtr, DataPacket01> DataPacket01Parser;
+    typedef VariadicPacketParser<PointCloudHVDIRPtr, DataPacket01> DataPacketParser01;
 
   } // namespace client
 

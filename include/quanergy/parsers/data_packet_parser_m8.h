@@ -5,13 +5,13 @@
  **                                                            **
  ****************************************************************/
 
-
-/**  \file pointcloud_generator_failover.h
- *   \brief Provide pointcloud generator functionality for m8 data.
+/**  \file data_packet_parser_m8.h
+ *
+ *   \brief Provide pointcloud parser functionality for m8 data.
  */
 
-#ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_M8_H
-#define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_M8_H
+#ifndef QUANERGY_PARSERS_DATA_PACKET_PARSER_M8_H
+#define QUANERGY_PARSERS_DATA_PACKET_PARSER_M8_H
 
 #include <quanergy/parsers/packet_parser.h>
 
@@ -43,9 +43,9 @@ namespace quanergy
     const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
     /** \brief Not a specialization because it is intended to be used by others. */
-    struct DLLEXPORT PointCloudGeneratorM8 : PacketParserBase<PointCloudHVDIRPtr>
+    struct DLLEXPORT DataPacketParserM8 : PacketParserBase<PointCloudHVDIRPtr>
     {
-      PointCloudGeneratorM8()
+      DataPacketParserM8()
         : PacketParserBase<PointCloudHVDIRPtr>()
         , packet_counter_(0)
         , cloud_counter_(0)

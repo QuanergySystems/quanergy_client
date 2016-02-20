@@ -14,12 +14,10 @@
 // client; failover adds support for old M8 data
 #include <quanergy/client/failover_client.h>
 
-// point cloud generation for the two types we support
-#include <quanergy/parsers/data_packet_00.h>
-#include <quanergy/parsers/pointcloud_generator_00.h>
-#include <quanergy/parsers/data_packet_01.h>
-#include <quanergy/parsers/pointcloud_generator_01.h>
-#include <quanergy/parsers/pointcloud_generator_failover.h>
+// parsers for the data packets we want to support
+#include <quanergy/parsers/data_packet_parser_00.h>
+#include <quanergy/parsers/data_packet_parser_01.h>
+#include <quanergy/parsers/data_packet_parser_failover.h>
 
 // conversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>

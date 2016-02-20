@@ -5,22 +5,20 @@
  **                                                            **
  ****************************************************************/
 
+/**  \file data_packet_parser_failover.h
+ *
+ *   \brief Provide pointcloud parser functionality for old M8 data.
+ */
 
-/**  \file pointcloud_generator_failover.h
-  *
-  *  \brief Provide pointcloud generator functionality for m8
-  *  failover.
-  */
-
-#ifndef QUANERGY_PARSERS_POINTCLOUD_GENERATOR_FAILOVER_H
-#define QUANERGY_PARSERS_POINTCLOUD_GENERATOR_FAILOVER_H
+#ifndef QUANERGY_PARSERS_DATA_PACKET_PARSER_FAILOVER_H
+#define QUANERGY_PARSERS_DATA_PACKET_PARSER_FAILOVER_H
 
 #include <quanergy/parsers/packet_parser.h>
 #include <quanergy/client/packet_header.h>
 
 #include <quanergy/common/pointcloud_types.h>
 
-#include <quanergy/parsers/pointcloud_generator_m8.h>
+#include <quanergy/parsers/data_packet_parser_m8.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
@@ -34,10 +32,11 @@ namespace quanergy
   {
     /** \brief specialization for M8DataPacket */
     template <>
-    struct DLLEXPORT VariadicPacketParser<PointCloudHVDIRPtr, M8DataPacket> : public PointCloudGeneratorM8
+    struct DLLEXPORT VariadicPacketParser<PointCloudHVDIRPtr, M8DataPacket>
+        : public DataPacketParserM8
     {
       VariadicPacketParser()
-        : PointCloudGeneratorM8()
+        : DataPacketParserM8()
       {
       }
 
@@ -54,11 +53,11 @@ namespace quanergy
           throw SizeMismatchError();
 
         const M8DataPacket* data_packet = reinterpret_cast<const M8DataPacket*>(packet.data());
-        return PointCloudGeneratorM8::parse(*data_packet, result);
+        return DataPacketParserM8::parse(*data_packet, result);
       }
     };
 
-    typedef VariadicPacketParser<PointCloudHVDIRPtr, M8DataPacket> M8DataPacketParser;
+    typedef VariadicPacketParser<PointCloudHVDIRPtr, M8DataPacket> DataPacketParserFailover;
 
   } // namespace client
 
