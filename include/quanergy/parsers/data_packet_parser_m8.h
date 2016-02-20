@@ -43,7 +43,7 @@ namespace quanergy
     const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
     /** \brief Not a specialization because it is intended to be used by others. */
-    struct DLLEXPORT DataPacketParserM8 : PacketParserBase<PointCloudHVDIRPtr>
+    struct DLLEXPORT DataPacketParserM8 : public PacketParserBase<PointCloudHVDIRPtr>
     {
       DataPacketParserM8()
         : PacketParserBase<PointCloudHVDIRPtr>()

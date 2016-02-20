@@ -15,7 +15,6 @@
 #define QUANERGY_CLIENT_PACKET_PARSER_H
 
 #include <memory>
-#include <string>
 
 #include <boost/signals2.hpp>
 
@@ -55,9 +54,9 @@ namespace quanergy
         typename PARSER::ResultType result;
     };
 
-    /** \brief Recursive case for the VariadicPacketParer variadic template. */
-    template <class RESULT, class TYPE, class... TYPES>
-    struct VariadicPacketParser
+    /** \brief VariadicPacketParer takes a list of parsers and iterates through them. */
+    template <class RESULT, class... TYPES>
+    struct VariadicPacketParser : std::tuple<TYPES...>
     {
       typedef RESULT ResultType;
 
@@ -69,17 +68,26 @@ namespace quanergy
        */
       inline bool validateParse(const std::vector<char>& packet, RESULT& result)
       {
-        if (type_parser_.validate(packet))
-          return type_parser_.parse(packet, result);
-        else
-          return types_parser_.validateParse(packet, result);
+        return parse<0>(packet, result);
       }
 
     private:
-      // Packet parser for this type.
-      VariadicPacketParser<RESULT, TYPE> type_parser_;
-      // The rest.
-      VariadicPacketParser<RESULT, TYPES...> types_parser_;
+      /// do nothing if I >= tuple size, end of recursion
+      template<std::size_t I = 0>
+      inline typename std::enable_if<I >= sizeof...(TYPES), bool>::type parse(const std::vector<char>&, RESULT&)
+      {
+        throw InvalidPacketError();
+      }
+
+      /// find parser and recurse if I < NUM_SENSORS
+      template<std::size_t I = 0>
+      inline typename std::enable_if<I < sizeof...(TYPES), bool>::type parse(const std::vector<char>& packet, RESULT& result)
+      {
+        if (std::get<I>(*this).validate(packet))
+          return std::get<I>(*this).parse(packet, result);
+        else
+          return parse<I+1>(packet, result);
+      }
     };
 
     /** \brief base class for packet parsers */
@@ -109,14 +117,6 @@ namespace quanergy
        *          (some parsers may require multiple packets before updating result)
        */
       virtual bool parse(const std::vector<char>& packet, RESULT& result) = 0;
-    };
-
-    /** \brief Force specialization of the single type case.  */
-    template <class RESULT, class TYPE>
-    struct VariadicPacketParser<RESULT, TYPE> : public PacketParserBase<RESULT>
-    {
-      virtual bool validate(const std::vector<char>& packet) = delete;
-      virtual bool parse(const std::vector<char>& packet, RESULT& result) = delete;
     };
 
   } // namespace client

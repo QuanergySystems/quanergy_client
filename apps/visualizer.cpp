@@ -34,9 +34,9 @@ void usage(char** argv)
 /// FailoverClient allows packets to pass through that don't have a header (for old M8 data)
 typedef quanergy::client::FailoverClient ClientType;
 typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,   // return type
-                                               quanergy::client::M8DataPacket, // following are data packet types
-                                               quanergy::client::DataPacket00,
-                                               quanergy::client::DataPacket01> ParserType;
+                                               quanergy::client::DataPacketParserFailover, // following are data packet types
+                                               quanergy::client::DataPacketParser00,
+                                               quanergy::client::DataPacketParser01> ParserType;
 typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
 typedef quanergy::client::PolarToCartConverter ConverterType;
 

@@ -31,13 +31,9 @@ namespace quanergy
 {
   namespace client
   {
-
-    /** \brief specialization for DataPacket01 */
-    template <>
-    struct DLLEXPORT VariadicPacketParser<PointCloudHVDIRPtr, DataPacket01>
-      : public PacketParserBase<PointCloudHVDIRPtr>
+    struct DLLEXPORT DataPacketParser01 : public PacketParserBase<PointCloudHVDIRPtr>
     {
-      VariadicPacketParser<PointCloudHVDIRPtr, DataPacket01>()
+      DataPacketParser01()
         : PacketParserBase<PointCloudHVDIRPtr>()
       {
       }
@@ -83,8 +79,6 @@ namespace quanergy
         return true;
       }
     };
-
-    typedef VariadicPacketParser<PointCloudHVDIRPtr, DataPacket01> DataPacketParser01;
 
   } // namespace client
 
