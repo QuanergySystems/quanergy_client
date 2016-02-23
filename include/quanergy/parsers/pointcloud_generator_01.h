@@ -35,7 +35,7 @@ namespace quanergy
 
     /** \brief specialization for DataPacket01 */
     template <>
-	struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, DataPacket01>
+    struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, DataPacket01>
       : PacketParserBase<PointCloudHVDIRPtr>
     {
       PacketParser<PointCloudHVDIRPtr, DataPacket01>(std::string const & frame_id)
@@ -73,14 +73,24 @@ namespace quanergy
 
           pc->resize(data_packet.data_header.point_count);
 
+          // intermediate angles and value
+          double H = 0;
+          double V = 0;
+          double cosH = 0;
+
           for (unsigned int i = 0; i < data_packet.data_header.point_count; ++i)
           {
             DataPoint01 const & point = data_packet.data_points[i];
             PointCloudHVDIR::PointType& pc_point = pc->points[i];
 
-            pc_point.h = static_cast<double>(point.horizontal_angle) * 1E-4;
-            pc_point.v = static_cast<double>(point.vertical_angle) * 1E-4;
+            H = static_cast<double>(point.horizontal_angle) * 1E-4;
+            V = static_cast<double>(point.vertical_angle) * 1E-4;
             pc_point.d = static_cast<double>(point.range) * 1E-6;
+
+            // convert to standard HVDIR
+            cosH = std::cos(H);
+            pc_point.h = std::atan2(std::sin(H), cosH * std::cos(V));
+            pc_point.v = std::asin(cosH * std::sin(V));
 
             pc_point.intensity = point.intensity;
 
