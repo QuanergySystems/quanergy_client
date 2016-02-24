@@ -34,5 +34,12 @@ cmake ..
 make
 ```
 To test, run the test application and follow the usage instructions (Sensor IP address is xx.xx.xx.xx)
-./test -host xx.xx.xx.xx 
 
+```
+./test -host xx.xx.xx.xx 
+```
+For documentation, run the following and then open doc/index.html in any browser.
+
+```
+make doc
+```

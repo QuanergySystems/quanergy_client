@@ -2,7 +2,7 @@ project(QuanergyClient)
 cmake_minimum_required(VERSION 2.8)
 
 #  This should match what's in include/quanergy/client/version.h
-set(QUANERGY_CLIENT_VERSION "2.0.6")
+set(QUANERGY_CLIENT_VERSION "2.0.7")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -82,7 +82,7 @@ file(GLOB_RECURSE project_HEADERS
 
 add_library(quanergy_client SHARED ${client_SRCS} ${project_HEADERS})
 
-configure_file(docs/doxyfile.in
+configure_file(doxyfile.in
   "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
 
 find_package(Doxygen)
