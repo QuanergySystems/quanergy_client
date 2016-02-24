@@ -73,7 +73,7 @@ set(client_SRCS
 
 add_library(quanergy_client SHARED ${client_SRCS})
 
-configure_file(docs/doxyfile.in
+configure_file(doxyfile.in
   "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
 
 find_package(Doxygen)
