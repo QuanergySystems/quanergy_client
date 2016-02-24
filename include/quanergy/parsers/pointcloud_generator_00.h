@@ -33,7 +33,7 @@ namespace quanergy
 
     /** \brief specialization for DataPacket00 */
     template <>
-	struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, DataPacket00>
+    struct DLLEXPORT PacketParser<PointCloudHVDIRPtr, DataPacket00>
       : public PointCloudGeneratorM8
     {
     public:
