@@ -62,6 +62,9 @@ int main(int argc, char** argv)
   VisualizerModule visualizer;
 
   // setup modules
+  parser.get<0>().setFrameId("quanergy");
+  parser.get<1>().setFrameId("quanergy");
+  parser.get<2>().setFrameId("quanergy");
 
   // connect modules
   std::vector<boost::signals2::connection> connections;

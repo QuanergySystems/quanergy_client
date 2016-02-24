@@ -15,9 +15,7 @@
 
 #include <limits>
 
-#include <quanergy/parsers/packet_parser.h>
-
-#include <quanergy/common/pointcloud_types.h>
+#include <quanergy/parsers/data_packet_parser.h>
 
 #include <quanergy/parsers/data_packet_01.h>
 
@@ -31,7 +29,7 @@ namespace quanergy
 {
   namespace client
   {
-    struct DLLEXPORT DataPacketParser01 : public PacketParserBase<PointCloudHVDIRPtr>
+    struct DLLEXPORT DataPacketParser01 : public DataPacketParser
     {
       DataPacketParser01();
 

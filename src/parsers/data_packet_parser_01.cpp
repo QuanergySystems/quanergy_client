@@ -12,7 +12,7 @@ namespace quanergy
   namespace client
   {
     DataPacketParser01::DataPacketParser01()
-      : PacketParserBase<PointCloudHVDIRPtr>()
+      : DataPacketParser()
     {
     }
 
@@ -36,6 +36,7 @@ namespace quanergy
           std::uint64_t(data_packet.packet_header.nanoseconds) * 1E-3;
 
       result->header.seq = data_packet.data_header.sequence;
+      result->header.frame_id = frame_id_;
 
       result->resize(data_packet.data_header.point_count);
 

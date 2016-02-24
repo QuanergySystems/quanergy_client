@@ -13,7 +13,7 @@ namespace quanergy
   {
 
     DataPacketParserM8::DataPacketParserM8()
-      : PacketParserBase<PointCloudHVDIRPtr>()
+      : DataPacketParser()
       , packet_counter_(0)
       , cloud_counter_(0)
       , last_azimuth_(65000)
@@ -82,10 +82,11 @@ namespace quanergy
         {
           if (current_cloud_->size () > 0)
           {
-            organizeCloud(current_cloud_);
-
             current_cloud_->header.stamp = time;
             current_cloud_->header.seq = cloud_counter_;
+            current_cloud_->header.frame_id = frame_id_;
+
+            organizeCloud(current_cloud_);
 
             ++cloud_counter_;
 

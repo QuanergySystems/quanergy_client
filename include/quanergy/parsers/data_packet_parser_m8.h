@@ -13,9 +13,7 @@
 #ifndef QUANERGY_PARSERS_DATA_PACKET_PARSER_M8_H
 #define QUANERGY_PARSERS_DATA_PACKET_PARSER_M8_H
 
-#include <quanergy/parsers/packet_parser.h>
-
-#include <quanergy/common/pointcloud_types.h>
+#include <quanergy/parsers/data_packet_parser.h>
 
 #include <quanergy/client/m8_data_packet.h>
 
@@ -43,7 +41,7 @@ namespace quanergy
     const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
     /** \brief Not a specialization because it is intended to be used by others. */
-    struct DLLEXPORT DataPacketParserM8 : public PacketParserBase<PointCloudHVDIRPtr>
+    struct DLLEXPORT DataPacketParserM8 : public DataPacketParser
     {
       DataPacketParserM8();
 
