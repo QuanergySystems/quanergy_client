@@ -24,6 +24,8 @@
 
 #include <quanergy/client/exceptions.h>
 
+#include <iostream>
+
 namespace quanergy
 {
   namespace client

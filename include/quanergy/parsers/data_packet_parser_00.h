@@ -32,23 +32,11 @@ namespace quanergy
   {
     struct DLLEXPORT DataPacketParser00 : public DataPacketParserM8
     {
-      DataPacketParser00()
-        : DataPacketParserM8()
-      {}
+      DataPacketParser00();
 
-      inline virtual bool validate(const std::vector<char>& packet)
-      {
-        const PacketHeader* h = reinterpret_cast<const PacketHeader*>(packet.data());
+      virtual bool validate(const std::vector<char>& packet);
 
-        return (deserialize(h->packet_type) == 0x00);
-      }
-
-      inline virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result)
-      {
-        DataPacket00 data_packet;
-        deserialize(packet.data(), data_packet);
-        return DataPacketParserM8::parse(data_packet.data_body, result);
-      }
+      virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result);
     };
 
   } // namespace client

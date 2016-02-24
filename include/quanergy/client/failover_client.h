@@ -54,7 +54,4 @@ namespace quanergy
 
 } // namespace quanergy
 
-
-#include <quanergy/client/impl/failover_client.hpp>
-
 #endif
