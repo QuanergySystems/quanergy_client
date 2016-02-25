@@ -40,7 +40,7 @@ namespace quanergy
 
     const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
-    enum class ReturnSelection { FIRST = 0, MAX, LAST, ALL };
+    enum class ReturnSelection { MAX = 0, FIRST, LAST, ALL };
 
     /** \brief Not a specialization because it is intended to be used by others. */
     struct DLLEXPORT DataPacketParserM8 : public DataPacketParser
