@@ -40,6 +40,11 @@ namespace quanergy
       }
     }
 
+    void DataPacketParserM8::setReturnSelection(ReturnSelection return_selection)
+    {
+      return_selection_ = return_selection;
+    }
+
     bool DataPacketParserM8::parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result)
     {
       bool ret = false;
@@ -86,7 +91,11 @@ namespace quanergy
             current_cloud_->header.seq = cloud_counter_;
             current_cloud_->header.frame_id = frame_id_;
 
-            organizeCloud(current_cloud_);
+            // can't organize if we kept all points
+            if (return_selection_ != ReturnSelection::ALL)
+            {
+              organizeCloud(current_cloud_);
+            }
 
             ++cloud_counter_;
 
@@ -105,13 +114,6 @@ namespace quanergy
 
         for (int j = 0; j < M8_NUM_LASERS; j++)
         {
-          // convert range to meters
-          float range = data.returns_distances[0][j] * .01;
-          unsigned char intensity = data.returns_intensities[0][j];
-
-          if (range < 1E-4)
-            range = std::numeric_limits<float>::quiet_NaN ();
-
           // output point
           PointCloudHVDIR::PointType hvdir;
 
@@ -119,17 +121,40 @@ namespace quanergy
 
           hvdir.h = horizontal_angle;
           hvdir.v = vertical_angle;
-          hvdir.d = range;
-
-          hvdir.intensity = intensity;
           hvdir.ring = j;
 
-          // add the point to the current scan
-          current_cloud_->push_back (hvdir);
+          for (int i = 0; i < 3; ++i)
+          {
+            if (static_cast<int>(return_selection_) == i || return_selection_ == ReturnSelection::ALL)
+            {
+              hvdir.intensity = data.returns_intensities[i][j];
 
-          // if the range is NaN, the cloud is not dense, one point is sufficient
-          if (current_cloud_->is_dense && std::isnan (range))
-            current_cloud_->is_dense = false;
+              // convert range to meters
+              float range = data.returns_distances[i][j] * .01;
+
+              if (range < 1E-4)
+              {
+                // don't add nan points for all because we can't support organized in that case anyway
+                if (return_selection_ != ReturnSelection::ALL)
+                {
+                  hvdir.d = std::numeric_limits<float>::quiet_NaN();
+
+                  // add the point to the current scan
+                  current_cloud_->push_back(hvdir);
+
+                  // if the range is NaN, the cloud is not dense
+                  current_cloud_->is_dense = false;
+                }
+              }
+              else
+              {
+                hvdir.d = range;
+
+                // add the point to the current scan
+                current_cloud_->push_back(hvdir);
+              }
+            }
+          }
         }
 
         last_azimuth_ = azimuth_angle;

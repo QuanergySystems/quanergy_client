@@ -40,12 +40,16 @@ namespace quanergy
 
     const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
+    enum class ReturnSelection { FIRST = 0, MAX, LAST, ALL };
+
     /** \brief Not a specialization because it is intended to be used by others. */
     struct DLLEXPORT DataPacketParserM8 : public DataPacketParser
     {
       DataPacketParserM8();
 
       bool parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result);
+
+      void setReturnSelection(ReturnSelection return_selection);
 
     protected:
       static void organizeCloud(PointCloudHVDIRPtr & current_pc);
@@ -66,6 +70,9 @@ namespace quanergy
 
       /// lookup table for vertical angle
       double vertical_angle_lookup_table_[M8_NUM_LASERS];
+
+      /// return selection
+      ReturnSelection return_selection_ = ReturnSelection::FIRST;
     };
 
   } // namespace client

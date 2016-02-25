@@ -50,7 +50,7 @@ namespace quanergy
 
       RingIntensityFilter();
 
-	  boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
+      boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
 
       void slot(PointCloudHVDIRConstPtr const &);
 
