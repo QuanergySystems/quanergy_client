@@ -123,32 +123,54 @@ namespace quanergy
           hvdir.v = vertical_angle;
           hvdir.ring = j;
 
-          for (int i = 0; i < 3; ++i)
+          if (return_selection_ == ReturnSelection::ALL)
           {
-            if (static_cast<int>(return_selection_) == i || return_selection_ == ReturnSelection::ALL)
+            // for the all case, we won't keep NaN points and we'll compare
+            // distances to illiminate duplicates
+            // index 0 (max return) could equal index 1 (first) and/or index 2 (last)
+            hvdir.intensity = data.returns_intensities[0][j];
+            std::uint32_t d = data.returns_distances[0][j];
+            if (d != 0)
             {
-              hvdir.intensity = data.returns_intensities[i][j];
+              hvdir.d = d * 0.01; // convert range to meters
+              // add the point to the current scan
+              current_cloud_->push_back(hvdir);
+            }
 
-              // convert range to meters
-              float range = data.returns_distances[i][j] * .01;
+            if (data.returns_distances[1][j] != 0 && data.returns_distances[1][j] != d)
+            {
+              hvdir.intensity = data.returns_intensities[0][j];
+              hvdir.d = data.returns_distances[1][j] * 0.01; // convert range to meters
+              // add the point to the current scan
+              current_cloud_->push_back(hvdir);
+            }
 
-              if (range < 1E-4)
+            if (data.returns_distances[2][j] != 0 && data.returns_distances[2][j] != d)
+            {
+              hvdir.intensity = data.returns_intensities[0][j];
+              hvdir.d = data.returns_distances[2][j] * 0.01; // convert range to meters
+              // add the point to the current scan
+              current_cloud_->push_back(hvdir);
+            }
+          }
+          else
+          {
+            for (int i = 0; i < 3; ++i)
+            {
+              if (static_cast<int>(return_selection_) == i)
               {
-                // don't add nan points for all because we can't support organized in that case anyway
-                if (return_selection_ != ReturnSelection::ALL)
+                hvdir.intensity = data.returns_intensities[i][j];
+
+                if (data.returns_distances[i][j] == 0)
                 {
                   hvdir.d = std::numeric_limits<float>::quiet_NaN();
-
-                  // add the point to the current scan
-                  current_cloud_->push_back(hvdir);
-
                   // if the range is NaN, the cloud is not dense
                   current_cloud_->is_dense = false;
                 }
-              }
-              else
-              {
-                hvdir.d = range;
+                else
+                {
+                  hvdir.d = data.returns_distances[i][j] * .01; // convert range to meters
+                }
 
                 // add the point to the current scan
                 current_cloud_->push_back(hvdir);
