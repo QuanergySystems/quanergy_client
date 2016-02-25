@@ -5,6 +5,9 @@
  **                                                            **
  ****************************************************************/
 
+#ifndef QUANERGY_CLIENT_VISUALIZER_MODULE_H
+#define QUANERGY_CLIENT_VISUALIZER_MODULE_H
+
 #include <mutex>
 
 /*!  The PCL_NO_PRECOMPILE is needed to pull in the PCL cloud geometry
@@ -38,3 +41,5 @@ private:
 
   pcl::visualization::PCLVisualizer viewer_;
 };
+
+#endif
