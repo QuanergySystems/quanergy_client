@@ -4,6 +4,9 @@
  ** Contact: http://www.quanergy.com
  **
  ****************************************************************************/
+#ifndef QUANERGY_CLIENT_TCP_CLIENT_HPP
+#define QUANERGY_CLIENT_TCP_CLIENT_HPP
+
 #include <quanergy/client/tcp_client.h>
 
 #include <iostream>
@@ -219,3 +222,5 @@ namespace quanergy
   } // namespace client
 
 } // namespace quanergy
+
+#endif
