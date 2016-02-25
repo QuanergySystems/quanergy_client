@@ -28,7 +28,7 @@ namespace quanergy
 
     /// Default number of firings per TCP packet
     const int M8_FIRING_PER_PKT = 50;
-    /// Ultimately M8 would be a multiecho LiDAR, for now only the first echo is available
+    /// M8 packet supports multiecho return
     const int M8_NUM_RETURNS = 3;
     /// The total number of lasers on the M8 Sensor
     const int M8_NUM_LASERS = 8;
