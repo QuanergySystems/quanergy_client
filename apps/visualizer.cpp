@@ -25,9 +25,9 @@
 void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
-      << " --host <host> [-h | --help]" << std::endl
-      << "--host hostname or IP address of the sensor" << std::endl;
-  std::cout << "\t-h | --help : shows this help and exit" << std::endl;
+      << " --host <host> [-h | --help]" << std::endl << std::endl
+      << "    --host   hostname or IP address of the sensor" << std::endl
+      << "-h, --help   show this help and exit" << std::endl;
   return;
 }
 
@@ -64,6 +64,7 @@ int main(int argc, char** argv)
   // setup modules
   parser.get<0>().setFrameId("quanergy");
   parser.get<1>().setFrameId("quanergy");
+  parser.get<1>().setReturnSelection(quanergy::client::ReturnSelection::MAX);
   parser.get<2>().setFrameId("quanergy");
 
   // connect modules

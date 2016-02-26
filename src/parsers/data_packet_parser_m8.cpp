@@ -40,6 +40,11 @@ namespace quanergy
       }
     }
 
+    void DataPacketParserM8::setReturnSelection(ReturnSelection return_selection)
+    {
+      return_selection_ = return_selection;
+    }
+
     bool DataPacketParserM8::parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result)
     {
       bool ret = false;
@@ -86,7 +91,11 @@ namespace quanergy
             current_cloud_->header.seq = cloud_counter_;
             current_cloud_->header.frame_id = frame_id_;
 
-            organizeCloud(current_cloud_);
+            // can't organize if we kept all points
+            if (return_selection_ != ReturnSelection::ALL)
+            {
+              organizeCloud(current_cloud_);
+            }
 
             ++cloud_counter_;
 
@@ -105,13 +114,6 @@ namespace quanergy
 
         for (int j = 0; j < M8_NUM_LASERS; j++)
         {
-          // convert range to meters
-          float range = data.returns_distances[0][j] * .01;
-          unsigned char intensity = data.returns_intensities[0][j];
-
-          if (range < 1E-4)
-            range = std::numeric_limits<float>::quiet_NaN ();
-
           // output point
           PointCloudHVDIR::PointType hvdir;
 
@@ -119,17 +121,62 @@ namespace quanergy
 
           hvdir.h = horizontal_angle;
           hvdir.v = vertical_angle;
-          hvdir.d = range;
-
-          hvdir.intensity = intensity;
           hvdir.ring = j;
 
-          // add the point to the current scan
-          current_cloud_->push_back (hvdir);
+          if (return_selection_ == ReturnSelection::ALL)
+          {
+            // for the all case, we won't keep NaN points and we'll compare
+            // distances to illiminate duplicates
+            // index 0 (max return) could equal index 1 (first) and/or index 2 (last)
+            hvdir.intensity = data.returns_intensities[0][j];
+            std::uint32_t d = data.returns_distances[0][j];
+            if (d != 0)
+            {
+              hvdir.d = static_cast<float>(d) * 0.01f; // convert range to meters
+              // add the point to the current scan
+              current_cloud_->push_back(hvdir);
+            }
 
-          // if the range is NaN, the cloud is not dense, one point is sufficient
-          if (current_cloud_->is_dense && std::isnan (range))
-            current_cloud_->is_dense = false;
+            if (data.returns_distances[1][j] != 0 && data.returns_distances[1][j] != d)
+            {
+              hvdir.intensity = data.returns_intensities[0][j];
+              hvdir.d = static_cast<float>(data.returns_distances[1][j]) * 0.01f; // convert range to meters
+              // add the point to the current scan
+              current_cloud_->push_back(hvdir);
+            }
+
+            if (data.returns_distances[2][j] != 0 && data.returns_distances[2][j] != d)
+            {
+              hvdir.intensity = data.returns_intensities[0][j];
+              hvdir.d = static_cast<float>(data.returns_distances[2][j]) * 0.01f; // convert range to meters
+              // add the point to the current scan
+              current_cloud_->push_back(hvdir);
+            }
+          }
+          else
+          {
+            for (int i = 0; i < 3; ++i)
+            {
+              if (static_cast<int>(return_selection_) == i)
+              {
+                hvdir.intensity = data.returns_intensities[i][j];
+
+                if (data.returns_distances[i][j] == 0)
+                {
+                  hvdir.d = std::numeric_limits<float>::quiet_NaN();
+                  // if the range is NaN, the cloud is not dense
+                  current_cloud_->is_dense = false;
+                }
+                else
+                {
+                  hvdir.d = static_cast<float>(data.returns_distances[i][j]) * 0.01f; // convert range to meters
+                }
+
+                // add the point to the current scan
+                current_cloud_->push_back(hvdir);
+              }
+            }
+          }
         }
 
         last_azimuth_ = azimuth_angle;
