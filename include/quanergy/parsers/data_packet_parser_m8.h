@@ -72,7 +72,7 @@ namespace quanergy
       double vertical_angle_lookup_table_[M8_NUM_LASERS];
 
       /// return selection
-      ReturnSelection return_selection_ = ReturnSelection::FIRST;
+      ReturnSelection return_selection_ = ReturnSelection::MAX;
     };
 
   } // namespace client

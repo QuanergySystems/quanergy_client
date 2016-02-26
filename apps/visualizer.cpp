@@ -64,7 +64,7 @@ int main(int argc, char** argv)
   // setup modules
   parser.get<0>().setFrameId("quanergy");
   parser.get<1>().setFrameId("quanergy");
-  parser.get<1>().setReturnSelection(quanergy::client::ReturnSelection::FIRST);
+  parser.get<1>().setReturnSelection(quanergy::client::ReturnSelection::MAX);
   parser.get<2>().setFrameId("quanergy");
 
   // connect modules
