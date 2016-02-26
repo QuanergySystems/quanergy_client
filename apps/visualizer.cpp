@@ -25,9 +25,9 @@
 void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
-      << " --host <host> [-h | --help]" << std::endl
-      << "--host hostname or IP address of the sensor" << std::endl;
-  std::cout << "\t-h | --help : shows this help and exit" << std::endl;
+      << " --host <host> [-h | --help]" << std::endl << std::endl
+      << "    --host   hostname or IP address of the sensor" << std::endl
+      << "-h, --help   show this help and exit" << std::endl;
   return;
 }
 

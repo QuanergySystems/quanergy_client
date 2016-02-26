@@ -132,7 +132,7 @@ namespace quanergy
             std::uint32_t d = data.returns_distances[0][j];
             if (d != 0)
             {
-              hvdir.d = d * 0.01; // convert range to meters
+              hvdir.d = static_cast<float>(d) * 0.01f; // convert range to meters
               // add the point to the current scan
               current_cloud_->push_back(hvdir);
             }
@@ -140,7 +140,7 @@ namespace quanergy
             if (data.returns_distances[1][j] != 0 && data.returns_distances[1][j] != d)
             {
               hvdir.intensity = data.returns_intensities[0][j];
-              hvdir.d = data.returns_distances[1][j] * 0.01; // convert range to meters
+              hvdir.d = static_cast<float>(data.returns_distances[1][j]) * 0.01f; // convert range to meters
               // add the point to the current scan
               current_cloud_->push_back(hvdir);
             }
@@ -148,7 +148,7 @@ namespace quanergy
             if (data.returns_distances[2][j] != 0 && data.returns_distances[2][j] != d)
             {
               hvdir.intensity = data.returns_intensities[0][j];
-              hvdir.d = data.returns_distances[2][j] * 0.01; // convert range to meters
+              hvdir.d = static_cast<float>(data.returns_distances[2][j]) * 0.01f; // convert range to meters
               // add the point to the current scan
               current_cloud_->push_back(hvdir);
             }
@@ -169,7 +169,7 @@ namespace quanergy
                 }
                 else
                 {
-                  hvdir.d = data.returns_distances[i][j] * .01; // convert range to meters
+                  hvdir.d = static_cast<float>(data.returns_distances[i][j]) * 0.01f; // convert range to meters
                 }
 
                 // add the point to the current scan
