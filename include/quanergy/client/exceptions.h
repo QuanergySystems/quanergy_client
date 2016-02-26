@@ -46,6 +46,12 @@ namespace quanergy
       virtual const char* what() const throw() { return "Packet sizes don't match"; }
     };
 
+    /** \brief Invalid packet */
+    struct InvalidPacketError : public std::exception
+    {
+      virtual const char* what() const throw() { return "Invalid packet"; }
+    };
+
     /** \brief Invalid data type in header; no parser available */
     struct InvalidDataTypeError : public std::exception
     {

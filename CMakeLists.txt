@@ -2,7 +2,7 @@ project(QuanergyClient)
 cmake_minimum_required(VERSION 2.8)
 
 #  This should match what's in include/quanergy/client/version.h
-set(QUANERGY_CLIENT_VERSION "2.0.7")
+set(QUANERGY_CLIENT_VERSION "3.0.0")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -68,10 +68,19 @@ set(client_SRCS
   src/modules/ring_intensity_filter.cpp
   src/common/point_xyz.cpp
   src/common/point_xyzir.cpp
+  src/client/failover_client.cpp
+  src/parsers/data_packet_parser_00.cpp
+  src/parsers/data_packet_parser_01.cpp
+  src/parsers/data_packet_parser_failover.cpp
+  src/parsers/data_packet_parser_m8.cpp
 )
 
+file(GLOB_RECURSE project_HEADERS
+    "*.h"
+    "*.hpp"
+)
 
-add_library(quanergy_client SHARED ${client_SRCS})
+add_library(quanergy_client SHARED ${client_SRCS} ${project_HEADERS})
 
 configure_file(doxyfile.in
   "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
@@ -192,12 +201,12 @@ endif()
 include(CPack)
 
 ##########
-#  test  #
+#  apps  #
 ##########
 
 if (PCL_VISUALIZATION_FOUND)
-  add_executable(test src/test/test.cpp)
-  target_link_libraries(test quanergy_client ${PCL_LIBRARIES})
+  add_executable(visualizer apps/visualizer.cpp apps/visualizer_module.cpp)
+  target_link_libraries(visualizer quanergy_client ${PCL_LIBRARIES})
 endif()
 
 message("PCL_LIBRARIES: ${PCL_LIBRARIES}")

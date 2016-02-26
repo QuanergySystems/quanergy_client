@@ -39,13 +39,13 @@ namespace quanergy
     {
       typedef std::shared_ptr<DistanceFilter> Ptr;
 
-      typedef PointCloudHVDIRPtr Result;
+      typedef PointCloudHVDIRPtr ResultType;
 
-      typedef boost::signals2::signal<void (Result const &)> Signal;
+      typedef boost::signals2::signal<void (const ResultType&)> Signal;
 
       DistanceFilter();
 
-	  boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
+      boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
 
       void slot(PointCloudHVDIRConstPtr const &);
 

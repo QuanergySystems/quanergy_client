@@ -26,7 +26,7 @@
 #include <quanergy/common/pointcloud_types.h>
 
 // For M8_NUM_LASERS
-#include <quanergy/parsers/deserialize_00.h>
+#include <quanergy/client/m8_data_packet.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
@@ -44,9 +44,9 @@ namespace quanergy
     {
       typedef std::shared_ptr<RingIntensityFilter> Ptr;
 
-      typedef PointCloudHVDIRPtr Result;
+      typedef PointCloudHVDIRPtr ResultType;
 
-      typedef boost::signals2::signal<void (Result const &)> Signal;
+      typedef boost::signals2::signal<void (const ResultType&)> Signal;
 
       RingIntensityFilter();
 

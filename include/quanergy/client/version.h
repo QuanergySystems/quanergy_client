@@ -12,10 +12,10 @@
 //  QUANERGY_CLIENT_VERSION / 100 % 1000 is the minor version
 //  QUANERGY_CLIENT_VERSION / 100000 is the major version
 
-#define QUANERGY_CLIENT_VERSION 200007
+#define QUANERGY_CLIENT_VERSION 300000
 
 // As a string.
 
-#define  QUANERGY_CLIENT_LIB_VERSION "2.0.7"
+#define  QUANERGY_CLIENT_LIB_VERSION "3.0.0"
 
 #endif
