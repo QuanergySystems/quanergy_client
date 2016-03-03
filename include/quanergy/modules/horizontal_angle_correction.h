@@ -41,6 +41,12 @@ namespace quanergy
 
       typedef boost::signals2::signal<void (const ResultType&)> Signal;
 
+      // We only want this object created with the correction values
+      HorizontalAngleCorrection() = delete;
+
+      /** Constructor */
+      HorizontalAngleCorrection(double amplitude, double phase_offset);
+
       /** 
        * @brief Adds subscriber to be called after this classes functionality
        * 
@@ -54,9 +60,9 @@ namespace quanergy
        * @brief Function to call from previous node in chain. Entry point for
        * this classes operation.
        * 
-       * @param 
+       * @param pc[in] Pointer to point cloud to be processed 
        */
-      void slot(PointCloudHVDIRPtr const &);
+      void slot(PointCloudHVDIRPtr const & pc);
 
     private:
 
@@ -70,6 +76,13 @@ namespace quanergy
 
       /** signal object to notify next slot */
       Signal signal_;
+
+      /** Amplitude after modeling horizontal angle error. This value is used to
+       * apply the correction. */
+      double amplitude_ = 0.;
+
+      /** Phase offset after modeling horizontal angle error. */
+      double phase_offset_ = 0.;
 
     };
   

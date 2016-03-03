@@ -11,6 +11,12 @@ namespace quanergy
 {
 namespace client
 {
+  HorizontalAngleCorrection::HorizontalAngleCorrection(double amplitude, double phase_offset)
+  {
+    amplitude_ = amplitude;
+    phase_offset_ = phase_offset;
+  }
+
   boost::signals2::connection HorizontalAngleCorrection::connect(const TYPENAME Signal::slot_type& subscriber)
   {
     return signal_.connect(subscriber);
@@ -26,15 +32,6 @@ namespace client
       return;
 
     PointCloudHVDIR & cloud = *cloud_ptr;
-
-    //PointCloudXYZIRPtr result_ptr = PointCloudXYZIRPtr(new PointCloudXYZIR());
-    //PointCloudXYZIR & result = *result_ptr;
-
-    // result.header.stamp = cloud.header.stamp;
-    // result.header.seq = cloud.header.seq;
-    // result.header.frame_id = cloud.header.frame_id;
-
-    // result.reserve(cloud.size());
 
     for (PointCloudHVDIR::iterator i = cloud.points.begin();
          i != cloud.points.end();

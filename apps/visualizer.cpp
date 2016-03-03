@@ -29,8 +29,9 @@ void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
       << " --host <host> [-h | --help]" << std::endl << std::endl
-      << "    --host   hostname or IP address of the sensor" << std::endl
-      << "-h, --help   show this help and exit" << std::endl;
+      << "    --host               hostname or IP address of the sensor" << std::endl
+      << "    --h-angle-correct    apply correction to horizontal angle" << std::endl
+      << "-h, --help               show this help and exit" << std::endl;
   return;
 }
 
@@ -47,7 +48,7 @@ typedef quanergy::client::PolarToCartConverter ConverterType;
 int main(int argc, char** argv)
 {
   // get host
-  if (argc < 2 || argc > 3 || pcl::console::find_switch(argc, argv, "-h") ||
+  if (argc < 2 || argc > 6 || pcl::console::find_switch(argc, argv, "-h") ||
       pcl::console::find_switch(argc, argv, "--help") || !pcl::console::find_switch(argc, argv, "--host"))
   {
     usage (argv);
@@ -56,13 +57,33 @@ int main(int argc, char** argv)
 
   std::string host;
   std::string port = "4141";
+  double amplitude = 0.;
+  double phase_offset = 0.;
 
   pcl::console::parse_argument(argc, argv, "--host", host);
+
+  // check for horizontal angle correction arguments
+  bool correct_horizontal_angle = false;
+  int h_correct_position = pcl::console::find_argument(argc, argv, "--h-angle-correct");
+  if (-1 != h_correct_position)
+  {
+    // 6 arguments are required if we're correcting the horizontal angle
+    if (argc < 6)
+    {
+      usage(argv);
+      return (0);
+    }
+
+    std::cout << "Correction for horizontal angle offset" << std::endl;
+    amplitude = std::stod(argv[h_correct_position+1]);
+    phase_offset = std::stod(argv[h_correct_position+2]);
+
+    correct_horizontal_angle = true;
+  }
 
   // create modules
   ClientType client(host, port, 100);
   ParserModuleType parser;
-  HCorrectionType hcorrector;
   ConverterType converter;
   VisualizerModule visualizer;
 
@@ -75,8 +96,21 @@ int main(int argc, char** argv)
   // connect modules
   std::vector<boost::signals2::connection> connections;
   connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
-  connections.push_back(parser.connect([&hcorrector](const ParserModuleType::ResultType& pc){ hcorrector.slot(pc); }));
-  connections.push_back(hcorrector.connect([&converter](const HCorrectionType::ResultType& pc){ converter.slot(pc); }));
+
+  // if an amplitude and phase offset are specified, we want an HCorrectionType
+  // between the parser and the converter. Otherwise, we want want to connect
+  // the parser directly to the converter
+  if (correct_horizontal_angle)
+  {
+    HCorrectionType hcorrector(amplitude, phase_offset);
+    connections.push_back(parser.connect([&hcorrector](const ParserModuleType::ResultType& pc){ hcorrector.slot(pc); }));
+    connections.push_back(hcorrector.connect([&converter](const HCorrectionType::ResultType& pc){ converter.slot(pc); }));
+  }
+  else
+  {
+    connections.push_back(parser.connect([&converter](const ParserModuleType::ResultType& pc){ converter.slot(pc); }));
+  }
+
   connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
 
   // start client on a separate thread
