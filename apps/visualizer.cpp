@@ -19,6 +19,9 @@
 #include <quanergy/parsers/data_packet_parser_01.h>
 #include <quanergy/parsers/data_packet_parser_failover.h>
 
+// module to apply horizontal angle correction
+#include <quanergy/modules/horizontal_angle_correction.h>
+
 // conversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>
 
@@ -38,6 +41,7 @@ typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,   /
                                                quanergy::client::DataPacketParser00,
                                                quanergy::client::DataPacketParser01> ParserType;
 typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
+typedef quanergy::client::HorizontalAngleCorrection HCorrectionType;
 typedef quanergy::client::PolarToCartConverter ConverterType;
 
 int main(int argc, char** argv)
@@ -58,6 +62,7 @@ int main(int argc, char** argv)
   // create modules
   ClientType client(host, port, 100);
   ParserModuleType parser;
+  HCorrectionType hcorrector;
   ConverterType converter;
   VisualizerModule visualizer;
 
@@ -70,7 +75,8 @@ int main(int argc, char** argv)
   // connect modules
   std::vector<boost::signals2::connection> connections;
   connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
-  connections.push_back(parser.connect([&converter](const ParserModuleType::ResultType& pc){ converter.slot(pc); }));
+  connections.push_back(parser.connect([&hcorrector](const ParserModuleType::ResultType& pc){ hcorrector.slot(pc); }));
+  connections.push_back(hcorrector.connect([&converter](const HCorrectionType::ResultType& pc){ converter.slot(pc); }));
   connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
 
   // start client on a separate thread
