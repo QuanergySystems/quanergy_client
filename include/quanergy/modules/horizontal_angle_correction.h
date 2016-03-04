@@ -72,7 +72,7 @@ namespace quanergy
        * @param point[inout] Point to have h value corrected. This operation is
        * done in place.
        */
-      static void correctPoint(PointCloudHVDIR::PointType & point);
+      void correctPoint(PointCloudHVDIR::PointType & point);
 
       /** signal object to notify next slot */
       Signal signal_;

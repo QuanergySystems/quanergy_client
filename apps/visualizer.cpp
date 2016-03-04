@@ -25,13 +25,20 @@
 // conversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>
 
+namespace
+{
+  static const std::string AMPLITUDE_STR{"--encoder-amplitude-correction"};
+  static const std::string PHASE_STR{"--encoder-phase-correction"};
+}
+
 void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
       << " --host <host> [-h | --help]" << std::endl << std::endl
-      << "    --host               hostname or IP address of the sensor" << std::endl
-      << "    --h-angle-correct    apply correction to horizontal angle" << std::endl
-      << "-h, --help               show this help and exit" << std::endl;
+      << "    --host                          hostname or IP address of the sensor" << std::endl
+      << "    --encoder-amplitude-correction  amplitude when applying encoder correction" << std::endl
+      << "    --encoder-phase-correction      phase offset when applying encoder correction" << std::endl
+      << "-h, --help                          show this help and exit" << std::endl;
   return;
 }
 
@@ -48,11 +55,22 @@ typedef quanergy::client::PolarToCartConverter ConverterType;
 int main(int argc, char** argv)
 {
   // get host
-  if (argc < 2 || argc > 6 || pcl::console::find_switch(argc, argv, "-h") ||
+  if (argc < 2 || argc > 7 || pcl::console::find_switch(argc, argv, "-h") ||
       pcl::console::find_switch(argc, argv, "--help") || !pcl::console::find_switch(argc, argv, "--host"))
   {
     usage (argv);
     return (0);
+  }
+
+  // if only one of the encoder correction parameters is specified, return
+  // usage statement
+  if ((pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) &&
+       !pcl::console::find_switch(argc, argv, PHASE_STR.c_str())) ||
+      (!pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) &&
+       pcl::console::find_switch(argc, argv, PHASE_STR.c_str())))
+  {
+    usage(argv);
+    return (1);
   }
 
   std::string host;
@@ -62,30 +80,23 @@ int main(int argc, char** argv)
 
   pcl::console::parse_argument(argc, argv, "--host", host);
 
-  // check for horizontal angle correction arguments
-  bool correct_horizontal_angle = false;
-  int h_correct_position = pcl::console::find_argument(argc, argv, "--h-angle-correct");
-  if (-1 != h_correct_position)
+  // check for encoder correction arguments
+  bool correct_encoder_angle = false;
+  if (pcl::console::find_switch(argc, argv, "--encoder-amplitude-correction") && pcl::console::find_switch(argc, argv, "--encoder-phase-correction"))
   {
-    // 6 arguments are required if we're correcting the horizontal angle
-    if (argc < 6)
-    {
-      usage(argv);
-      return (0);
-    }
-
-    std::cout << "Correction for horizontal angle offset" << std::endl;
-    amplitude = std::stod(argv[h_correct_position+1]);
-    phase_offset = std::stod(argv[h_correct_position+2]);
-
-    correct_horizontal_angle = true;
+    pcl::console::parse_argument(argc, argv, "--encoder-amplitude-correction", amplitude);
+    pcl::console::parse_argument(argc, argv, "--encoder-phase-correction", phase_offset);
+    correct_encoder_angle = true;
   }
+
 
   // create modules
   ClientType client(host, port, 100);
   ParserModuleType parser;
   ConverterType converter;
   VisualizerModule visualizer;
+
+  HCorrectionType hcorrector(amplitude, phase_offset);
 
   // setup modules
   parser.get<0>().setFrameId("quanergy");
@@ -100,9 +111,8 @@ int main(int argc, char** argv)
   // if an amplitude and phase offset are specified, we want an HCorrectionType
   // between the parser and the converter. Otherwise, we want want to connect
   // the parser directly to the converter
-  if (correct_horizontal_angle)
+  if (correct_encoder_angle)
   {
-    HCorrectionType hcorrector(amplitude, phase_offset);
     connections.push_back(parser.connect([&hcorrector](const ParserModuleType::ResultType& pc){ hcorrector.slot(pc); }));
     connections.push_back(hcorrector.connect([&converter](const HCorrectionType::ResultType& pc){ converter.slot(pc); }));
   }

@@ -5,6 +5,8 @@
  **                                                            **
  ****************************************************************/
 
+#include <cmath>
+
 #include <quanergy/modules/horizontal_angle_correction.h>
 
 namespace quanergy
@@ -47,7 +49,7 @@ namespace client
 
   void HorizontalAngleCorrection::correctPoint(PointCloudHVDIR::PointType & point)
   {
-    point.h++;
+    point.h = point.h - (amplitude_ * sin(point.h + phase_offset_));
   }
   
 } /* client */
