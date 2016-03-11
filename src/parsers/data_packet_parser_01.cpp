@@ -20,7 +20,10 @@ namespace quanergy
     {
       const PacketHeader* h = reinterpret_cast<const PacketHeader*>(packet.data());
 
-      return (deserialize(h->packet_type) == 0x01);
+      return (deserialize(h->packet_type) == 0x01
+              && deserialize(h->version_major) == 0x00
+              && deserialize(h->version_minor) == 0x01
+              && deserialize(h->version_patch) == 0x00);
     }
 
     bool DataPacketParser01::parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result)
