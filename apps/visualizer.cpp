@@ -19,8 +19,8 @@
 #include <quanergy/parsers/data_packet_parser_01.h>
 #include <quanergy/parsers/data_packet_parser_failover.h>
 
-// module to apply horizontal angle correction
-#include <quanergy/modules/horizontal_angle_correction.h>
+// module to apply encoder correction
+#include <quanergy/modules/encoder_correction.h>
 
 // conversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>
@@ -49,7 +49,7 @@ typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,   /
                                                quanergy::client::DataPacketParser00,
                                                quanergy::client::DataPacketParser01> ParserType;
 typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
-typedef quanergy::client::HorizontalAngleCorrection HCorrectionType;
+typedef quanergy::client::EncoderCorrection EncoderCorrectionType;
 typedef quanergy::client::PolarToCartConverter ConverterType;
 
 int main(int argc, char** argv)
@@ -82,7 +82,8 @@ int main(int argc, char** argv)
 
   // check for encoder correction arguments
   bool correct_encoder_angle = false;
-  if (pcl::console::find_switch(argc, argv, "--encoder-amplitude-correction") && pcl::console::find_switch(argc, argv, "--encoder-phase-correction"))
+  if (pcl::console::find_switch(argc, argv, "--encoder-amplitude-correction") &&
+      pcl::console::find_switch(argc, argv, "--encoder-phase-correction"))
   {
     pcl::console::parse_argument(argc, argv, "--encoder-amplitude-correction", amplitude);
     pcl::console::parse_argument(argc, argv, "--encoder-phase-correction", phase_offset);
@@ -96,7 +97,7 @@ int main(int argc, char** argv)
   ConverterType converter;
   VisualizerModule visualizer;
 
-  HCorrectionType hcorrector(amplitude, phase_offset);
+  EncoderCorrectionType encoder_corrector(amplitude, phase_offset);
 
   // setup modules
   parser.get<0>().setFrameId("quanergy");
@@ -108,13 +109,13 @@ int main(int argc, char** argv)
   std::vector<boost::signals2::connection> connections;
   connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
 
-  // if an amplitude and phase offset are specified, we want an HCorrectionType
+  // if an amplitude and phase offset are specified, we want an EncoderCorrectionType
   // between the parser and the converter. Otherwise, we want want to connect
   // the parser directly to the converter
   if (correct_encoder_angle)
   {
-    connections.push_back(parser.connect([&hcorrector](const ParserModuleType::ResultType& pc){ hcorrector.slot(pc); }));
-    connections.push_back(hcorrector.connect([&converter](const HCorrectionType::ResultType& pc){ converter.slot(pc); }));
+    connections.push_back(parser.connect([&encoder_corrector](const ParserModuleType::ResultType& pc){ encoder_corrector.slot(pc); }));
+    connections.push_back(encoder_corrector.connect([&converter](const EncoderCorrectionType::ResultType& pc){ converter.slot(pc); }));
   }
   else
   {

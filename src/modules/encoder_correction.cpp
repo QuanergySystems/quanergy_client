@@ -7,24 +7,24 @@
 
 #include <cmath>
 
-#include <quanergy/modules/horizontal_angle_correction.h>
+#include <quanergy/modules/encoder_correction.h>
 
 namespace quanergy
 {
 namespace client
 {
-  HorizontalAngleCorrection::HorizontalAngleCorrection(double amplitude, double phase_offset)
+  EncoderCorrection::EncoderCorrection(double amplitude, double phase_offset)
   {
     amplitude_ = amplitude;
     phase_offset_ = phase_offset;
   }
 
-  boost::signals2::connection HorizontalAngleCorrection::connect(const TYPENAME Signal::slot_type& subscriber)
+  boost::signals2::connection EncoderCorrection::connect(const TYPENAME Signal::slot_type& subscriber)
   {
     return signal_.connect(subscriber);
   }
 
-  void HorizontalAngleCorrection::slot(PointCloudHVDIRPtr const & cloud_ptr)
+  void EncoderCorrection::slot(PointCloudHVDIRPtr const & cloud_ptr)
   {
     if (!cloud_ptr)
       return;
@@ -47,7 +47,7 @@ namespace client
 
   }
 
-  void HorizontalAngleCorrection::correctPoint(PointCloudHVDIR::PointType & point)
+  void EncoderCorrection::correctPoint(PointCloudHVDIR::PointType & point)
   {
     point.h = point.h - (amplitude_ * sin(point.h + phase_offset_));
   }

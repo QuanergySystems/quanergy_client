@@ -11,8 +11,8 @@
  * access
  */
 
-#ifndef HORIZONAL_ANGLE_CORRECTION_H_
-#define HORIZONAL_ANGLE_CORRECTION_H_
+#ifndef ENCODER_CORRECTION_H_
+#define ENCODER_CORRECTION_H_
 
 #include <boost/signals2.hpp>
 #include <pcl/point_cloud.h>
@@ -33,19 +33,19 @@ namespace quanergy
 {
   namespace client
   {
-    struct DLLEXPORT HorizontalAngleCorrection
+    struct DLLEXPORT EncoderCorrection
     {
-      typedef std::shared_ptr<HorizontalAngleCorrection> Ptr;
+      typedef std::shared_ptr<EncoderCorrection> Ptr;
 
       typedef PointCloudHVDIRPtr ResultType;
 
       typedef boost::signals2::signal<void (const ResultType&)> Signal;
 
       // We only want this object created with the correction values
-      HorizontalAngleCorrection() = delete;
+      EncoderCorrection() = delete;
 
       /** Constructor */
-      HorizontalAngleCorrection(double amplitude, double phase_offset);
+      EncoderCorrection(double amplitude, double phase_offset);
 
       /** 
        * @brief Adds subscriber to be called after this classes functionality
@@ -89,4 +89,4 @@ namespace quanergy
   } /* client */
 } /* quanergy */ 
 
-#endif /* end of include guard: HORIZONAL_ANGLE_CORRECTION_H_ */
+#endif /* end of include guard: ENCODER_CORRECTION_H_ */
