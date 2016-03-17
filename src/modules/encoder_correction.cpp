@@ -49,7 +49,7 @@ namespace client
 
   void EncoderCorrection::correctPoint(PointCloudHVDIR::PointType & point)
   {
-    point.h = point.h - (amplitude_ * sin(point.h + phase_offset_));
+    point.h = point.h - (amplitude_ * sin(point.h - phase_offset_));
   }
   
 } /* client */
