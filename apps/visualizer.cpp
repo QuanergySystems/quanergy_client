@@ -34,10 +34,11 @@ namespace
 void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
-      << " --host <host> [-h | --help]" << std::endl << std::endl
+      << " --host <host> [-h | --help] [" << AMPLITUDE_STR << " <value> " << PHASE_STR << " <value>]" << std::endl << std::endl
+
       << "    --host                          hostname or IP address of the sensor" << std::endl
-      << "    --encoder-amplitude-correction  amplitude when applying encoder correction" << std::endl
-      << "    --encoder-phase-correction      phase offset when applying encoder correction" << std::endl
+      << "    " << AMPLITUDE_STR << "  amplitude when applying encoder correction" << std::endl
+      << "    " << PHASE_STR << "      phase offset when applying encoder correction" << std::endl
       << "-h, --help                          show this help and exit" << std::endl;
   return;
 }
@@ -82,11 +83,11 @@ int main(int argc, char** argv)
 
   // check for encoder correction arguments
   bool correct_encoder_angle = false;
-  if (pcl::console::find_switch(argc, argv, "--encoder-amplitude-correction") &&
-      pcl::console::find_switch(argc, argv, "--encoder-phase-correction"))
+  if (pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) &&
+      pcl::console::find_switch(argc, argv, PHASE_STR.c_str()))
   {
-    pcl::console::parse_argument(argc, argv, "--encoder-amplitude-correction", amplitude);
-    pcl::console::parse_argument(argc, argv, "--encoder-phase-correction", phase_offset);
+    pcl::console::parse_argument(argc, argv, AMPLITUDE_STR.c_str(), amplitude);
+    pcl::console::parse_argument(argc, argv, PHASE_STR.c_str(), phase_offset);
     correct_encoder_angle = true;
   }
 
