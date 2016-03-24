@@ -130,15 +130,15 @@ source ~/.bashrc
 ### Run RViz
 Set ROS_MASTER_URI to IP address of Drive PX on the network
 ```
-$ export ROS_MASTER_URI=http://<Drive PX network IP>:11311
+export ROS_MASTER_URI=http://<Drive PX network IP>:11311
 ```
 Set ROS_IP to IP of the workstation on the network
 ```
-$ export ROS_IP=<Drive PX network IP>
+export ROS_IP=<Drive PX network IP>
 ```
 Launch RViz
 ```
-$ rviz &
+rviz &
 ```
 In RViz, change Global Options → Fixed Frame to Sensor. Change PointCloud2 → Topic to
 /Sensor/points.
