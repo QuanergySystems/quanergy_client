@@ -6,6 +6,7 @@ set(QUANERGY_CLIENT_VERSION "3.0.0")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+option(NoViz "Do not build visualizer" OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unknown-pragmas -fno-strict-aliasing -Wno-format-extra-args -Wno-sign-compare -Wno-invalid-offsetof -Wno-conversion")
@@ -44,7 +45,7 @@ ENDIF("${is_system_dir}" STREQUAL "-1")
 
 find_package(Boost COMPONENTS system thread REQUIRED)
 
-if (CMAKE_CROSSCOMPILING)
+if (NoViz OR CMAKE_CROSSCOMPILING)
   find_package(PCL REQUIRED common io)
 else()
   find_package(PCL REQUIRED common io visualization)
