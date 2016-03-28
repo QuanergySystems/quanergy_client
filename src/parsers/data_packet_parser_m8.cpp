@@ -18,6 +18,7 @@ namespace quanergy
       , cloud_counter_(0)
       , last_azimuth_(65000)
       , current_cloud_(new PointCloudHVDIR())
+      , worker_cloud_(new PointCloudHVDIR())
       , horizontal_angle_lookup_table_(M8_NUM_ROT_ANGLES+1)
     {
       for (std::uint32_t i = 0; i <= M8_NUM_ROT_ANGLES; i++)
@@ -43,6 +44,14 @@ namespace quanergy
     void DataPacketParserM8::setReturnSelection(ReturnSelection return_selection)
     {
       return_selection_ = return_selection;
+    }
+
+    void DataPacketParserM8::setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax)
+    {
+      if(szmin > 0)
+        minimum_cloud_size_ = std::max(1,szmin);
+      if(szmax > 0)
+        maximum_cloud_size_ = std::max(minimum_cloud_size_,szmax);
     }
 
     bool DataPacketParserM8::parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result)
@@ -75,6 +84,8 @@ namespace quanergy
       else
         direction = (data_packet.data[M8_FIRING_PER_PKT-1].position - data_packet.data[0].position > 4000) ? -1 : 1;
 
+      bool cloudfull = (current_cloud_->size() >= maximum_cloud_size_);
+
       // for each firing
       for (int i = 0; i < M8_FIRING_PER_PKT; ++i)
       {
@@ -85,8 +96,14 @@ namespace quanergy
         // check for wrap which indicates completion of a scan
         if (direction * azimuth_angle < direction * last_azimuth_)
         {
-          if (current_cloud_->size () > 0)
+          if (current_cloud_->size () > minimum_cloud_size_)
           {
+            if(cloudfull)
+            {
+              std::cout << "Warning: Maximum cloud size limit of ("
+                  << maximum_cloud_size_ << ") exceeded" << std::endl;
+            }
+
             current_cloud_->header.stamp = time;
             current_cloud_->header.seq = cloud_counter_;
             current_cloud_->header.frame_id = frame_id_;
@@ -94,7 +111,7 @@ namespace quanergy
             // can't organize if we kept all points
             if (return_selection_ != ReturnSelection::ALL)
             {
-              organizeCloud(current_cloud_);
+              organizeCloud(current_cloud_, worker_cloud_);
             }
 
             ++cloud_counter_;
@@ -103,12 +120,21 @@ namespace quanergy
             result = current_cloud_;
             ret = true;
           }
+          else if(current_cloud_->size() > 0)
+          {
+            std::cout << "Warning: Minimum cloud size limit of (" << minimum_cloud_size_
+                << ") not reached (" << current_cloud_->size() << ")" << std::endl;
+          }
 
           // start a new cloud
           current_cloud_.reset(new PointCloudHVDIR());
           // at first we assume it is dense
           current_cloud_->is_dense = true;
+          cloudfull = false;
         }
+
+        if(cloudfull)
+          continue;
 
         double const horizontal_angle = horizontal_angle_lookup_table_[data.position];
 
@@ -185,10 +211,11 @@ namespace quanergy
       return ret;
     }
 
-    void DataPacketParserM8::organizeCloud(PointCloudHVDIRPtr & current_pc)
+    void DataPacketParserM8::organizeCloud(PointCloudHVDIRPtr & current_pc,
+                                           PointCloudHVDIRPtr & temp_pc)
     {
       // transpose the cloud
-      PointCloudHVDIRPtr temp_pc(new PointCloudHVDIR());
+      temp_pc->clear();
 
       temp_pc->header.stamp = current_pc->header.stamp;
       temp_pc->header.seq = current_pc->header.seq;

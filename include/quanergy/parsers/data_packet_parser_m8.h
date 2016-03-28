@@ -50,9 +50,11 @@ namespace quanergy
       bool parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result);
 
       void setReturnSelection(ReturnSelection return_selection);
+      void setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax);
 
     protected:
-      static void organizeCloud(PointCloudHVDIRPtr & current_pc);
+      static void organizeCloud(PointCloudHVDIRPtr & current_pc,
+                                PointCloudHVDIRPtr & temp_pc);
 
       /// global packet counter
       uint32_t packet_counter_;
@@ -64,6 +66,7 @@ namespace quanergy
       double last_azimuth_;
 
       PointCloudHVDIRPtr current_cloud_;
+      PointCloudHVDIRPtr worker_cloud_;
 
       /// lookup table for horizontal angle
       std::vector<double> horizontal_angle_lookup_table_;
@@ -73,6 +76,10 @@ namespace quanergy
 
       /// return selection
       ReturnSelection return_selection_ = ReturnSelection::MAX;
+
+      /// cloud size limits
+      std::int32_t minimum_cloud_size_ = 1;
+      std::int32_t maximum_cloud_size_ = std::numeric_limits<int>::max();
     };
 
   } // namespace client

@@ -183,11 +183,15 @@ namespace quanergy
 
         if (buff_queue_.size() > max_queue_size_)
         {
-          std::cout << "Warning: Client dropped packet due to full buffer" << std::endl;
           buff_queue_.pop();
+          lk.unlock();
+          std::cout << "Warning: Client dropped packet due to full buffer" << std::endl;
+        }
+        else
+        {
+          lk.unlock();
         }
 
-        lk.unlock();
         buff_queue_conditional_.notify_one();
       }
 
