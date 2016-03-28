@@ -73,6 +73,10 @@ set(client_SRCS
 
 add_library(quanergy_client SHARED ${client_SRCS})
 
+if(WIN32)
+  target_link_library(quanergy_client ws2_32)
+endif()
+
 configure_file(doxyfile.in
   "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
 
