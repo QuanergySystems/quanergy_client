@@ -79,7 +79,7 @@ namespace quanergy
 
       /// cloud size limits
       std::int32_t minimum_cloud_size_ = 1;
-      std::int32_t maximum_cloud_size_ = std::numeric_limits<int>::max();
+      std::int32_t maximum_cloud_size_ = 1E6; // excessively large but protects memory usage
     };
 
   } // namespace client
