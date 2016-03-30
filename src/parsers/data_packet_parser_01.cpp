@@ -7,6 +7,8 @@
 
 #include <quanergy/parsers/data_packet_parser_01.h>
 
+#define RING_VERTICAL_ANGLE_RESOLUTION 0.1 * 3.14 / 180 //anything point closer in vertical angle that this are considered to still be the same ring
+
 namespace quanergy
 {
   namespace client
@@ -43,6 +45,9 @@ namespace quanergy
 
       result->resize(data_packet.data_header.point_count);
 
+      int ring_num = 0;
+      std::map<float,int> ring_angles;
+
       // intermediate angles and value
       double H = 0;
       double V = 0;
@@ -64,8 +69,26 @@ namespace quanergy
 
         pc_point.intensity = point.intensity;
 
-        /// This generator provides no ring.
-        pc_point.ring = std::numeric_limits<uint16_t>::max();
+        if (ring_angles.count(V) == 0) //The V angles are the relatively constant ones for rings
+        {
+          //Check if there are any points on a ring with a very close vertical angle.  If so, give it the same ring number
+          bool ring_found = false;
+          for (auto ring_angle : ring_angles)
+          {
+            if (fabs(V - ring_angle.first) < RING_VERTICAL_ANGLE_RESOLUTION)
+            {
+              ring_angles[V] = ring_angle.second;
+              ring_found = true;
+              break;
+            }
+          }
+          if (!ring_found)
+          {
+            ring_angles[V] = ring_num++;
+          }
+
+        }
+        pc_point.ring = ring_angles[V];
       }
 
       return true;
