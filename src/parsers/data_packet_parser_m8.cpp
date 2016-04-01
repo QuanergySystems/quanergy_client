@@ -84,6 +84,12 @@ namespace quanergy
       else
         direction = (data_packet.data[M8_FIRING_PER_PKT-1].position - data_packet.data[0].position > 4000) ? -1 : 1;
 
+      double distance_scaling = 0.01f;
+      if (data_packet.version >= 5)
+      {
+        distance_scaling = 0.00001f;
+      }
+
       bool cloudfull = (current_cloud_->size() >= maximum_cloud_size_);
 
       // for each firing
@@ -137,12 +143,6 @@ namespace quanergy
           continue;
 
         double const horizontal_angle = horizontal_angle_lookup_table_[data.position];
-
-        double distance_scaling = 0.01f;
-        if (data_packet.version > 4)
-        {
-          distance_scaling = 0.01f;
-        }
 
         for (int j = 0; j < M8_NUM_LASERS; j++)
         {
