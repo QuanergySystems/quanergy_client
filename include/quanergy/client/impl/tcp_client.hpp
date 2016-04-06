@@ -23,8 +23,8 @@ namespace quanergy
       : buff_(sizeof(HEADER))
       , host_query_(host, port)
       , max_queue_size_(max_queue_size)
+      , kill_(true)
     {
-      kill_ = false;
       read_socket_.reset(new boost::asio::ip::tcp::socket(io_service_));
     }
 
@@ -43,7 +43,11 @@ namespace quanergy
     template <class HEADER>
     void TCPClient<HEADER>::run()
     {
+      if (!kill_)
+        return;
+
       kill_ = false;
+      io_service_.reset();
       startDataConnect();
 
       // create thread for parsing
@@ -82,6 +86,10 @@ namespace quanergy
     void TCPClient<HEADER>::stop()
     {
       kill_ = true;
+      // close socket before stopping service to cancel async operations
+      read_socket_->close();
+      // guarantee we recognize the closed socket before stopping
+      io_service_.run_one();
       io_service_.stop();
 
       // notify that we are killing
@@ -91,7 +99,8 @@ namespace quanergy
     template <class HEADER>
     void TCPClient<HEADER>::startDataConnect()
     {
-      std::cout << "Attempting to connect..." << std::endl;
+      std::cout << "Attempting to connect (" << host_query_.host_name()
+                << ":" << host_query_.service_name() << ")..." << std::endl;
       boost::asio::ip::tcp::resolver resolver(io_service_);
 
       try
@@ -101,7 +110,11 @@ namespace quanergy
         boost::asio::async_connect(*read_socket_, endpoint_iterator,
                                    [this](boost::system::error_code error, boost::asio::ip::tcp::resolver::iterator)
                                    {
-                                     if (error)
+                                     if (kill_)
+                                     {
+                                       return;
+                                     }
+                                     else if (error)
                                      {
                                        std::cerr << "Unable to bind to socket (" << host_query_.host_name()
                                                  << ":" << host_query_.service_name() << ")! "
@@ -136,7 +149,11 @@ namespace quanergy
     template <class HEADER>
     void TCPClient<HEADER>::handleReadHeader(const boost::system::error_code& error)
     {
-      if (error)
+      if (kill_)
+      {
+        return;
+      }
+      else if (error)
       {
         std::cerr << "Error reading header: "
                   << error.message() << std::endl;
@@ -168,7 +185,11 @@ namespace quanergy
     template <class HEADER>
     void TCPClient<HEADER>::handleReadBody(const boost::system::error_code& error)
     {
-      if (error)
+      if (kill_)
+      {
+        return;
+      }
+      else if (error)
       {
         std::cerr << "Error reading body: "
                   << error.message() << std::endl;
