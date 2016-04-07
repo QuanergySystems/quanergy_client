@@ -39,7 +39,7 @@ namespace quanergy
     {
       std::uint16_t position;
       std::uint16_t padding;
-      std::uint32_t returns_distances[M8_NUM_RETURNS][M8_NUM_LASERS];   // 1 cm resolution.
+      std::uint32_t returns_distances[M8_NUM_RETURNS][M8_NUM_LASERS];   // 10 um resolution.
       std::uint8_t  returns_intensities[M8_NUM_RETURNS][M8_NUM_LASERS]; // 255 indicates saturation
       std::uint8_t  returns_status[M8_NUM_LASERS];                      // 0 for now
     }; // 132 bytes
@@ -50,7 +50,7 @@ namespace quanergy
       M8FiringData  data[M8_FIRING_PER_PKT];
       std::uint32_t seconds;     // seconds from Jan 1 1970
       std::uint32_t nanoseconds; // fractional seconds turned to nanoseconds
-      std::uint16_t version;     // API version number
+      std::uint16_t version;     // API version number.  Version 5 uses distance as units of 10 micrometers, <5 is 10mm
       std::uint16_t status;      // 0: good, 1: Sensor SW/FW mismatch
     }; // 6612 bytes
 #pragma pack(pop)

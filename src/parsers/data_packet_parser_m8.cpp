@@ -84,6 +84,12 @@ namespace quanergy
       else
         direction = (data_packet.data[M8_FIRING_PER_PKT-1].position - data_packet.data[0].position > 4000) ? -1 : 1;
 
+      double distance_scaling = 0.01f;
+      if (data_packet.version >= 5)
+      {
+        distance_scaling = 0.00001f;
+      }
+
       bool cloudfull = (current_cloud_->size() >= maximum_cloud_size_);
 
       // for each firing
@@ -158,7 +164,7 @@ namespace quanergy
             std::uint32_t d = data.returns_distances[0][j];
             if (d != 0)
             {
-              hvdir.d = static_cast<float>(d) * 0.01f; // convert range to meters
+              hvdir.d = static_cast<float>(d) * distance_scaling; // convert range to meters
               // add the point to the current scan
               current_cloud_->push_back(hvdir);
             }
@@ -166,7 +172,7 @@ namespace quanergy
             if (data.returns_distances[1][j] != 0 && data.returns_distances[1][j] != d)
             {
               hvdir.intensity = data.returns_intensities[0][j];
-              hvdir.d = static_cast<float>(data.returns_distances[1][j]) * 0.01f; // convert range to meters
+              hvdir.d = static_cast<float>(data.returns_distances[1][j]) * distance_scaling; // convert range to meters
               // add the point to the current scan
               current_cloud_->push_back(hvdir);
             }
@@ -174,7 +180,7 @@ namespace quanergy
             if (data.returns_distances[2][j] != 0 && data.returns_distances[2][j] != d)
             {
               hvdir.intensity = data.returns_intensities[0][j];
-              hvdir.d = static_cast<float>(data.returns_distances[2][j]) * 0.01f; // convert range to meters
+              hvdir.d = static_cast<float>(data.returns_distances[2][j]) * distance_scaling; // convert range to meters
               // add the point to the current scan
               current_cloud_->push_back(hvdir);
             }
@@ -195,7 +201,7 @@ namespace quanergy
                 }
                 else
                 {
-                  hvdir.d = static_cast<float>(data.returns_distances[i][j]) * 0.01f; // convert range to meters
+                  hvdir.d = static_cast<float>(data.returns_distances[i][j]) * distance_scaling; // convert range to meters
                 }
 
                 // add the point to the current scan
