@@ -67,9 +67,9 @@ namespace quanergy
 
       // this time is used for the cloud stamp which is a 64 bit integer in units of microseconds
       std::uint64_t time;
-      if (data_packet.version <= 3)
+      if (data_packet.version <= 3 && data_packet.version != 0)
       {
-        // early versions of API put 10 ns increments in this field
+        // some versions of API put 10 ns increments in this field
         time = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-2;
       }
       else
