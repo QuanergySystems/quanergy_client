@@ -13,6 +13,12 @@ namespace quanergy
 {
 namespace client
 {
+  EncoderCorrection::EncoderCorrection()
+    : amplitude_(0.),
+    phase_offset_(0.)
+  {
+  }
+
   EncoderCorrection::EncoderCorrection(double amplitude, double phase_offset)
   {
     amplitude_ = amplitude;
@@ -45,6 +51,11 @@ namespace client
 
     signal_(cloud_ptr);
 
+  }
+  void EncoderCorrection::setParameters(double amplitude, double phase)
+  {
+    amplitude_ = amplitude;
+    phase_offset_ = phase;
   }
 
   void EncoderCorrection::correctPoint(PointCloudHVDIR::PointType & point)

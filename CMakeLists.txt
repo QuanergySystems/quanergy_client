@@ -74,6 +74,7 @@ set(client_SRCS
   src/modules/distance_filter.cpp
   src/modules/ring_intensity_filter.cpp
   src/modules/encoder_correction.cpp
+  src/modules/encoder_angle_calibration.cpp
   src/common/point_xyz.cpp
   src/common/point_xyzir.cpp
   src/client/failover_client.cpp

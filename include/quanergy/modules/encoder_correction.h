@@ -14,6 +14,8 @@
 #ifndef ENCODER_CORRECTION_H_
 #define ENCODER_CORRECTION_H_
 
+#include <atomic>
+
 #include <boost/signals2.hpp>
 #include <pcl/point_cloud.h>
 
@@ -41,8 +43,8 @@ namespace quanergy
 
       typedef boost::signals2::signal<void (const ResultType&)> Signal;
 
-      // We only want this object created with the correction values
-      EncoderCorrection() = delete;
+      /** Default constructor */
+      EncoderCorrection();
 
       /** Constructor */
       EncoderCorrection(double amplitude, double phase_offset);
@@ -64,6 +66,14 @@ namespace quanergy
        */
       void slot(PointCloudHVDIRPtr const & pc);
 
+      /** 
+       * @brief Function to set sinusoid correction parameters.
+       * 
+       * @param amplitude[in] Amplitude of sinusoid error
+       * @param phase[in] Phase offset of sinusoid error
+       */
+      void setParameters(double amplitude, double phase);
+
     private:
 
       /** 
@@ -79,10 +89,10 @@ namespace quanergy
 
       /** Amplitude after modeling horizontal angle error. This value is used to
        * apply the correction. */
-      double amplitude_ = 0.;
+      std::atomic<double> amplitude_;
 
       /** Phase offset after modeling horizontal angle error. */
-      double phase_offset_ = 0.;
+      std::atomic<double> phase_offset_;
 
     };
   
