@@ -15,6 +15,7 @@
 #define QUANERGY_CLIENT_PACKET_PARSER_H
 
 #include <memory>
+#include <mutex>
 
 #include <boost/signals2.hpp>
 
@@ -34,6 +35,7 @@ namespace quanergy
       /** \brief Connect a slot to the signal which will be emitted when a new RESULT is available */
       boost::signals2::connection connect(const typename Signal::slot_type& subscriber)
       {
+        std::lock_guard<decltype(signal_mutex_)> lock(signal_mutex_);
         return signal_.connect(subscriber);
       }
 
@@ -44,10 +46,15 @@ namespace quanergy
           return;
 
         if (PARSER::validateParse(*packet, result))
+        {
+          std::lock_guard<decltype(signal_mutex_)> lock(signal_mutex_);
           signal_(result);
+        }
       }
 
       protected:
+        /// Mutex around signal
+        std::mutex signal_mutex_;
         /// Signal that gets fired whenever a result is ready.
         Signal signal_;
         /// result to pass to parse function
