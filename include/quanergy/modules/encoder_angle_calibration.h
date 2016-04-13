@@ -152,11 +152,6 @@ namespace quanergy
        */
       SineParameters findSinusoidParameters(const AngleContainer& sine_signal);
 
-      /** 
-       * @brief Blocks until successful calibration has been calculated
-       */
-      void wait() const;
-
     private:
 
       /** 
@@ -186,6 +181,13 @@ namespace quanergy
       AngleContainer unwrapEncoderAngles(const AngleContainer& encoder_angles);
 
       /** 
+       * @brief Applies calibration. Applies calibration in place.
+       * 
+       * @param cloud_ptr[in] Point cloud calibration will be applied to.
+       */
+      void applyCalibration(PointCloudHVDIRPtr const & cloud_ptr);
+
+      /** 
        * @brief Flag indicating this class will output debugging output.
        */
       bool debugging_ = false;
@@ -203,17 +205,15 @@ namespace quanergy
        * -pi to pi */
       std::atomic_bool started_full_rev_;
 
-      /** Condition variable to notify threads waiting for successful
-       * calibration */
-      mutable std::condition_variable complete_condition_;
-
       /** Flag indicating calibration is complete. Used to withstand spurious
        * wakeups from condition variable */
-      bool calibration_complete_ = false;
+      std::atomic_bool calibration_complete_;
 
-      /** Mutex to be locked in wait() function. Required by condition variable
-       * */
-      mutable std::mutex complete_mutex_;
+      /** Calculated amplitude */
+      double amplitude_ = 0.;
+
+      /** Calculated phase (radians) */
+      double phase_ = 0.;
 
     };
 

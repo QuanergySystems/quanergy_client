@@ -28,8 +28,8 @@
 
 namespace
 {
-  static const std::string AMPLITUDE_STR{"--encoder-amplitude-correction"};
-  static const std::string PHASE_STR{"--encoder-phase-correction"};
+  static const std::string AMPLITUDE_STR{"--encoder-amplitude-correct"};
+  static const std::string PHASE_STR{"--encoder-phase-correct"};
   static const std::string CALIBRATE_STR{"--calibrate"};
 }
 
@@ -39,8 +39,8 @@ void usage(char** argv)
       << " --host <host> [-h | --help] [" << AMPLITUDE_STR << " <value> " << PHASE_STR << " <value>]" << std::endl << std::endl
 
       << "    --host                          hostname or IP address of the sensor" << std::endl
-      << "    " << AMPLITUDE_STR << "  amplitude when applying encoder correction" << std::endl
-      << "    " << PHASE_STR << "      phase offset when applying encoder correction" << std::endl
+      << "    " << AMPLITUDE_STR << "  apply encoder correction with user-defined amplitude" << std::endl
+      << "    " << PHASE_STR << "      apply phase correction with user-defined amplitude" << std::endl
       << "    " << CALIBRATE_STR << "   calibrate the host sensor and apply calibration to outgoing points" << std::endl
       << "-h, --help                          show this help and exit" << std::endl;
   return;
@@ -134,22 +134,14 @@ int main(int argc, char** argv)
   if (pcl::console::find_switch(argc, argv, CALIBRATE_STR.c_str()))
   {
     connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
-    auto calibrator_connection = parser.connect([&calibrator](const ParserModuleType::ResultType& pc){ calibrator.slot(pc); });
+    connections.push_back(parser.connect([&calibrator](const ParserModuleType::ResultType& pc){ calibrator.slot(pc); }));
+    connections.push_back(calibrator.connect([&converter](const CalibrationType::ResultType& pc){ converter.slot(pc); }));
+    connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
 
     // run the client with the calibrator and wait for a signal from the
     // calibrator that a successful calibration has been performed
     client_thread = std::thread(run_client);
     
-    // wait for signal from calibrator
-    calibrator.wait();
-    
-    // report parameters so user can bypass this
-    // step next time
-    
-    encoder_corrector.setParameters(0,0);
-    connections.push_back(parser.connect([&encoder_corrector](const ParserModuleType::ResultType& pc){ encoder_corrector.slot(pc); }));
-    connections.push_back(encoder_corrector.connect([&converter](const EncoderCorrectionType::ResultType& pc){ converter.slot(pc); }));
-    connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
   }
   else
   {
@@ -167,7 +159,6 @@ int main(int argc, char** argv)
       connections.push_back(parser.connect([&converter](const ParserModuleType::ResultType& pc){ converter.slot(pc); }));
       connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
     }
-
 
     // start client on a separate thread
     client_thread = std::thread(run_client);

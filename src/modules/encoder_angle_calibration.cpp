@@ -35,6 +35,7 @@ namespace quanergy
     EncoderAngleCalibration::EncoderAngleCalibration()
     {
       started_full_rev_ = false;
+      calibration_complete_ = false;
     }
 
     boost::signals2::connection EncoderAngleCalibration::connect(
@@ -55,8 +56,11 @@ namespace quanergy
       if (!cloud_ptr)
         return;
 
-      if (signal_.num_slots() == 0)
+      if (calibration_complete_)
+      {
+        applyCalibration(cloud_ptr);
         return;
+      }
 
       // Add the points to a point cloud. Do this until we have enough points to
       // to check for a complete revolution
@@ -104,14 +108,39 @@ namespace quanergy
       }
     }
 
+    void EncoderAngleCalibration::applyCalibration(PointCloudHVDIRPtr const & cloud_ptr)
+    {
+      if (!cloud_ptr)
+        return;
+
+      // return immediately if there are no slots
+      if (signal_.num_slots() == 0)
+        return;
+
+      PointCloudHVDIR & cloud = *cloud_ptr;
+
+      for (auto& point : cloud)
+      {
+        // corrects in place, saves copying other values
+        point.h = point.h - (amplitude_ * sin(point.h - phase_));
+      }
+
+      signal_(cloud_ptr);
+
+    }
+
     void EncoderAngleCalibration::processAngles(AngleContainer encoder_angles)
     {
       auto sine_parameters = calculate(encoder_angles, true);
+
+      amplitude_ = sine_parameters.first;
+      phase_ = sine_parameters.second;
+
       std::cout << "amplitude: " << sine_parameters.first
                 << " | phase: " << sine_parameters.second
                 << " | encoder period: " << encoder_angles.size() << std::endl;
 
-      std::raise(SIGTERM);
+      calibration_complete_ = true;
     }
 
     bool EncoderAngleCalibration::checkComplete()
@@ -168,8 +197,8 @@ namespace quanergy
       calc_sinusoid(slope, 0.);
 
       // determine the sinusoid vertical translation from the x-axis
-      auto vertical_offset = (std::max(sinusoid.begin(), sinusoid.end()) -
-                              std::min(sinusoid.begin(), sinusoid.end())) /
+      auto vertical_offset = (*std::max_element(sinusoid.begin(), sinusoid.end()) +
+                              *std::min_element(sinusoid.begin(), sinusoid.end())) /
                              2;
 
       calc_sinusoid(slope, vertical_offset);
@@ -298,12 +327,6 @@ namespace quanergy
       auto phase = std::fmod(2 * M_PI * phase_index / sine_signal.size(), 2 * M_PI);
 
       return std::make_pair(amplitude, phase);
-    }
-
-    void EncoderAngleCalibration::wait() const
-    {
-      std::unique_lock<std::mutex> lock(complete_mutex_);
-      complete_condition_.wait(lock, [this] { return calibration_complete_; });
     }
 
   } /* calibration */
