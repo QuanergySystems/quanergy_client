@@ -37,7 +37,6 @@ namespace quanergy
     template <class HEADER>
     boost::signals2::connection TCPClient<HEADER>::connect(const typename Signal::slot_type& subscriber)
     {
-      std::lock_guard<decltype(signal_mutex_)> lock(signal_mutex_);
       return signal_.connect(subscriber);
     }
 

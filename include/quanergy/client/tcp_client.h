@@ -107,7 +107,6 @@ namespace quanergy
       std::condition_variable     buff_queue_conditional_;
       std::atomic<bool>           kill_; // std::atomic_bool lacks proper constructors in MSVC
 
-      std::mutex signal_mutex_;
       Signal signal_;
     };
 
