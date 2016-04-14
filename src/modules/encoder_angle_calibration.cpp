@@ -122,7 +122,7 @@ namespace quanergy
       for (auto& point : cloud)
       {
         // corrects in place, saves copying other values
-        point.h = point.h - (amplitude_ * sin(point.h - phase_));
+        point.h = point.h - (amplitude_ * sin(point.h + phase_));
       }
 
       signal_(cloud_ptr);
@@ -326,7 +326,8 @@ namespace quanergy
       // phase:
       auto phase = std::fmod(2 * M_PI * phase_index / sine_signal.size(), 2 * M_PI);
 
-      return std::make_pair(amplitude, phase);
+      // we calculate the negative phase above, return the actual phase
+      return std::make_pair(amplitude, -phase);
     }
 
   } /* calibration */
