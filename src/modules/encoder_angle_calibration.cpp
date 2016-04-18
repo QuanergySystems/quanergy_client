@@ -21,12 +21,6 @@ namespace quanergy
   {
     const double EncoderAngleCalibration::FIRING_RATE = 53828.;
 
-    // This value was determined by running many calibration trials and noting
-    // the minimum angle between firings. This threshold provides a
-    // way to determine if packets were dropped when analyzing if a revolution is
-    // appropriate for calibration.
-    const double EncoderAngleCalibration::RADIANS_PER_ENCODER_COUNT = 0.005;
-
     /** Once the motor has reached stead-state, the number of encoder counts per
      * revolution should be roughly the firing rate divided by the frame rate.
      * This number is how many counts the current revolution can be within the
@@ -177,11 +171,15 @@ namespace quanergy
         return (false);
 
       // iterate over hvdir_pts_ and check to make sure each point is within
-      // RADIANS_PER_ENCODER_COUNT
+      // if you divide the firing rate by the frame rate you get the number of
+      // points per rev. Convert to radians
+      auto rads_per_count = 2 * M_PI / (FIRING_RATE / frame_rate_);
       
       for (int i = 1; i < hvdir_pts_.size(); i++)
       {
-        if (std::abs(hvdir_pts_[i].h - hvdir_pts_[i-1].h) > RADIANS_PER_ENCODER_COUNT)
+        // TCP packets are in points chunks of 50. If we see a delta angle of
+        // more than 5 encoder counts, discard as dropped packet.
+        if (std::abs(hvdir_pts_[i].h - hvdir_pts_[i-1].h) > 5 * rads_per_count)
           return (false);
       }
 

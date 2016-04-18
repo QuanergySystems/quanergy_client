@@ -71,10 +71,6 @@ namespace quanergy
       /** The firing rate of the LiDAR, in Hz */
       static const double FIRING_RATE;
 
-      /** Maximum number of radians allowed between subsequent encoder angles.
-       * This value determines if we've the sensor has dropped a packet */
-      static const double RADIANS_PER_ENCODER_COUNT;
-
       /** Once the motor has reached stead-state, the number of encoder counts per
        * revolution should be roughly the firing rate divided by the frame rate.
        * This number is how many counts the current revolution can be within the
