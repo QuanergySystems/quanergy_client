@@ -19,14 +19,19 @@ namespace quanergy
 {
   namespace calibration
   {
-    const double EncoderAngleCalibration::FIRING_RATE = 54000.;
-    const double EncoderAngleCalibration::MOTOR_SPEED = 10.;
+    const double EncoderAngleCalibration::FIRING_RATE = 53828.;
+
+    // This value was determined by running many calibration trials and noting
+    // the minimum acceptable angles between firings. This threshold provides a
+    // way to determie if packets were dropped when analyzing if a revolution is
+    // appropriate for calibration.
     const double EncoderAngleCalibration::RADIANS_PER_ENCODER_COUNT = 0.005;
 
-    // I found once the M8 motor speeds reached steady-state, the number of
-    // encoder counts in a period varied between the min/max defined below.
-    const int EncoderAngleCalibration::MIN_ENCODER_ANGLES_PER_REV = 5100;
-    const int EncoderAngleCalibration::MAX_ENCODER_ANGLES_PER_REV = 5300;
+    /** Once the motor has reached stead-state, the number of encoder counts per
+     * revolution should be roughly the firing rate divided by the frame rate.
+     * This number is how many counts the current revolution can be within the
+     * theoretical steady-state number of encoder counts. */
+    const int EncoderAngleCalibration::ENCODER_COUNT_TOLERANCE = 200;
 
     // I choose this value by looking at multiple segments of revolutions from
     // -pi to pi and found all endpoints were within this value of -pi and pi.
@@ -36,6 +41,11 @@ namespace quanergy
     {
       started_full_rev_ = false;
       calibration_complete_ = false;
+    }
+
+    void EncoderAngleCalibration::setFrameRate(double frame_rate)
+    {
+      frame_rate_ = frame_rate;
     }
 
     boost::signals2::connection EncoderAngleCalibration::connect(
@@ -162,7 +172,8 @@ namespace quanergy
         return (false);
 
       // check that the encoder period is within the steady-state range
-      if (hvdir_pts_.size() > MAX_ENCODER_ANGLES_PER_REV || hvdir_pts_.size() < MIN_ENCODER_ANGLES_PER_REV)
+      if ( hvdir_pts_.size() > ((FIRING_RATE / frame_rate_) + ENCODER_COUNT_TOLERANCE) ||
+          hvdir_pts_.size() < ((FIRING_RATE / frame_rate_) - ENCODER_COUNT_TOLERANCE) )
         return (false);
 
       // iterate over hvdir_pts_ and check to make sure each point is within

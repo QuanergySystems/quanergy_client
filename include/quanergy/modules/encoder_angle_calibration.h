@@ -34,7 +34,10 @@ namespace quanergy
   {
     /**
      * @brief This class calculates the error in the encoder angles and returns
-     * the amplitude and phase shift of the sin function representing the error
+     * the amplitude and phase shift of the sine function modeling the error in
+     * the encoder angles for the M8 Sensor. This class can also be provided
+     * with the sine error parameters and apply the calibration to incoming
+     * points.
      */
     struct EncoderAngleCalibration
     {
@@ -68,12 +71,15 @@ namespace quanergy
       /** The firing rate of the LiDAR, in Hz */
       static const double FIRING_RATE;
 
-      /** The speed of the motor, in revolutions per second */
-      static const double MOTOR_SPEED;
-
       /** Maximum number of radians allowed between subsequent encoder angles.
        * This value determines if we've the sensor has dropped a packet */
       static const double RADIANS_PER_ENCODER_COUNT;
+
+      /** Once the motor has reached stead-state, the number of encoder counts per
+       * revolution should be roughly the firing rate divided by the frame rate.
+       * This number is how many counts the current revolution can be within the
+       * theoretical steady-state number of encoder counts. */
+      static const int ENCODER_COUNT_TOLERANCE;
 
       /** Minimum number of encoder angles to qualify full revolution at
        * steady-state motor speed */
@@ -129,6 +135,14 @@ namespace quanergy
        * @param phase[in] Phase of sinusoidal error
        */
       void setParams(double amplitude, double phase);
+
+      /** 
+       * @brief Function to set frame rate. Value is in frames per second. If
+       * not set, the default is 10.
+       * 
+       * @param frame_rate[in] frame rate.
+       */
+      void setFrameRate(double frame_rate);
 
       /**
        * @brief Function to calculate the sinusoidal error of the horizontal
@@ -228,6 +242,9 @@ namespace quanergy
 
       /** Calculated phase (radians) */
       double phase_ = 0.;
+
+      /** Frame rate of M8 sensor */
+      double frame_rate_ = 10.;
 
     };
 
