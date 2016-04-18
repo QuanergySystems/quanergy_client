@@ -110,11 +110,25 @@ namespace quanergy
       boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
 
       /** 
-       * @brief Entry point for this classes functionality
+       * @brief Slot to be connected as a subscriber to another process. If
+       * calibration is not complete, this function will add the point cloud
+       * argument to the cloud to be used for calibration. If calibration is
+       * complete, this function will apply the calibration and call the next
+       * subscriber.
        * 
        * @param pc[in] Point cloud to be processed.
        */
       void slot(PointCloudHVDIRPtr const & pc);
+
+      /** 
+       * @brief Function to manually set calibration parameters. Calling this
+       * function will disable the automatic calibration and subsequent calls to
+       * slot will apply the calibration and call the subscriber.
+       * 
+       * @param amplitude[in] Amplitude of sinusoid error
+       * @param phase[in] Phase of sinusoidal error
+       */
+      void setParams(double amplitude, double phase);
 
       /**
        * @brief Function to calculate the sinusoidal error of the horizontal

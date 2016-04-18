@@ -108,6 +108,14 @@ namespace quanergy
       }
     }
 
+    void EncoderAngleCalibration::setParams(double amplitude, double phase)
+    {
+      amplitude_ = amplitude;
+      phase_ = phase;
+
+      calibration_complete_ = true;
+    }
+
     void EncoderAngleCalibration::applyCalibration(PointCloudHVDIRPtr const & cloud_ptr)
     {
       if (!cloud_ptr)
