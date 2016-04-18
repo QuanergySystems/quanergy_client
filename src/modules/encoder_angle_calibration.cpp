@@ -22,8 +22,8 @@ namespace quanergy
     const double EncoderAngleCalibration::FIRING_RATE = 53828.;
 
     // This value was determined by running many calibration trials and noting
-    // the minimum acceptable angles between firings. This threshold provides a
-    // way to determie if packets were dropped when analyzing if a revolution is
+    // the minimum angle between firings. This threshold provides a
+    // way to determine if packets were dropped when analyzing if a revolution is
     // appropriate for calibration.
     const double EncoderAngleCalibration::RADIANS_PER_ENCODER_COUNT = 0.005;
 
