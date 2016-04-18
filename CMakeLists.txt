@@ -85,7 +85,7 @@ file(GLOB_RECURSE project_HEADERS
 add_library(quanergy_client SHARED ${client_SRCS} ${project_HEADERS})
 
 if(WIN32)
-  target_link_library(quanergy_client ws2_32)
+  target_link_libraries(quanergy_client ws2_32)
 endif()
 
 configure_file(doxyfile.in
