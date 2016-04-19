@@ -94,6 +94,23 @@ endif()
 configure_file(doxyfile.in
   "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
 
+#############
+## Testing ##
+#############
+
+# Unit Tests
+find_package(GTest)
+
+add_executable(test_quanergy_client test/test_encoder_angle_calibration.cpp)
+
+target_link_libraries(test_quanergy_client
+  quanergy_client
+  ${GTEST_LIBRARIES}
+  boost_system
+  )
+
+add_test(encoder_calibration_unit_test test_quanergy_client)
+
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
   add_custom_target(doc "${DOXYGEN_EXECUTABLE}" "${PROJECT_BINARY_DIR}/doxyfile")
