@@ -107,6 +107,7 @@ target_link_libraries(test_quanergy_client
   quanergy_client
   ${GTEST_LIBRARIES}
   boost_system
+  pthread
   )
 
 add_test(encoder_calibration_unit_test test_quanergy_client)
@@ -232,7 +233,7 @@ include(CPack)
 
 if (PCL_VISUALIZATION_FOUND)
   add_executable(visualizer apps/visualizer.cpp apps/visualizer_module.cpp)
-  target_link_libraries(visualizer quanergy_client ${PCL_LIBRARIES})
+  target_link_libraries(visualizer quanergy_client ${PCL_LIBRARIES} pthread)
 endif()
 
 message("PCL_LIBRARIES: ${PCL_LIBRARIES}")
