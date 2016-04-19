@@ -68,8 +68,6 @@ int main(int argc, char** argv)
 
   std::string host;
   std::string port = "4141";
-  double amplitude = 0.;
-  double phase_offset = 0.;
 
   pcl::console::parse_argument(argc, argv, "--host", host);
 
@@ -107,8 +105,8 @@ int main(int argc, char** argv)
         usage(argv);
         return(0);
       }
-      auto amplitude = 0.;
-      auto phase = 0.;
+      double amplitude = 0.;
+      double phase = 0.;
       pcl::console::parse_argument(argc, argv, AMPLITUDE_STR.c_str(), amplitude);
       pcl::console::parse_argument(argc, argv, PHASE_STR.c_str(), phase);
 
