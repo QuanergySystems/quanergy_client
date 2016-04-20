@@ -20,6 +20,8 @@ namespace quanergy
       , current_cloud_(new PointCloudHVDIR())
       , worker_cloud_(new PointCloudHVDIR())
       , horizontal_angle_lookup_table_(M8_NUM_ROT_ANGLES+1)
+      , start_azimuth_(0)
+      , degrees_per_cloud_(360.0)
     {
       for (std::uint32_t i = 0; i <= M8_NUM_ROT_ANGLES; i++)
       {
@@ -52,6 +54,15 @@ namespace quanergy
         minimum_cloud_size_ = std::max(1,szmin);
       if(szmax > 0)
         maximum_cloud_size_ = std::max(minimum_cloud_size_,szmax);
+    }
+    
+    void DataPacketParserM8::setDegreesOfSweepPerCloud(double degrees_per_cloud)
+    {
+      if ( degrees_per_cloud < 0 || degrees_per_cloud > 360.0 ) 
+      {
+        throw InvalidDegreesPerCloud();
+      }
+      degrees_per_cloud_ = degrees_per_cloud;
     }
 
     bool DataPacketParserM8::parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result)
@@ -99,9 +110,24 @@ namespace quanergy
 
         // calculate the angle in degrees
         double azimuth_angle = (static_cast<double> ((data.position+(M8_NUM_ROT_ANGLES/2))%M8_NUM_ROT_ANGLES) / (M8_NUM_ROT_ANGLES) * 360.0) - 180.;
-        // check for wrap which indicates completion of a scan
-        if (direction * azimuth_angle < direction * last_azimuth_)
+        double delta_angle = 0;
+        if ( cloud_counter_ == 0 && start_azimuth_ == 0 )
         {
+          start_azimuth_ = azimuth_angle;
+        } 
+        else 
+        {
+          // calculate delta
+          delta_angle = direction*(azimuth_angle - start_azimuth_);
+          while ( delta_angle < 0.0 )
+          {
+            delta_angle += 360.0;
+          }
+        }
+        
+        if ( delta_angle >= degrees_per_cloud_ || (degrees_per_cloud_==360.0 && (direction*azimuth_angle < direction*last_azimuth_) ))
+        {
+          start_azimuth_ = azimuth_angle;
           if (current_cloud_->size () > minimum_cloud_size_)
           {
             if(cloudfull)

@@ -51,6 +51,9 @@ namespace quanergy
 
       void setReturnSelection(ReturnSelection return_selection);
       void setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax);
+      void setDegreesOfSweepPerCloud(double degrees_per_cloud);
+      
+      double getDegreesOfSweepPerCloud() const { return degrees_per_cloud_; }
 
     protected:
       static void organizeCloud(PointCloudHVDIRPtr & current_pc,
@@ -80,6 +83,10 @@ namespace quanergy
       /// cloud size limits
       std::int32_t minimum_cloud_size_ = 1;
       std::int32_t maximum_cloud_size_ = 1E6; // excessively large but protects memory usage
+      
+      /// cloud degrees of sweep
+      double start_azimuth_;
+      double degrees_per_cloud_;
     };
 
   } // namespace client
