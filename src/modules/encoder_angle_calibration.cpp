@@ -31,8 +31,10 @@ namespace quanergy
     // -pi to pi and found all endpoints were within this value of -pi and pi.
     const double EncoderAngleCalibration::PI_TOLERANCE = 0.01;
 
-    EncoderAngleCalibration::EncoderAngleCalibration()
+    EncoderAngleCalibration::EncoderAngleCalibration(bool output_results)
+      : output_results_(output_results)
     {
+      last_phase_ = 0.;
       started_full_rev_ = false;
       calibration_complete_ = false;
     }
@@ -148,11 +150,21 @@ namespace quanergy
       amplitude_ = sine_parameters.first;
       phase_ = sine_parameters.second;
 
-      std::cout << "amplitude: " << sine_parameters.first
-                << " | phase: " << sine_parameters.second
-                << " | encoder period: " << encoder_angles.size() << std::endl;
+      // if this is the first run, print the header
+      static bool first_run = true;
+      if (first_run)
+      {
+        std::cout << "AMPLITUDE(rads), PHASE(rads), PHASE DELTA(rads)" << std::endl;
+        first_run = false;
+      }
 
-      calibration_complete_ = true;
+      std::cout << sine_parameters.first << "," << sine_parameters.second << ","
+                << sine_parameters.second - last_phase_ << std::endl;
+
+      last_phase_ = sine_parameters.second;
+
+      if (!output_results_)
+        calibration_complete_ = true;
     }
 
     bool EncoderAngleCalibration::checkComplete()
@@ -219,6 +231,27 @@ namespace quanergy
                              2;
 
       calc_sinusoid(slope, vertical_offset);
+
+      static int calibration_count = 0;
+
+      if (output_results_)
+      {
+        std::stringstream encoder_filename;
+        std::stringstream error_filename;
+        encoder_filename << "encoder" << calibration_count << ".csv";
+        error_filename << "error" << calibration_count << ".csv";
+        std::ofstream encoder_output{encoder_filename.str()};
+        std::ofstream error_output{error_filename.str()};
+
+        for (int i = 0; i < encoder_angles.size(); i++)
+        {
+
+          encoder_output << encoder_angles[i] << std::endl;
+          error_output << sinusoid[i] << std::endl;
+        }
+      }
+
+      calibration_count++;
 
       return (findSinusoidParameters(sinusoid));
     }

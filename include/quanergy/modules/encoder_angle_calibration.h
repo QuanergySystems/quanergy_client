@@ -91,10 +91,14 @@ namespace quanergy
 
     public:
 
-      /**
-       * @brief Empty constructor
+      /** 
+       * @brief Constructor
+       * 
+       * @param output_results[in] Specifies whether this module should output
+       * calibration results for its lifetime rather than apply calibration
+       * after a successful calibration is found.
        */
-      EncoderAngleCalibration();
+      EncoderAngleCalibration(bool output_results = false);
 
       /**
        * @brief Empty destructor
@@ -241,6 +245,14 @@ namespace quanergy
 
       /** Frame rate of M8 sensor */
       double frame_rate_ = 10.;
+
+      /** Value of phase for last encoder calibration */
+      std::atomic<double> last_phase_;
+
+      /** Flag indicating that we're outputting calibration results constantly
+       * and never applying calibration. This mode is used when the user wants
+       * to analyze the calibration results */
+      const bool output_results_ = false;
 
     };
 
