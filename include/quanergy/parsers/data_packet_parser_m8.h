@@ -9,7 +9,7 @@
  *
  *   \brief Provide pointcloud parser functionality for m8 data.
  */
-
+ 
 #ifndef QUANERGY_PARSERS_DATA_PACKET_PARSER_M8_H
 #define QUANERGY_PARSERS_DATA_PACKET_PARSER_M8_H
 
