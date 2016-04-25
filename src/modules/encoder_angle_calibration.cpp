@@ -249,6 +249,7 @@ namespace quanergy
 
       if (output_results_)
       {
+        std::lock_guard<decltype(file_mutex_)> lock(file_mutex_);
         std::stringstream encoder_filename;
         std::stringstream model_filename;
         std::stringstream error_filename;

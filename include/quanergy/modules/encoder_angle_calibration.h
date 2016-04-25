@@ -268,6 +268,9 @@ namespace quanergy
        * to analyze the calibration results */
       const bool output_results_ = false;
 
+      /** mutex around writing to file */
+      std::mutex file_mutex_;
+
     };
 
   } /* calibration */
