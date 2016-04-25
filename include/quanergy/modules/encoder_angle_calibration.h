@@ -41,6 +41,7 @@ namespace quanergy
      */
     struct EncoderAngleCalibration
     {
+
       /** The type of the container that contains the encoder
        * angles */
       using AngleContainer = std::vector<double>;
@@ -88,6 +89,10 @@ namespace quanergy
       /** Allowable tolerance within pi for an endpoint-angle in a revolution to
        * be considered near pi */
       static const double PI_TOLERANCE;
+
+      /** Moving average period to use when smoothing error signal, in encoder
+       * counts */
+      static const int MOV_AVG_PERIOD;
 
     public:
 
@@ -214,6 +219,15 @@ namespace quanergy
        * @param cloud_ptr[in] Point cloud calibration will be applied to.
        */
       void applyCalibration(PointCloudHVDIRPtr const & cloud_ptr);
+
+      /** 
+       * @brief Applies moving average in place
+       * 
+       * @param encoder_angles[inout] Signal to be filtered.
+       * @param period[in] Period to apply averaging over, in container elements
+       *
+       */
+      AngleContainer movingAvgFilter(const AngleContainer& encoder_angles, int period);
 
       /** 
        * @brief Flag indicating this class will output debugging output.

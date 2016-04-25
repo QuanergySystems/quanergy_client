@@ -12,7 +12,12 @@
 #include <fstream>
 #include <csignal>
 
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/mean.hpp>
+
 #include <quanergy/modules/encoder_angle_calibration.h>
+
 #include <Eigen/Dense>
 
 namespace quanergy
@@ -30,6 +35,9 @@ namespace quanergy
     // I choose this value by looking at multiple segments of revolutions from
     // -pi to pi and found all endpoints were within this value of -pi and pi.
     const double EncoderAngleCalibration::PI_TOLERANCE = 0.01;
+
+    /* Number of encoder counts to use when smoothing error signal */
+    const int EncoderAngleCalibration::MOV_AVG_PERIOD = 300;
 
     EncoderAngleCalibration::EncoderAngleCalibration(bool output_results)
       : output_results_(output_results)
@@ -210,14 +218,17 @@ namespace quanergy
       // how much our line needs to be shifted such that the sinusoid should be
       // vertically shifted. We will shift the line by this value and
       // recalculate our sinusoid
+      std::vector<double> model;
       std::vector<double> sinusoid;
 
       auto calc_sinusoid =
-          [&sinusoid, &encoder_angles](double slope, double y_intercept)
+          [&sinusoid, &encoder_angles, &model](double slope, double y_intercept)
       {
+        model.clear();
         sinusoid.clear();
         for (int count = 0; count < encoder_angles.size(); count++)
         {
+          model.push_back(slope * count + y_intercept);
           // no y-intercept this time
           sinusoid.push_back(encoder_angles[count] - slope * count - y_intercept);
         }
@@ -232,28 +243,44 @@ namespace quanergy
 
       calc_sinusoid(slope, vertical_offset);
 
+      auto smoothed_sinusoid = movingAvgFilter(sinusoid, MOV_AVG_PERIOD);
+
       static int calibration_count = 0;
 
       if (output_results_)
       {
         std::stringstream encoder_filename;
+        std::stringstream model_filename;
         std::stringstream error_filename;
+        std::stringstream smoothed_filename;
+
         encoder_filename << "encoder" << calibration_count << ".csv";
+        model_filename << "model" << calibration_count << ".csv";
         error_filename << "error" << calibration_count << ".csv";
+        smoothed_filename << "smoothed" << calibration_count << ".csv";
+
+        calibration_count++;
+
         std::ofstream encoder_output{encoder_filename.str()};
+        std::ofstream model_output{model_filename.str()};
         std::ofstream error_output{error_filename.str()};
+        std::ofstream smoothed_output{smoothed_filename.str()};
 
         for (int i = 0; i < encoder_angles.size(); i++)
         {
-
           encoder_output << encoder_angles[i] << std::endl;
+          model_output << model[i] << std::endl;
           error_output << sinusoid[i] << std::endl;
+          smoothed_output << smoothed_sinusoid[i] << std::endl;
         }
+
+        encoder_output.close();
+        model_output.close();
+        error_output.close();
+        smoothed_output.close();
       }
 
-      calibration_count++;
-
-      return (findSinusoidParameters(sinusoid));
+      return (findSinusoidParameters(smoothed_sinusoid));
     }
 
       EncoderAngleCalibration::AngleContainer
@@ -336,6 +363,42 @@ namespace quanergy
     double EncoderAngleCalibration::fitLine(const AngleContainer& encoder_angles)
     {
       return (encoder_angles.back() - encoder_angles.front()) / encoder_angles.size();
+    }
+
+    EncoderAngleCalibration::AngleContainer
+    EncoderAngleCalibration::movingAvgFilter(
+        const AngleContainer& encoder_angles, int period)
+    {
+      namespace ba = boost::accumulators;
+
+      auto half_period = static_cast<int>(period / 2);
+
+      // assert size of container is greater than moving average period
+      
+      AngleContainer filtered_angles;
+      for (auto signal_iter = encoder_angles.begin(); signal_iter != encoder_angles.end(); ++signal_iter)
+      {
+        // make sure we don't iterate over the endpoints. If we're at an
+        // endpoint we'll just take an average up until the endpoint. This means
+        // our filtered signal will be the same size as our input.
+        auto beg_iter = std::distance(encoder_angles.begin(), signal_iter) < half_period
+                            ? encoder_angles.begin()
+                            : signal_iter - half_period;
+
+        auto end_iter = std::distance(signal_iter, encoder_angles.end()) < half_period
+                            ? encoder_angles.end()
+                            : signal_iter + half_period;
+
+        // double avg = 0.;
+        ba::accumulator_set<double, ba::stats<ba::tag::mean>> avg_acc;
+        for (auto avg_iter = beg_iter; avg_iter < end_iter; ++avg_iter)
+          avg_acc(*avg_iter);
+
+        // avg /= static_cast<double>(period);
+        filtered_angles.push_back(ba::mean(avg_acc));
+      }
+
+      return filtered_angles;
     }
 
     EncoderAngleCalibration::SineParameters
