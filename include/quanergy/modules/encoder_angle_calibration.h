@@ -94,16 +94,20 @@ namespace quanergy
        * counts */
       static const int MOV_AVG_PERIOD;
 
+      /** Tolerance for identifying when phase values have converged without
+       * outliers */
+      static const double PHASE_CONVERGENCE_THRESHOLD;
+
     public:
 
       /** 
        * @brief Constructor
        * 
-       * @param output_results[in] Specifies whether this module should output
+       * @param run_forever [in] Specifies whether this module should output
        * calibration results for its lifetime rather than apply calibration
        * after a successful calibration is found.
        */
-      EncoderAngleCalibration(bool output_results = false);
+      EncoderAngleCalibration(bool run_forever = false);
 
       /**
        * @brief Empty destructor
@@ -130,6 +134,15 @@ namespace quanergy
        * @param pc[in] Point cloud to be processed.
        */
       void slot(PointCloudHVDIRPtr const & pc);
+
+      /**
+       * @brief Sets number of valid calibrations to be collected before
+       *averaging. Validity is determined by change in phase between current
+       *sample and previous sample
+       *
+       * @param num_cals[in] Number of calibrations
+       */
+      void setNumCalibrations(double num_cals);
 
       /** 
        * @brief Function to manually set calibration parameters. Calling this
@@ -266,10 +279,29 @@ namespace quanergy
       /** Flag indicating that we're outputting calibration results constantly
        * and never applying calibration. This mode is used when the user wants
        * to analyze the calibration results */
-      const bool output_results_ = false;
+      const bool run_forever_ = false;
 
       /** mutex around writing to file */
-      std::mutex file_mutex_;
+      mutable std::mutex file_mutex_;
+
+      /** mutex for containers holding amplitude and phase values */
+      mutable std::mutex container_mutex_;
+
+      /** number of encoder calibrations to run before before averaging
+       * amplitude and phase values and reporting these to user */
+      int total_cal_samples_ = 100;
+
+      /** number of calibrations which have current been processed. Used to
+       * check against total_cal_samples_ */
+      int num_valid_samples_ = 0;
+
+      /** Vector to hold amplitude values. This is added to as valid calibration
+       * samples are calculated and used to eventually calculate the average */
+      std::vector<double> amplitude_values_;
+
+      /** Vector to hold phase values. This is added to as valid calibration
+       * samples are calculated and used to eventually calculate the average */
+      std::vector<double> phase_values_;
 
     };
 
