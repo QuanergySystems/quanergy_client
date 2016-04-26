@@ -46,6 +46,14 @@ namespace quanergy
      * calibration is complete. */
     const double EncoderAngleCalibration::PHASE_CONVERGENCE_THRESHOLD = 0.1;
 
+    /** Theshold dictating whether the encoder offset amplitude warrants
+     * applying a calibration. If the amplitude is below this value, it is
+     * likely that the sinusoidal error is insignificant. Calculating the offset
+     * in this case is inconsistent since another souce of noise dominates the
+     * overall noise in the signal. This value was chosen to be roughly 5 times
+     * the amplitude of the other noise */
+    const double EncoderAngleCalibration::AMPLITUDE_THRESHOLD = 0.005;
+
     EncoderAngleCalibration::EncoderAngleCalibration(bool run_forever)
       : run_forever_(run_forever)
         , started_full_rev_(false)
@@ -53,12 +61,7 @@ namespace quanergy
         , required_samples_(100)
         , num_valid_samples_(0)
     {
-      // started_full_rev_ = false;
-      // calibration_complete_ = false;
-      // required_samples_ = 100;
-      // num_valid_samples_ = 0;
 
-      // TODO start thread pool
       unsigned int num_threads = std::thread::hardware_concurrency();
       for (int i = 0; i < num_threads; i++)
         futures_.push_back(std::async(
@@ -205,6 +208,15 @@ namespace quanergy
         if (calibration_complete_ || num_valid_samples_ > required_samples_)
           return;
 
+        if (sine_parameters.first < AMPLITUDE_THRESHOLD)
+        {
+          std::cout << "Correction amplitude of " << sine_parameters.first
+                    << " is below threshold of" << AMPLITUDE_THRESHOLD
+                    << ". No calibration will be applied." << std::endl;
+
+          calibration_complete_ = true;
+        }
+
         // display all results if we're running forever so we can analyze the
         // results. We won't be averaging in this mode so return immediately
         static bool first_run = true;
@@ -225,8 +237,6 @@ namespace quanergy
           }
           return;
         }
-
-        std::cout << sine_parameters.first << "," << sine_parameters.second << std::endl;
 
         // At this point we're not running forever. We will collect valid
         // calibrations until enough have been collected and then average the

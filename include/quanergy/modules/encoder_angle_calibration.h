@@ -99,6 +99,12 @@ namespace quanergy
        * outliers */
       static const double PHASE_CONVERGENCE_THRESHOLD;
 
+      /** Amplitude threshold dictating if calculating the encoder offset is
+       * appropriate. If an encoder calibration returns an amplitude below this
+       * value, this class indicates that calibration is complete and applies no
+       * calibration to outgoing points. */
+      static const double AMPLITUDE_THRESHOLD;
+
     public:
 
       /** 
