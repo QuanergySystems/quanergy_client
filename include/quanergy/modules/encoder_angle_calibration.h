@@ -186,7 +186,7 @@ namespace quanergy
       /** 
        * @brief Sets timeout for calculating calibration.
        * 
-       * @param[in] timeout Timeout in seconds.
+       * @param timeout[in] Timeout in seconds.
        */
       void setTimeout(int timeout);
 
@@ -195,7 +195,7 @@ namespace quanergy
        * values. Unwrapped encoder values should be linear with respect to 
        * time-index. This line is used to determine the error.
        *
-       * @param encoder_angles Angles to fit line to
+       * @param encoder_angles[in] Angles to fit line to
        * @returns slope of the line
        */
       double fitLine(const AngleContainer& encoder_angles);
