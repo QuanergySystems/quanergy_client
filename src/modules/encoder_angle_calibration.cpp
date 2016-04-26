@@ -68,6 +68,17 @@ namespace quanergy
             std::launch::async, &EncoderAngleCalibration::processAngles, this));
     }
 
+    EncoderAngleCalibration::~EncoderAngleCalibration()
+    {
+      calibration_complete_ = true;
+      nonempty_condition_.notify_all();
+
+      for (auto& future : futures_)
+      {
+        future.get();
+      }
+    }
+
     void EncoderAngleCalibration::setFrameRate(double frame_rate)
     {
       frame_rate_ = frame_rate;
@@ -79,15 +90,9 @@ namespace quanergy
       return signal_.connect(subscriber);
     }
 
-    EncoderAngleCalibration::~EncoderAngleCalibration()
+    void EncoderAngleCalibration::setTimeout(int timeout)
     {
-      calibration_complete_ = true;
-      nonempty_condition_.notify_all();
-
-      for (auto& future : futures_)
-      {
-        future.get();
-      }
+      timeout_ = timeout;
     }
 
     void EncoderAngleCalibration::setRequiredNumSamples(double num_samples)
@@ -104,6 +109,28 @@ namespace quanergy
       {
         applyCalibration(cloud_ptr);
         return;
+      }
+
+      // if this is the first time to slot is called, we want to record the time
+      // we started calibrating. If the timeout has elapsed, we'll want to
+      // report this to the user and indicate that calibration is complete and
+      // apply no calibration to outgoing points
+      if (!run_forever_)
+      {
+        if (false == started_calibration_)
+        {
+          started_calibration_ = true;
+          time_started_ = std::chrono::system_clock::now();
+        }
+        else
+        {
+          if (std::chrono::system_clock::now() - time_started_ >
+              std::chrono::seconds(timeout_))
+          {
+            throw std::runtime_error(
+                "Encoder calibration timed out."); 
+          }
+        }
       }
 
       // Add the points to a point cloud. Do this until we have enough points to
@@ -221,7 +248,7 @@ namespace quanergy
         if (sine_parameters.first < AMPLITUDE_THRESHOLD)
         {
           std::cout << "Correction amplitude of " << sine_parameters.first
-                    << " is below threshold of" << AMPLITUDE_THRESHOLD
+                    << " is below threshold of " << AMPLITUDE_THRESHOLD
                     << ". No calibration will be applied." << std::endl;
 
           calibration_complete_ = true;

@@ -183,6 +183,13 @@ namespace quanergy
       SineParameters calculate(const std::vector<double>& encoder_angles,
                                bool debugging = false);
 
+      /** 
+       * @brief Sets timeout for calculating calibration.
+       * 
+       * @param[in] timeout Timeout in seconds.
+       */
+      void setTimeout(int timeout);
+
       /**
        * @brief Function to create line representing the expected encoder
        * values. Unwrapped encoder values should be linear with respect to 
@@ -314,6 +321,15 @@ namespace quanergy
       /** Vector to hold phase values. This is added to as valid calibration
        * samples are calculated and used to eventually calculate the average */
       std::vector<double> phase_values_;
+
+      /** Flag indicating calibration has started */
+      bool started_calibration_ = false;
+
+      /** time when calibration started */
+      std::chrono::time_point<std::chrono::system_clock> time_started_;
+
+      /** Timeout in seconds */
+      int timeout_ = 60;
 
     };
 
