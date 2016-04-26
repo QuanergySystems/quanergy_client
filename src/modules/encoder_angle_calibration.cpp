@@ -46,12 +46,12 @@ namespace quanergy
      * calibration is complete. */
     const double EncoderAngleCalibration::PHASE_CONVERGENCE_THRESHOLD = 0.1;
 
-    /** Theshold dictating whether the encoder offset amplitude warrants
+    /** Theshold dictating whether the encoder offset error requires
      * applying a calibration. If the amplitude is below this value, it is
      * likely that the sinusoidal error is insignificant. Calculating the offset
-     * in this case is inconsistent since another souce of noise dominates the
+     * in this case is inconsistent since another source of noise dominates the
      * overall noise in the signal. This value was chosen to be roughly 5 times
-     * the amplitude of the other noise */
+     * the amplitude of this other noise */
     const double EncoderAngleCalibration::AMPLITUDE_THRESHOLD = 0.005;
 
     EncoderAngleCalibration::EncoderAngleCalibration(bool run_forever)
@@ -112,9 +112,8 @@ namespace quanergy
       }
 
       // if this is the first time to slot is called, we want to record the time
-      // we started calibrating. If the timeout has elapsed, we'll want to
-      // report this to the user and indicate that calibration is complete and
-      // apply no calibration to outgoing points
+      // we started calibrating. If the timeout has elapsed, we'll want to throw
+      // an exception.
       if (!run_forever_)
       {
         if (false == started_calibration_)
@@ -252,6 +251,7 @@ namespace quanergy
                     << ". No calibration will be applied." << std::endl;
 
           calibration_complete_ = true;
+          return;
         }
 
         // display all results if we're running forever so we can analyze the
@@ -550,12 +550,10 @@ namespace quanergy
                             ? encoder_angles.end()
                             : signal_iter + half_period;
 
-        // double avg = 0.;
         ba::accumulator_set<double, ba::stats<ba::tag::mean>> avg_acc;
         for (auto avg_iter = beg_iter; avg_iter < end_iter; ++avg_iter)
           avg_acc(*avg_iter);
 
-        // avg /= static_cast<double>(period);
         filtered_angles.push_back(ba::mean(avg_acc));
       }
 

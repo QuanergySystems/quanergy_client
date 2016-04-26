@@ -265,7 +265,7 @@ namespace quanergy
       /** HVDIR points to be used for calibration */
       PointCloudHVDIR hvdir_pts_;
 
-      /** thread to calibrate encoder error */
+      /** thread pool futures */
       std::vector<std::future<void>> futures_;
 
       /** Mutex for period_queue_ */
@@ -307,8 +307,8 @@ namespace quanergy
        * amplitude and phase values and reporting these to user */
       std::atomic_int required_samples_;
 
-      /** number of calibrations which have current been processed. Used to
-       * check against total_cal_samples_ */
+      /** number of calibrations which have currently been processed. Used to
+       * check against required_samples_ */
       std::atomic_int num_valid_samples_;
 
       /** mutex for containers holding amplitude_values_ and phase_values_ */
