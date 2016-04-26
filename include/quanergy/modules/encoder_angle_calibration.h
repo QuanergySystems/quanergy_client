@@ -10,9 +10,10 @@
 
 #include <vector>
 #include <iostream>
-#include <thread>
+#include <future>
 #include <mutex>
 #include <atomic>
+#include <queue>
 #include <condition_variable>
 
 #include <boost/signals2.hpp>
@@ -142,7 +143,7 @@ namespace quanergy
        *
        * @param num_cals[in] Number of calibrations
        */
-      void setNumCalibrations(double num_cals);
+      void setRequiredNumSamples(double num_cals);
 
       /** 
        * @brief Function to manually set calibration parameters. Calling this
@@ -210,11 +211,9 @@ namespace quanergy
       bool checkComplete();
 
       /** 
-       * @brief Function to process encoder angles in separate thread 
-       * 
-       * @param encoder_angles[in] Angles to be processed
+       * @brief Function to process encoder angles in thread pool
        */
-      void processAngles(AngleContainer encoder_angles);
+      void processAngles();
 
       /**
        * @brief Translate angle values so they are *not* contained within -pi
@@ -254,7 +253,17 @@ namespace quanergy
       PointCloudHVDIR hvdir_pts_;
 
       /** thread to calibrate encoder error */
-      std::thread processing_thread_;
+      std::vector<std::future<void>> futures_;
+
+      /** Mutex for period_queue_ */
+      mutable std::mutex queue_mutex_;
+
+      /** Condition variable for waiting on empty queue_mutex_ */
+      std::condition_variable nonempty_condition_;
+
+      /** queue for encoder angles vectors to be stored. Each element in the
+       * queue contains a vector of encoder angles for a full period */
+      std::queue<AngleContainer> period_queue_;
 
       /** Flag indicating that we've started a full revolution of h angles from
        * -pi to pi */
@@ -273,9 +282,6 @@ namespace quanergy
       /** Frame rate of M8 sensor */
       double frame_rate_ = 10.;
 
-      /** Value of phase for last encoder calibration */
-      std::atomic<double> last_phase_;
-
       /** Flag indicating that we're outputting calibration results constantly
        * and never applying calibration. This mode is used when the user wants
        * to analyze the calibration results */
@@ -284,16 +290,16 @@ namespace quanergy
       /** mutex around writing to file */
       mutable std::mutex file_mutex_;
 
-      /** mutex for containers holding amplitude and phase values */
-      mutable std::mutex container_mutex_;
-
       /** number of encoder calibrations to run before before averaging
        * amplitude and phase values and reporting these to user */
-      int total_cal_samples_ = 100;
+      std::atomic_int required_samples_;
 
       /** number of calibrations which have current been processed. Used to
        * check against total_cal_samples_ */
-      int num_valid_samples_ = 0;
+      std::atomic_int num_valid_samples_;
+
+      /** mutex for containers holding amplitude_values_ and phase_values_ */
+      mutable std::mutex container_mutex_;
 
       /** Vector to hold amplitude values. This is added to as valid calibration
        * samples are calculated and used to eventually calculate the average */

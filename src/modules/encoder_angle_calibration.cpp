@@ -48,9 +48,21 @@ namespace quanergy
 
     EncoderAngleCalibration::EncoderAngleCalibration(bool run_forever)
       : run_forever_(run_forever)
+        , started_full_rev_(false)
+        , calibration_complete_(false)
+        , required_samples_(100)
+        , num_valid_samples_(0)
     {
-      started_full_rev_ = false;
-      calibration_complete_ = false;
+      // started_full_rev_ = false;
+      // calibration_complete_ = false;
+      // required_samples_ = 100;
+      // num_valid_samples_ = 0;
+
+      // TODO start thread pool
+      unsigned int num_threads = std::thread::hardware_concurrency();
+      for (int i = 0; i < num_threads; i++)
+        futures_.push_back(std::async(
+            std::launch::async, &EncoderAngleCalibration::processAngles, this));
     }
 
     void EncoderAngleCalibration::setFrameRate(double frame_rate)
@@ -66,13 +78,15 @@ namespace quanergy
 
     EncoderAngleCalibration::~EncoderAngleCalibration()
     {
-      if (processing_thread_.joinable())
-        processing_thread_.join();
+      for (auto& future : futures_)
+      {
+        future.get();
+      }
     }
 
-    void EncoderAngleCalibration::setNumCalibrations(double num_cals)
+    void EncoderAngleCalibration::setRequiredNumSamples(double num_samples)
     {
-      total_cal_samples_ = num_cals;
+      required_samples_ = num_samples;
     }
 
     void EncoderAngleCalibration::slot(PointCloudHVDIRPtr const & cloud_ptr)
@@ -110,10 +124,12 @@ namespace quanergy
                 encoder_angles.push_back( pt.h );
               }
 
-              processing_thread_ =
-                  std::thread(std::bind(&EncoderAngleCalibration::processAngles,
-                                        this, encoder_angles));
-              processing_thread_.detach();
+              // push to queue which will be consumed by processAngles
+              {
+                std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
+                period_queue_.push(encoder_angles);
+                nonempty_condition_.notify_one();
+              }
 
               hvdir_pts_.clear();
               started_full_rev_ = false;
@@ -124,7 +140,6 @@ namespace quanergy
             hvdir_pts_.clear();
             started_full_rev_ = false;
             
-            break;
           }
         }
 
@@ -158,81 +173,118 @@ namespace quanergy
       }
 
       signal_(cloud_ptr);
-
     }
 
-    void EncoderAngleCalibration::processAngles(AngleContainer encoder_angles)
+    void EncoderAngleCalibration::processAngles()
     {
-      auto sine_parameters = calculate(encoder_angles, true);
-
-      std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
-
-      // if a previous thread has finished the calibration, return
-      if (calibration_complete_)
-        return;
-
-      // if this is the first run, print the header
-      static bool first_run = true;
-      if (first_run && run_forever_)
+      while (num_valid_samples_ < required_samples_)
       {
-        std::cout << "AMPLITUDE(rads), PHASE(rads), PHASE DELTA(rads)" << std::endl;
-        first_run = false;
-      }
-
-      if (amplitude_values_.empty() && phase_values_.empty())
-      {
-        amplitude_values_.push_back(sine_parameters.first);
-        phase_values_.push_back(sine_parameters.second);
-        return;
-      }
-
-      // display all results if we're running forever so we can analyze the
-      // results
-      if (run_forever_)
-      {
-        std::cout << sine_parameters.first << "," << sine_parameters.second << ","
-                  << std::abs(sine_parameters.second - phase_values_.back()) << std::endl;
-      }
-
-      if (std::fabs(sine_parameters.second - phase_values_.back()) < PHASE_CONVERGENCE_THRESHOLD)
-      {
-        amplitude_values_.push_back(sine_parameters.first);
-        phase_values_.push_back(sine_parameters.second);
-
-        num_valid_samples_++;
-
-        if (num_valid_samples_ > total_cal_samples_ && !run_forever_)
+        AngleContainer encoder_angles;
+        // pop a vector of encoder angles off the queue
         {
-          namespace ba = boost::accumulators;
-          // average and report to user
-          ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> amplitude_acc;
-          ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> phase_acc;
+          std::unique_lock<decltype(queue_mutex_)> lock(queue_mutex_);
+          while (period_queue_.empty())
+          {
+            nonempty_condition_.wait(lock, [this](){ return !period_queue_.empty(); });
+          }
 
-          for (const auto& value : amplitude_values_)
-            amplitude_acc(value);
-
-          for (const auto& value : phase_values_)
-            phase_acc(value);
-
-          amplitude_ = ba::mean(amplitude_acc);
-          phase_ = ba::mean(phase_acc);
-
-          std::cout << "Calibration complete." << std::endl
-            << "  amplitude : " << amplitude_ << std::endl
-            << "  phase     : " << phase_ << std::endl;
-
-          calibration_complete_ = true;
+          encoder_angles = period_queue_.front();
+          period_queue_.pop();
         }
-      }
-      else
-      {
-        amplitude_values_.clear();
-        phase_values_.clear();
-        num_valid_samples_ = 0;
+        
+        // if we've finished collecting samples after being blocked, return
+        if (calibration_complete_ || num_valid_samples_ > required_samples_)
+          return;
+        
+        // calculate the amplitude and phase and display to user
+        auto sine_parameters = calculate(encoder_angles, true);
 
-        amplitude_values_.push_back(sine_parameters.first);
-        phase_values_.push_back(sine_parameters.second);
-      }
+        std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
+
+        // if we've finished collecting samples after being blocked, return
+        if (calibration_complete_ || num_valid_samples_ > required_samples_)
+          return;
+
+        // display all results if we're running forever so we can analyze the
+        // results. We won't be averaging in this mode so return immediately
+        static bool first_run = true;
+        if (run_forever_)
+        {
+          if (first_run)
+          {
+            std::cout << "AMPLITUDE(rads), PHASE(rads), PHASE DELTA(rads)" << std::endl;
+            first_run = false;
+          }
+
+          if (!phase_values_.empty())
+          {
+            std::cout << sine_parameters.first << "," << sine_parameters.second
+                      << ","
+                      << std::abs(sine_parameters.second - phase_values_.back())
+                      << std::endl;
+          }
+          return;
+        }
+
+        std::cout << sine_parameters.first << "," << sine_parameters.second << std::endl;
+
+        // At this point we're not running forever. We will collect valid
+        // calibrations until enough have been collected and then average the
+        // results and use those values as the calibration to apply to outgoing
+        // points.
+
+        if (amplitude_values_.empty() && phase_values_.empty())
+        {
+          amplitude_values_.push_back(sine_parameters.first);
+          phase_values_.push_back(sine_parameters.second);
+          return;
+        }
+
+        if (std::fabs(sine_parameters.second - phase_values_.back()) < PHASE_CONVERGENCE_THRESHOLD)
+        {
+          amplitude_values_.push_back(sine_parameters.first);
+          phase_values_.push_back(sine_parameters.second);
+
+          num_valid_samples_++;
+
+          if (num_valid_samples_ > required_samples_)
+          {
+            namespace ba = boost::accumulators;
+            // average and report to user
+            ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> amplitude_acc;
+            ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> phase_acc;
+
+            for (const auto& value : amplitude_values_)
+              amplitude_acc(value);
+
+            for (const auto& value : phase_values_)
+              phase_acc(value);
+
+            amplitude_ = ba::mean(amplitude_acc);
+            phase_ = ba::mean(phase_acc);
+
+            std::cout << "Calibration complete." << std::endl
+              << "  amplitude : " << amplitude_ << std::endl
+              << "  phase     : " << phase_ << std::endl;
+
+            calibration_complete_ = true;
+          }
+        }
+        else
+        {
+          // we've calculated a phase value which is outside the window of
+          // convergence. Clear the amplitude and phase containers and start
+          // again.
+          amplitude_values_.clear();
+          phase_values_.clear();
+          num_valid_samples_ = 0;
+
+          // add the current values to the containers
+          amplitude_values_.push_back(sine_parameters.first);
+          phase_values_.push_back(sine_parameters.second);
+        }
+
+      } // end of while(num_valid_samples < required_samples_)
 
     }
 
