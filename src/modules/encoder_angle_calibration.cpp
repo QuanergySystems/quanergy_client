@@ -56,12 +56,11 @@ namespace quanergy
 
     EncoderAngleCalibration::EncoderAngleCalibration(bool run_forever)
       : run_forever_(run_forever)
-        , started_full_rev_(false)
-        , calibration_complete_(false)
-        , required_samples_(100)
-        , num_valid_samples_(0)
+      , started_full_rev_(false)
+      , calibration_complete_(false)
+      , required_samples_(100)
+      , num_valid_samples_(0)
     {
-
       unsigned int num_threads = std::thread::hardware_concurrency();
       for (int i = 0; i < num_threads; i++)
         futures_.push_back(std::async(
