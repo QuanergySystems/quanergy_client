@@ -81,6 +81,9 @@ namespace quanergy
 
     EncoderAngleCalibration::~EncoderAngleCalibration()
     {
+      calibration_complete_ = true;
+      nonempty_condition_.notify_all();
+
       for (auto& future : futures_)
       {
         future.get();
@@ -180,16 +183,23 @@ namespace quanergy
 
     void EncoderAngleCalibration::processAngles()
     {
-      while (num_valid_samples_ < required_samples_)
+      while (!calibration_complete_ && num_valid_samples_ < required_samples_)
       {
         AngleContainer encoder_angles;
         // pop a vector of encoder angles off the queue
         {
           std::unique_lock<decltype(queue_mutex_)> lock(queue_mutex_);
-          while (period_queue_.empty())
+          while (!calibration_complete_ && period_queue_.empty())
           {
-            nonempty_condition_.wait(lock, [this](){ return !period_queue_.empty(); });
+            nonempty_condition_.wait(
+                lock, [this]()
+                {
+                  return (!period_queue_.empty() || calibration_complete_);
+                });
           }
+
+          if (calibration_complete_)
+            return;
 
           encoder_angles = period_queue_.front();
           period_queue_.pop();
