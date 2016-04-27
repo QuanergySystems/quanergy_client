@@ -110,7 +110,7 @@ namespace quanergy
       /** 
        * @brief Constructor
        * 
-       * @param run_forever [in] Specifies whether this module should output
+       * @param[in] run_forever Specifies whether this module should output
        * calibration results for its lifetime rather than apply calibration
        * after a successful calibration is found.
        */
@@ -125,7 +125,7 @@ namespace quanergy
        * @brief Adds subscriber to be called after this classes functionality is
        * done.
        * 
-       * @param subscriber[in] Subscriber to be called.
+       * @param[in] subscriber Subscriber to be called.
        * 
        * @return connection between this class and subscriber
        */
@@ -138,7 +138,7 @@ namespace quanergy
        * complete, this function will apply the calibration and call the next
        * subscriber.
        * 
-       * @param pc[in] Point cloud to be processed.
+       * @param[in] pc Point cloud to be processed.
        */
       void slot(PointCloudHVDIRPtr const & pc);
 
@@ -147,7 +147,7 @@ namespace quanergy
        *averaging. Validity is determined by change in phase between current
        *sample and previous sample
        *
-       * @param num_cals[in] Number of calibrations
+       * @param[in] num_cals Number of calibrations
        */
       void setRequiredNumSamples(double num_cals);
 
@@ -156,8 +156,8 @@ namespace quanergy
        * function will disable the automatic calibration and subsequent calls to
        * slot will apply the calibration and call the subscriber.
        * 
-       * @param amplitude[in] Amplitude of sinusoid error
-       * @param phase[in] Phase of sinusoidal error
+       * @param[in] amplitude Amplitude of sinusoid error
+       * @param[in] phase Phase of sinusoidal error
        */
       void setParams(double amplitude, double phase);
 
@@ -165,7 +165,7 @@ namespace quanergy
        * @brief Function to set frame rate. Value is in frames per second. If
        * not set, the default is 10.
        * 
-       * @param frame_rate[in] frame rate.
+       * @param[in] frame_rate frame rate.
        */
       void setFrameRate(double frame_rate);
 
@@ -174,8 +174,8 @@ namespace quanergy
        * encoder values. This function is called once a full revolution of the
        * encoder is captured.
        *
-       * @param encoder_angles[in] Encoder angles
-       * @param debugging[in] Flag enabling debugging output
+       * @param[in] encoder_angles Encoder angles
+       * @param[in] debugging Flag enabling debugging output
        *
        * @return Tuple with first element as the amplitude of the sinusoid and
        * second element as the phase offset of the sinusoid.
@@ -186,7 +186,7 @@ namespace quanergy
       /** 
        * @brief Sets timeout for calculating calibration.
        * 
-       * @param timeout[in] Timeout in seconds.
+       * @param[in] timeout Timeout in seconds.
        */
       void setTimeout(int timeout);
 
@@ -195,7 +195,7 @@ namespace quanergy
        * values. Unwrapped encoder values should be linear with respect to 
        * time-index. This line is used to determine the error.
        *
-       * @param encoder_angles[in] Angles to fit line to
+       * @param[in] encoder_angles Angles to fit line to
        * @returns slope of the line
        */
       double fitLine(const AngleContainer& encoder_angles);
@@ -205,7 +205,7 @@ namespace quanergy
        * we've created a sinusoid of the encoder error, we use this function to
        * determine the parameters of the sinusoid.
        *
-       * @param sinusoid_values[in] Sinusoid signal
+       * @param[in] sinusoid_values Sinusoid signal
        *
        * @return tuple where first element is amplitude of sinusoid and second
        * elemement is phase offset of sinusoid.
@@ -233,7 +233,7 @@ namespace quanergy
        *and
        * pi.
        *
-       * @param encoder_angles[in] Encoder angles to be unwrapped.
+       * @param[in] encoder_angles Encoder angles to be unwrapped.
        * @returns Unwrapped encoder angles
        */
       AngleContainer unwrapEncoderAngles(const AngleContainer& encoder_angles);
@@ -241,15 +241,15 @@ namespace quanergy
       /** 
        * @brief Applies calibration. Applies calibration in place.
        * 
-       * @param cloud_ptr[in] Point cloud calibration will be applied to.
+       * @param[in] cloud_ptr Point cloud calibration will be applied to.
        */
       void applyCalibration(PointCloudHVDIRPtr const & cloud_ptr);
 
       /** 
        * @brief Applies moving average in place
        * 
-       * @param encoder_angles[inout] Signal to be filtered.
-       * @param period[in] Period to apply averaging over, in container elements
+       * @param[inout] encoder_angles Signal to be filtered.
+       * @param[in] period Period to apply averaging over, in container elements
        *
        */
       AngleContainer movingAvgFilter(const AngleContainer& encoder_angles, int period);
