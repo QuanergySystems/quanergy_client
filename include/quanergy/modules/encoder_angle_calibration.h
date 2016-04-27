@@ -183,9 +183,10 @@ namespace quanergy
       SineParameters calculate(const std::vector<double>& encoder_angles,
                                bool debugging = false);
 
-      /** 
-       * @brief Sets timeout for calculating calibration.
-       * 
+      /**
+       * @brief Sets timeout for calculating the calibration. If the timeout
+       * expires this class will throw an exception.
+       *
        * @param[in] timeout Timeout in seconds.
        */
       void setTimeout(int timeout);
