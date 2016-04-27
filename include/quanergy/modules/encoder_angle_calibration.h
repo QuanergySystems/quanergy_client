@@ -281,11 +281,11 @@ namespace quanergy
 
       /** Flag indicating that we've started a full revolution of h angles from
        * -pi to pi */
-      std::atomic_bool started_full_rev_;
+      std::atomic<bool> started_full_rev_;
 
       /** Flag indicating calibration is complete. Used to withstand spurious
        * wakeups from condition variable */
-      std::atomic_bool calibration_complete_;
+      std::atomic<bool> calibration_complete_;
 
       /** Calculated amplitude */
       double amplitude_ = 0.;
@@ -306,11 +306,11 @@ namespace quanergy
 
       /** number of encoder calibrations to run before before averaging
        * amplitude and phase values and reporting these to user */
-      std::atomic_int required_samples_;
+      std::atomic<int> required_samples_;
 
       /** number of calibrations which have currently been processed. Used to
        * check against required_samples_ */
-      std::atomic_int num_valid_samples_;
+      std::atomic<int> num_valid_samples_;
 
       /** mutex for containers holding amplitude_values_ and phase_values_ */
       mutable std::mutex container_mutex_;
@@ -334,10 +334,10 @@ namespace quanergy
 
       /** flag indicating whether or not the first calibration has been
        * performed. This flag gets set to false after the first run */
-      std::atomic_bool first_run_;
+      std::atomic<bool> first_run_;
 
       /** Number of calibrations which have occurred */
-      std::atomic_int calibration_count_;
+      std::atomic<int> calibration_count_;
 
     };
 
