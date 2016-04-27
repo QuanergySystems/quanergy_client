@@ -60,6 +60,8 @@ namespace quanergy
       , calibration_complete_(false)
       , required_samples_(100)
       , num_valid_samples_(0)
+      , first_run_(true)
+      , calibration_count_(0)
     {
       unsigned int num_threads = std::thread::hardware_concurrency();
       for (int i = 0; i < num_threads; i++)
@@ -237,8 +239,6 @@ namespace quanergy
         // calculate the amplitude and phase and display to user
         auto sine_parameters = calculate(encoder_angles, true);
 
-        std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
-
         // if we've finished collecting samples after being blocked, return
         if (calibration_complete_ || num_valid_samples_ > required_samples_)
           return;
@@ -255,22 +255,19 @@ namespace quanergy
 
         // display all results if we're running forever so we can analyze the
         // results. We won't be averaging in this mode so return immediately
-        static bool first_run = true;
         if (run_forever_)
         {
-          if (first_run)
+          if (first_run_)
           {
-            std::cout << "AMPLITUDE(rads), PHASE(rads), PHASE DELTA(rads)" << std::endl;
-            first_run = false;
+            std::cout << "AMPLITUDE(rads), PHASE(rads)" << std::endl;
+            first_run_ = false;
           }
 
-          if (!phase_values_.empty())
-          {
-            std::cout << sine_parameters.first << "," << sine_parameters.second
-                      << ","
-                      << std::abs(sine_parameters.second - phase_values_.back())
-                      << std::endl;
-          }
+          std::stringstream output;
+          output << sine_parameters.first << "," << sine_parameters.second
+                 << std::endl;
+
+          std::cout << output.str();
           return;
         }
 
@@ -278,6 +275,14 @@ namespace quanergy
         // calibrations until enough have been collected and then average the
         // results and use those values as the calibration to apply to outgoing
         // points.
+
+        // this will lock the container mutex until the end of the while loop
+        // we want exclusive access for the rest of the loop
+        std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
+        
+        // if we've finished collecting samples after being blocked, return
+        if (calibration_complete_ || num_valid_samples_ > required_samples_)
+          return;
 
         if (amplitude_values_.empty() && phase_values_.empty())
         {
@@ -404,22 +409,23 @@ namespace quanergy
 
       auto smoothed_sinusoid = movingAvgFilter(sinusoid, MOV_AVG_PERIOD);
 
-      static int calibration_count = 0;
-
       if (run_forever_)
       {
-        std::lock_guard<decltype(file_mutex_)> lock(file_mutex_);
         std::stringstream encoder_filename;
         std::stringstream model_filename;
         std::stringstream error_filename;
         std::stringstream smoothed_filename;
 
-        encoder_filename << "encoder" << calibration_count << ".csv";
-        model_filename << "model" << calibration_count << ".csv";
-        error_filename << "error" << calibration_count << ".csv";
-        smoothed_filename << "smoothed" << calibration_count << ".csv";
+        {
+          std::lock_guard<decltype(file_mutex_)> lock(file_mutex_);
 
-        calibration_count++;
+          encoder_filename << "encoder" << calibration_count_ << ".csv";
+          model_filename << "model" << calibration_count_ << ".csv";
+          error_filename << "error" << calibration_count_ << ".csv";
+          smoothed_filename << "smoothed" << calibration_count_ << ".csv";
+
+          calibration_count_++;
+        }
 
         std::ofstream encoder_output{encoder_filename.str()};
         std::ofstream model_output{model_filename.str()};
@@ -550,7 +556,7 @@ namespace quanergy
                             : signal_iter + half_period;
 
         ba::accumulator_set<double, ba::stats<ba::tag::mean>> avg_acc;
-        for (auto avg_iter = beg_iter; avg_iter < end_iter; ++avg_iter)
+        for (auto& avg_iter = beg_iter; avg_iter < end_iter; ++avg_iter)
           avg_acc(*avg_iter);
 
         filtered_angles.push_back(ba::mean(avg_acc));

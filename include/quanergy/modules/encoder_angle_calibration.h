@@ -331,6 +331,13 @@ namespace quanergy
       /** Timeout in seconds */
       int timeout_ = 60;
 
+      /** flag indicating whether or not the first calibration has been
+       * performed. This flag gets set to false after the first run */
+      std::atomic_bool first_run_;
+
+      /** Number of calibrations which have occurred */
+      std::atomic_int calibration_count_;
+
     };
 
   } /* calibration */

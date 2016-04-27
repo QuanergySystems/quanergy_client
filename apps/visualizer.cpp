@@ -100,7 +100,8 @@ int main(int argc, char** argv)
 
     if (pcl::console::find_switch(argc, argv, MANUAL_CORRECT.c_str()))
     {
-      if (!pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) || !pcl::console::find_switch(argc, argv, PHASE_STR.c_str()))
+      if (!pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) ||
+          !pcl::console::find_switch(argc, argv, PHASE_STR.c_str()))
       {
         usage(argv);
         return(0);
