@@ -109,12 +109,8 @@ namespace quanergy
 
       /** 
        * @brief Constructor
-       * 
-       * @param[in] run_forever Specifies whether this module should output
-       * calibration results for its lifetime rather than apply calibration
-       * after a successful calibration is found.
        */
-      EncoderAngleCalibration(bool run_forever = false);
+      EncoderAngleCalibration();
 
       /**
        * @brief Empty destructor
@@ -141,6 +137,13 @@ namespace quanergy
        * @param[in] pc Point cloud to be processed.
        */
       void slot(PointCloudHVDIRPtr const & pc);
+
+      /** 
+       * @brief Sets this class to only calculate the error parameters and not
+       * apply the calibration. This mode is for when the caller wants to look
+       * at multiple calculations for the amplitude and phase.
+       */
+      void onlyCalibration();
 
       /**
        * @brief Sets number of valid calibrations to be collected before
@@ -175,13 +178,11 @@ namespace quanergy
        * encoder is captured.
        *
        * @param[in] encoder_angles Encoder angles
-       * @param[in] debugging Flag enabling debugging output
        *
        * @return Tuple with first element as the amplitude of the sinusoid and
        * second element as the phase offset of the sinusoid.
        */
-      SineParameters calculate(const std::vector<double>& encoder_angles,
-                               bool debugging = false);
+      SineParameters calculate(const std::vector<double>& encoder_angles);
 
       /**
        * @brief Sets timeout for calculating the calibration. If the timeout
@@ -255,11 +256,6 @@ namespace quanergy
        */
       AngleContainer movingAvgFilter(const AngleContainer& encoder_angles, int period);
 
-      /** 
-       * @brief Flag indicating this class will output debugging output.
-       */
-      bool debugging_ = false;
-
       /** Signal object to notify next slot */
       Signal signal_;
 
@@ -299,7 +295,7 @@ namespace quanergy
       /** Flag indicating that we're outputting calibration results constantly
        * and never applying calibration. This mode is used when the user wants
        * to analyze the calibration results */
-      const bool run_forever_ = false;
+      bool run_forever_ = false;
 
       /** mutex around writing to file */
       mutable std::mutex file_mutex_;
@@ -329,8 +325,8 @@ namespace quanergy
       /** time when calibration started */
       std::chrono::time_point<std::chrono::system_clock> time_started_;
 
-      /** Timeout in seconds */
-      int timeout_ = 60;
+      /** Timeout to collect enough calibrations. Defaulted is 60 seconds */
+      std::chrono::seconds timeout_ = std::chrono::seconds(60);
 
       /** flag indicating whether or not the first calibration has been
        * performed. This flag gets set to false after the first run */

@@ -54,9 +54,8 @@ namespace quanergy
      * the amplitude of this other noise */
     const double EncoderAngleCalibration::AMPLITUDE_THRESHOLD = 0.005;
 
-    EncoderAngleCalibration::EncoderAngleCalibration(bool run_forever)
-      : run_forever_(run_forever)
-      , started_full_rev_(false)
+    EncoderAngleCalibration::EncoderAngleCalibration()
+      : started_full_rev_(false)
       , calibration_complete_(false)
       , required_samples_(100)
       , num_valid_samples_(0)
@@ -93,7 +92,7 @@ namespace quanergy
 
     void EncoderAngleCalibration::setTimeout(int timeout)
     {
-      timeout_ = timeout;
+      timeout_ = std::chrono::seconds(timeout);
     }
 
     void EncoderAngleCalibration::setRequiredNumSamples(double num_samples)
@@ -117,15 +116,14 @@ namespace quanergy
       // an exception.
       if (!run_forever_)
       {
-        if (false == started_calibration_)
+        if (!started_calibration_)
         {
           started_calibration_ = true;
           time_started_ = std::chrono::system_clock::now();
         }
         else
         {
-          if (std::chrono::system_clock::now() - time_started_ >
-              std::chrono::seconds(timeout_))
+          if (std::chrono::system_clock::now() - time_started_ > timeout_)
           {
             throw std::runtime_error(
                 "Encoder calibration timed out."); 
@@ -202,7 +200,7 @@ namespace quanergy
       for (auto& point : cloud)
       {
         // corrects in place, saves copying other values
-        point.h = point.h - (amplitude_ * sin(point.h + phase_));
+        point.h = point.h - (amplitude_ * std::sin(point.h + phase_));
       }
 
       signal_(cloud_ptr);
@@ -237,7 +235,7 @@ namespace quanergy
           return;
         
         // calculate the amplitude and phase and display to user
-        auto sine_parameters = calculate(encoder_angles, true);
+        auto sine_parameters = calculate(encoder_angles);
 
         // if we've finished collecting samples after being blocked, return
         if (calibration_complete_ || num_valid_samples_ > required_samples_)
@@ -268,7 +266,7 @@ namespace quanergy
                  << std::endl;
 
           std::cout << output.str();
-          return;
+          continue;
         }
 
         // At this point we're not running forever. We will collect valid
@@ -291,7 +289,8 @@ namespace quanergy
           return;
         }
 
-        if (std::fabs(sine_parameters.second - phase_values_.back()) < PHASE_CONVERGENCE_THRESHOLD)
+        if (std::fabs(sine_parameters.second - phase_values_.back()) <
+            PHASE_CONVERGENCE_THRESHOLD)
         {
           amplitude_values_.push_back(sine_parameters.first);
           phase_values_.push_back(sine_parameters.second);
@@ -371,11 +370,8 @@ namespace quanergy
     }
 
     EncoderAngleCalibration::SineParameters EncoderAngleCalibration::calculate(
-        const AngleContainer& encoder_angles,
-        bool debugging)
+        const AngleContainer& encoder_angles)
     {
-      debugging_ = debugging;
-
       auto slope = fitLine(encoder_angles);
 
       // calculate an initial error sinusoid from the line. This will tell us
@@ -542,7 +538,8 @@ namespace quanergy
       // assert size of container is greater than moving average period
       
       AngleContainer filtered_angles;
-      for (auto signal_iter = encoder_angles.begin(); signal_iter != encoder_angles.end(); ++signal_iter)
+      for (auto signal_iter = encoder_angles.begin();
+           signal_iter != encoder_angles.end(); ++signal_iter)
       {
         // make sure we don't iterate over the endpoints. If we're at an
         // endpoint we'll just take an average up until the endpoint. This means
