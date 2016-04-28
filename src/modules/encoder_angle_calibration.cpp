@@ -79,6 +79,11 @@ namespace quanergy
       }
     }
 
+    void EncoderAngleCalibration::calibrateOnly()
+    {
+      run_forever_ = true;
+    }
+
     void EncoderAngleCalibration::setFrameRate(double frame_rate)
     {
       frame_rate_ = frame_rate;
@@ -226,7 +231,7 @@ namespace quanergy
           if (calibration_complete_)
             return;
 
-          encoder_angles = period_queue_.front();
+          encoder_angles.swap(period_queue_.front());
           period_queue_.pop();
         }
         

@@ -143,7 +143,7 @@ namespace quanergy
        * apply the calibration. This mode is for when the caller wants to look
        * at multiple calculations for the amplitude and phase.
        */
-      void onlyCalibration();
+      void calibrateOnly();
 
       /**
        * @brief Sets number of valid calibrations to be collected before
