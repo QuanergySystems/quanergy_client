@@ -280,6 +280,12 @@ namespace quanergy
         // this will lock the container mutex until the end of the while loop
         // we want exclusive access for the rest of the loop
         std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
+
+        // we're in the critical section. Check to see if the calibration is
+        // complete. If it is, there's no need to push to the back of the
+        // container and find the average
+        if (calibration_complete_)
+          return;
         
         if (amplitude_values_.empty() && phase_values_.empty())
         {
