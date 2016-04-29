@@ -219,7 +219,7 @@ namespace quanergy
         // pop a vector of encoder angles off the queue
         {
           std::unique_lock<decltype(queue_mutex_)> lock(queue_mutex_);
-          while (!calibration_complete_ && period_queue_.empty())
+          if (period_queue_.empty())
           {
             nonempty_condition_.wait(
                 lock, [this]()
@@ -245,6 +245,12 @@ namespace quanergy
                     << ". No calibration will be applied." << std::endl;
 
           calibration_complete_ = true;
+
+          // notify all threads waiting on period_queue_ so they can wake up,
+          // check calibration_complete_ and return
+          nonempty_condition_.notify_all();
+
+          // return from this thread, no more work to be done
           return;
         }
 
