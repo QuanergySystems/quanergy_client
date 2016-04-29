@@ -235,16 +235,8 @@ namespace quanergy
           period_queue_.pop();
         }
         
-        // if we've finished collecting samples after being blocked, return
-        if (calibration_complete_ || num_valid_samples_ > required_samples_)
-          return;
-        
         // calculate the amplitude and phase and display to user
         auto sine_parameters = calculate(encoder_angles);
-
-        // if we've finished collecting samples after being blocked, return
-        if (calibration_complete_ || num_valid_samples_ > required_samples_)
-          return;
 
         if (sine_parameters.first < AMPLITUDE_THRESHOLD)
         {
@@ -283,15 +275,11 @@ namespace quanergy
         // we want exclusive access for the rest of the loop
         std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
         
-        // if we've finished collecting samples after being blocked, return
-        if (calibration_complete_ || num_valid_samples_ > required_samples_)
-          return;
-
         if (amplitude_values_.empty() && phase_values_.empty())
         {
           amplitude_values_.push_back(sine_parameters.first);
           phase_values_.push_back(sine_parameters.second);
-          return;
+          continue;
         }
 
         if (std::fabs(sine_parameters.second - phase_values_.back()) <
