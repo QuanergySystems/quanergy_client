@@ -323,6 +323,10 @@ namespace quanergy
               << "  phase     : " << phase_ << std::endl;
 
             calibration_complete_ = true;
+            
+            // notify all threads waiting on period_queue_ so they can wake up,
+            // check calibration_complete_ and return
+            nonempty_condition_.notify_all();
           }
         }
         else
