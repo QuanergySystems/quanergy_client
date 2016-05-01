@@ -66,9 +66,13 @@ namespace quanergy
         }
 
         /** 
-         * @brief Get average angle
+         * @brief Get average angle. Implementation converts angles passed by
+         * accumulate() into cartesian coordinates on the unit circle. X and Y
+         * values for coordinate are averaged and the arctangent of these sums
+         * is returned as the average. If the sums of the X and Y values on the
+         * unit circle *both* equal zero, zero is returned as the average.
          * 
-         * @return Average angle. TODO note degenerate case
+         * @return Average angle.
          */
         Scalar avg() const
         {
