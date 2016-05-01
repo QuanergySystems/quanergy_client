@@ -20,6 +20,7 @@
 
 #include <quanergy/common/point_hvdir.h>
 #include <quanergy/common/pointcloud_types.h>
+#include <quanergy/common/angle.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
@@ -315,9 +316,12 @@ namespace quanergy
        * samples are calculated and used to eventually calculate the average */
       std::vector<double> amplitude_values_;
 
-      /** Vector to hold phase values. This is added to as valid calibration
-       * samples are calculated and used to eventually calculate the average */
-      std::vector<double> phase_values_;
+      /** Special averaging container to calculate average of phase angles and
+       * handle wrapping. */
+      quanergy::common::AngleAverager<double> phase_averager_;
+
+      /** Last phase angle processed by thread pool */
+      double last_phase_ = 0.;
 
       /** Flag indicating calibration has started */
       bool started_calibration_ = false;

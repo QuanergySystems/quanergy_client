@@ -213,6 +213,9 @@ namespace quanergy
 
     void EncoderAngleCalibration::processAngles()
     {
+
+      using namespace quanergy::common;
+
       while (!calibration_complete_ && num_valid_samples_ < required_samples_)
       {
         AngleContainer encoder_angles;
@@ -287,18 +290,15 @@ namespace quanergy
         if (calibration_complete_)
           return;
         
-        if (amplitude_values_.empty() && phase_values_.empty())
+        if (amplitude_values_.empty() && phase_averager_.empty())
         {
           amplitude_values_.push_back(sine_parameters.first);
-          phase_values_.push_back(sine_parameters.second);
-          continue;
+          phase_averager_.accumulate(sine_parameters.second);
         }
-
-        if (std::fabs(sine_parameters.second - phase_values_.back()) <
-            PHASE_CONVERGENCE_THRESHOLD)
+        else if (angleDiff(sine_parameters.second, last_phase_) < PHASE_CONVERGENCE_THRESHOLD)
         {
           amplitude_values_.push_back(sine_parameters.first);
-          phase_values_.push_back(sine_parameters.second);
+          phase_averager_.accumulate(sine_parameters.second);
 
           num_valid_samples_++;
 
@@ -306,17 +306,14 @@ namespace quanergy
           {
             namespace ba = boost::accumulators;
             // average and report to user
-            ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> amplitude_acc;
-            ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> phase_acc;
+            ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> 
+              amplitude_acc;
 
             for (const auto& value : amplitude_values_)
               amplitude_acc(value);
 
-            for (const auto& value : phase_values_)
-              phase_acc(value);
-
             amplitude_ = ba::mean(amplitude_acc);
-            phase_ = ba::mean(phase_acc);
+            phase_ = phase_averager_.avg();
 
             std::cout << "Calibration complete." << std::endl
               << "  amplitude : " << amplitude_ << std::endl
@@ -335,13 +332,15 @@ namespace quanergy
           // convergence. Clear the amplitude and phase containers and start
           // again.
           amplitude_values_.clear();
-          phase_values_.clear();
+          phase_averager_.clear();
           num_valid_samples_ = 0;
 
           // add the current values to the containers
           amplitude_values_.push_back(sine_parameters.first);
-          phase_values_.push_back(sine_parameters.second);
+          phase_averager_.accumulate(sine_parameters.second);
         }
+
+        last_phase_ = sine_parameters.second;
 
       } // end of while(num_valid_samples < required_samples_)
 
@@ -602,12 +601,17 @@ namespace quanergy
         // if min > max, add half a period
         phase_index = ((min_index + max_index) / 2) + (sine_signal.size() / 2);
 
-      // From the phase index, compute the phase angle,
-      // phi = 2*pi*f*t. The negative comes from the fact that
+      // From the phase index, compute the phase angle. 
+      // The negative comes from the fact that
       // we search for the zero crossing to the right of the origin,
       // which indicates a shift to the right, given by a negative
-      // phase:
-      auto phase = std::fmod(2 * M_PI * phase_index / sine_signal.size(), 2 * M_PI);
+      // phase. This will always be between 0 and 2pi
+      auto phase = 2 * M_PI * phase_index / sine_signal.size();
+
+      // bring phase between -pi and pi for consistency. Results are reported
+      // between -pi and pi.
+      if (phase >= M_PI)
+        phase -= 2 * M_PI;
 
       // we calculate the negative phase above, return the actual phase
       return std::make_pair(amplitude, -phase);
