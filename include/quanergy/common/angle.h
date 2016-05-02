@@ -16,22 +16,22 @@ namespace quanergy
 {
   namespace common
   {
-    /** 
-     * @brief Calculates the difference between two angles using the
-     * dot-product. This function will always return the absolute angle between
-     * two angles.
-     * 
+    /**
+     * @brief Calculates the difference between two angles.
+     *
      * @param[in] a First angle
      * @param[in] b Second angle
-     * 
-     * @return Difference between angles in radians. Output will be between 0
-     * and pi.
+     *
+     * @return Difference between angles in radians.
      */
     template <typename Scalar>
     Scalar angleDiff(Scalar a, Scalar b)
     {
-      return (std::acos((std::cos(a) * std::cos(b)) +
-                        (std::sin(a) * std::sin(b))));
+      Scalar angle = std::abs(a - b);
+      if (angle > M_PI)
+        angle = 2 * M_PI - angle;
+
+      return angle;
     }
 
     /** 
