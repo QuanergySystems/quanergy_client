@@ -46,14 +46,6 @@ namespace quanergy
      * calibration is complete. */
     const double EncoderAngleCalibration::PHASE_CONVERGENCE_THRESHOLD = 0.1;
 
-    /** Theshold dictating whether the encoder offset error requires
-     * applying a calibration. If the amplitude is below this value, it is
-     * likely that the sinusoidal error is insignificant. Calculating the offset
-     * in this case is inconsistent since another source of noise dominates the
-     * overall noise in the signal. This value was chosen to be roughly 5 times
-     * the amplitude of this other noise */
-    const double EncoderAngleCalibration::AMPLITUDE_THRESHOLD = 0.005;
-
     EncoderAngleCalibration::EncoderAngleCalibration()
       : started_full_rev_(false)
       , calibration_complete_(false)
@@ -240,22 +232,6 @@ namespace quanergy
         
         // calculate the amplitude and phase and display to user
         auto sine_parameters = calculate(encoder_angles);
-
-        if (sine_parameters.first < AMPLITUDE_THRESHOLD)
-        {
-          std::cout << "Correction amplitude of " << sine_parameters.first
-                    << " is below threshold of " << AMPLITUDE_THRESHOLD
-                    << ". No calibration will be applied." << std::endl;
-
-          calibration_complete_ = true;
-
-          // notify all threads waiting on period_queue_ so they can wake up,
-          // check calibration_complete_ and return
-          nonempty_condition_.notify_all();
-
-          // return from this thread, no more work to be done
-          return;
-        }
 
         // display all results if we're running forever so we can analyze the
         // results. We won't be averaging in this mode so return immediately
