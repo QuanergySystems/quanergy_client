@@ -24,7 +24,8 @@ namespace quanergy
      * @param[in] a First angle
      * @param[in] b Second angle
      * 
-     * @return Difference between angles between 0 and pi.
+     * @return Difference between angles in radians. Output will be between 0
+     * and pi.
      */
     template <typename Scalar>
     Scalar angleDiff(Scalar a, Scalar b)
@@ -43,7 +44,7 @@ namespace quanergy
         /** 
          * @brief Add angle to accumulated set to be averaged
          * 
-         * @param[in] angle Angle
+         * @param[in] angle Angle in radians.
          */
         void accumulate(Scalar angle)
         {
@@ -72,7 +73,7 @@ namespace quanergy
          * is returned as the average. If the sums of the X and Y values on the
          * unit circle *both* equal zero, zero is returned as the average.
          * 
-         * @return Average angle.
+         * @return Average angle in radians.
          */
         Scalar avg() const
         {
