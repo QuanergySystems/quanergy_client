@@ -174,6 +174,14 @@ namespace quanergy
       void setFrameRate(double frame_rate);
 
       /**
+       * @brief Sets timeout for calculating the calibration. If the timeout
+       * expires this class will throw an exception.
+       *
+       * @param[in] timeout Timeout in seconds.
+       */
+      void setTimeout(int timeout);
+
+      /**
        * @brief Function to calculate the sinusoidal error of the horizontal
        * encoder values. This function is called once a full revolution of the
        * encoder is captured.
@@ -185,14 +193,7 @@ namespace quanergy
        */
       SineParameters calculate(const std::vector<double>& encoder_angles);
 
-      /**
-       * @brief Sets timeout for calculating the calibration. If the timeout
-       * expires this class will throw an exception.
-       *
-       * @param[in] timeout Timeout in seconds.
-       */
-      void setTimeout(int timeout);
-
+    private:
       /**
        * @brief Function to create line representing the expected encoder
        * values. Unwrapped encoder values should be linear with respect to 
@@ -201,7 +202,7 @@ namespace quanergy
        * @param[in] encoder_angles Angles to fit line to
        * @returns slope of the line
        */
-      double fitLine(const AngleContainer& encoder_angles);
+      static double fitLine(const AngleContainer& encoder_angles);
 
       /**
        * @brief Function to determine sinusoidal parameters from a signal. Once
@@ -209,27 +210,13 @@ namespace quanergy
        * determine the parameters of the sinusoid.
        *
        * @param[in] sinusoid_values Sinusoid signal
+       * @param[in] clockwise Whether the motor is spinning clockwise.
+       * If false, motor is spinning counter-clockwise.
        *
        * @return tuple where first element is amplitude of sinusoid and second
        * elemement is phase offset of sinusoid.
        */
-      SineParameters findSinusoidParameters(const AngleContainer& sine_signal);
-
-    private:
-
-      /** 
-       * @brief Function to check if hvdir_pts_ has any gaps due to dropped
-       * packets
-       * 
-       * @return True if HVDIR points are complelte with no dropped, false
-       * otherwise. 
-       */
-      bool checkComplete();
-
-      /** 
-       * @brief Function to process encoder angles in thread pool
-       */
-      void processAngles();
+      static SineParameters findSinusoidParameters(const AngleContainer& sine_signal, bool clockwise);
 
       /**
        * @brief Translate angle values so they are *not* contained within -pi
@@ -239,14 +226,7 @@ namespace quanergy
        * @param[in] encoder_angles Encoder angles to be unwrapped.
        * @returns Unwrapped encoder angles
        */
-      AngleContainer unwrapEncoderAngles(const AngleContainer& encoder_angles);
-
-      /** 
-       * @brief Applies calibration. Applies calibration in place.
-       * 
-       * @param[in] cloud_ptr Point cloud calibration will be applied to.
-       */
-      void applyCalibration(PointCloudHVDIRPtr const & cloud_ptr);
+      static AngleContainer unwrapEncoderAngles(const AngleContainer& encoder_angles);
 
       /** 
        * @brief Applies moving average in place
@@ -255,7 +235,28 @@ namespace quanergy
        * @param[in] period Period to apply averaging over, in container elements
        *
        */
-      AngleContainer movingAvgFilter(const AngleContainer& encoder_angles, int period);
+      static AngleContainer movingAvgFilter(const AngleContainer& encoder_angles, int period);
+
+      /** 
+       * @brief Function to check if hvdir_pts_ has any gaps due to dropped
+       * packets
+       * 
+       * @return True if HVDIR points are complelte with no dropped, false
+       * otherwise. 
+       */
+      bool checkComplete() const;
+
+      /** 
+       * @brief Function to process encoder angles in thread pool
+       */
+      void processAngles();
+
+      /** 
+       * @brief Applies calibration. Applies calibration in place.
+       * 
+       * @param[in] cloud_ptr Point cloud calibration will be applied to.
+       */
+      void applyCalibration(PointCloudHVDIRPtr const & cloud_ptr) const;
 
       /** Signal object to notify next slot */
       Signal signal_;

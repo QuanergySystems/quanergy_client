@@ -183,7 +183,7 @@ namespace quanergy
       calibration_complete_ = true;
     }
 
-    void EncoderAngleCalibration::applyCalibration(PointCloudHVDIRPtr const & cloud_ptr)
+    void EncoderAngleCalibration::applyCalibration(PointCloudHVDIRPtr const & cloud_ptr) const
     {
       if (!cloud_ptr)
         return;
@@ -322,7 +322,7 @@ namespace quanergy
 
     }
 
-    bool EncoderAngleCalibration::checkComplete()
+    bool EncoderAngleCalibration::checkComplete() const
     {
       auto min = std::min(hvdir_pts_.front().h, hvdir_pts_.back().h);
       auto max = std::max(hvdir_pts_.front().h, hvdir_pts_.back().h);
@@ -426,7 +426,9 @@ namespace quanergy
         smoothed_output.close();
       }
 
-      return (findSinusoidParameters(smoothed_sinusoid));
+      bool clockwise = (slope < 0) ? true : false;
+
+      return (findSinusoidParameters(smoothed_sinusoid, clockwise));
     }
 
       EncoderAngleCalibration::AngleContainer
@@ -548,9 +550,9 @@ namespace quanergy
 
     EncoderAngleCalibration::SineParameters
     EncoderAngleCalibration::findSinusoidParameters(
-        const AngleContainer& sine_signal)
+        const AngleContainer& sine_signal,
+        bool clockwise)
     {
-
       // First, compute the amplitude. It will be the maximum value of the
       // signal:
       auto amplitude =
@@ -562,35 +564,36 @@ namespace quanergy
       auto max_index = std::distance(sine_signal.begin(),it_max);
       auto min_index = std::distance(sine_signal.begin(),it_min);
 
-
-      // Now, we will save the time shift of the sinusoid is the
-      // time offset between the minimum and maximum peaks. This is
-      // where the signal approximately crosses through zero.
-      
       if (min_index == max_index)
         throw std::runtime_error("Peak detection found min and max peaks to be same value");
+
+      // these indices are in encoder counts where the first angle starts at
+      // either -pi or pi since the motor direction is arbitrary. Determine
+      // which endpoint the revolution started from
+      double starting_angle = (clockwise) ? M_PI : -M_PI;
+      double direction = (clockwise) ? -1. : 1.;
+
+      // convert min/max index to angles depending on motor direction
+      double max_error_angle = starting_angle + (direction) * (2 * M_PI * max_index / sine_signal.size());
+      double min_error_angle = starting_angle + (direction) * (2 * M_PI * min_index / sine_signal.size());
+
+      // the angle value where the sinusoid crosses from negative to positive is
+      // the negative phase
+      double negative_phase = (min_error_angle + max_error_angle) / 2.;
       
-      double phase_index = 0;
-      if (min_index < max_index)
-        phase_index = (min_index + max_index) / 2;
-      else
-        // if min > max, add half a period
-        phase_index = ((min_index + max_index) / 2) + (sine_signal.size() / 2);
+      // we need to apply a shift of pi to our calcluation above if the max
+      // error angle is below the min error angle
+      if (max_error_angle < min_error_angle)
+      {
+        // keep the negative phase in (-pi,pi]. This is the range of
+        // std::atan2()
+        if (negative_phase <= 0)
+          negative_phase += M_PI;
+        else
+          negative_phase -= M_PI;
+      }
 
-      // From the phase index, compute the phase angle. 
-      // The negative comes from the fact that
-      // we search for the zero crossing to the right of the origin,
-      // which indicates a shift to the right, given by a negative
-      // phase. This will always be between 0 and 2pi
-      auto phase = 2 * M_PI * phase_index / sine_signal.size();
-
-      // bring phase between -pi and pi for consistency. Results are reported
-      // between -pi and pi.
-      if (phase >= M_PI)
-        phase -= 2 * M_PI;
-
-      // we calculate the negative phase above, return the actual phase
-      return std::make_pair(amplitude, -phase);
+      return std::make_pair(amplitude, -negative_phase);
     }
 
   } /* calibration */

@@ -31,48 +31,44 @@ namespace quanergy
 
     };
 
-    TEST_F(TestEncoderCalibration, Test_fitLine)
+    TEST_F(TestEncoderCalibration, Test_calculate)
     {
       // create a signal of encoder angles going from -pi to pi
       std::vector<double> encoder_angles;
       auto rads_per_encoder = 0.005;
       auto amplitude = 0.02;
       auto phase = -2.0;
-      
+
+      auto encoder_noise = std::bind(
+          std::uniform_real_distribution<>{-0.002, 0.002},
+          std::default_random_engine{});
+
+      // construct encoder angles where motor is moving in clockwise direction
+      for (double angle = M_PI; angle > -M_PI; angle -= rads_per_encoder)
+      {
+        encoder_angles.push_back(angle + (amplitude * std::sin(angle + phase)) + encoder_noise());
+      }
+
+      auto sine_parameters = encoder_calibration_.calculate(encoder_angles);
+
+      ASSERT_NEAR(sine_parameters.first, amplitude, 0.005);
+      // the phase calculation will vary due to the noise applied to the
+      // signal so we give it a fairly large tolerance to pass the test. During
+      // calibration, this value is averaged over 100 calibations.
+      ASSERT_NEAR(sine_parameters.second, phase, 0.5);
+
+      // construct encoder angles where motor is moving in counter-clockwise
+      // direction
+      encoder_angles.clear();
       for (double angle = -M_PI; angle < M_PI; angle += rads_per_encoder)
       {
         encoder_angles.push_back(angle + (amplitude * std::sin(angle + phase)));
       }
-      auto encoder_period = encoder_angles.size();
 
-      auto slope = (2 * M_PI) / static_cast<double>(encoder_period);
-      auto calculated_slope = encoder_calibration_.fitLine(encoder_angles);
+      sine_parameters = encoder_calibration_.calculate(encoder_angles);
 
-      ASSERT_NEAR(slope, calculated_slope, 0.0001);
-    }
-
-    TEST_F(TestEncoderCalibration, Test_findSinusoidParameters)
-    {
-      // Generate observed error in encoder angles
-      const double amplitude = 0.00432119;
-      double phase_offset = -2000;// units: encoder counts
-
-      std::vector<double> sinusoid;
-      const double motor_speed_rps = 10.;
-      const double sample_frequency = 54000.;
-      const int encoder_period = (sample_frequency / motor_speed_rps);
-      double phase_offset_rads = 2 * M_PI * phase_offset / encoder_period;
-
-      // create a sinusoid
-      for (int i = 0; i < encoder_period; i++)
-      {
-        sinusoid.push_back(amplitude * std::sin(((2 * M_PI / encoder_period) * i) + phase_offset_rads));
-      }
-
-      auto sine_params = encoder_calibration_.findSinusoidParameters(sinusoid);
-
-      ASSERT_NEAR(sine_params.first, amplitude, 0.0001);
-      ASSERT_NEAR(sine_params.second, phase_offset_rads, 0.0001);
+      ASSERT_NEAR(sine_parameters.first, amplitude, 0.005);
+      ASSERT_NEAR(sine_parameters.second, phase, 0.5);
     }
 
   }/** end test namespace */
