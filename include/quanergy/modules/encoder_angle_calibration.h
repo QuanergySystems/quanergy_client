@@ -180,7 +180,7 @@ namespace quanergy
        * @param[in] timeout Timeout.
        */
       template<typename Rep, typename Period>
-      void setTimeout(std::chrono::duration<Rep,Period> timeout);
+      void setTimeout(const std::chrono::duration<Rep,Period>& timeout);
 
       /**
        * @brief Function to calculate the sinusoidal error of the horizontal

@@ -89,7 +89,7 @@ namespace quanergy
 
     template <typename Rep, typename Period>
     void EncoderAngleCalibration::setTimeout(
-        std::chrono::duration<Rep, Period> timeout)
+        const std::chrono::duration<Rep, Period>& timeout)
     {
       timeout_ = std::chrono::duration_cast<std::chrono::seconds>(timeout);
     }
