@@ -1,3 +1,11 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2016 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
+#include <stdexcept>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <quanergy/modules/encoder_angle_calibration.h>
@@ -70,6 +78,23 @@ namespace quanergy
       ASSERT_NEAR(sine_parameters.first, amplitude, 0.005);
       ASSERT_NEAR(sine_parameters.second, phase, 0.5);
     }
+
+    TEST_F(TestEncoderCalibration, Test_calculateEmptyInput)
+    {
+      std::vector<double> encoder_angles;
+      EXPECT_THROW(encoder_calibration_.calculate(encoder_angles),
+                   std::runtime_error);
+    }
+
+    TEST_F(TestEncoderCalibration, Test_calculateConstantSignal)
+    {
+      std::vector<double> encoder_angles;
+      for (int i = 0; i < 1000; i++)
+        encoder_angles.push_back(0);
+
+      EXPECT_THROW(encoder_calibration_.calculate(encoder_angles),
+                   std::runtime_error);
+    };
 
   }/** end test namespace */
 }/** end quanergy namespace */

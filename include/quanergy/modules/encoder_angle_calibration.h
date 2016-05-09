@@ -177,9 +177,10 @@ namespace quanergy
        * @brief Sets timeout for calculating the calibration. If the timeout
        * expires this class will throw an exception.
        *
-       * @param[in] timeout Timeout in seconds.
+       * @param[in] timeout Timeout.
        */
-      void setTimeout(int timeout);
+      template<typename Rep, typename Period>
+      void setTimeout(std::chrono::duration<Rep,Period> timeout);
 
       /**
        * @brief Function to calculate the sinusoidal error of the horizontal

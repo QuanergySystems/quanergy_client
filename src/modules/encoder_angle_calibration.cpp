@@ -87,9 +87,11 @@ namespace quanergy
       return signal_.connect(subscriber);
     }
 
-    void EncoderAngleCalibration::setTimeout(int timeout)
+    template <typename Rep, typename Period>
+    void EncoderAngleCalibration::setTimeout(
+        std::chrono::duration<Rep, Period> timeout)
     {
-      timeout_ = std::chrono::seconds(timeout);
+      timeout_ = std::chrono::duration_cast<std::chrono::seconds>(timeout);
     }
 
     void EncoderAngleCalibration::setRequiredNumSamples(double num_samples)
@@ -356,6 +358,10 @@ namespace quanergy
     EncoderAngleCalibration::SineParameters EncoderAngleCalibration::calculate(
         const AngleContainer& encoder_angles)
     {
+      if (encoder_angles.empty())
+        throw std::runtime_error(
+            "Cannot calculate sine parameters of empty angle set");
+
       auto slope = fitLine(encoder_angles);
 
       // calculate an initial error sinusoid from the line. This will tell us
