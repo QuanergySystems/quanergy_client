@@ -101,16 +101,18 @@ configure_file(doxyfile.in
 # Unit Tests
 find_package(GTest)
 
-add_executable(test_quanergy_client test/test_encoder_angle_calibration.cpp)
+if (GTEST_FOUND)
+  add_executable(test_quanergy_client test/test_encoder_angle_calibration.cpp)
 
-target_link_libraries(test_quanergy_client
-  quanergy_client
-  ${GTEST_LIBRARIES}
-  boost_system
-  pthread
-  )
+  target_link_libraries(test_quanergy_client
+    quanergy_client
+    ${GTEST_LIBRARIES}
+    boost_system
+    pthread
+    )
 
-add_test(encoder_calibration_unit_test test_quanergy_client)
+  add_test(encoder_calibration_unit_test test_quanergy_client)
+endif()
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
