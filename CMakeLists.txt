@@ -51,6 +51,12 @@ else()
   find_package(PCL REQUIRED common io visualization)
 endif()
 
+file(GLOB_RECURSE project_HEADERS
+    "*.h"
+    "*.hpp"
+)
+
+
 include_directories(
   include
   ${Boost_INCLUDE_DIR}
@@ -75,14 +81,11 @@ set(client_SRCS
   src/parsers/data_packet_parser_01.cpp
   src/parsers/data_packet_parser_failover.cpp
   src/parsers/data_packet_parser_m8.cpp
+  ${project_HEADERS}
 )
 
-file(GLOB_RECURSE project_HEADERS
-    "*.h"
-    "*.hpp"
-)
 
-add_library(quanergy_client SHARED ${client_SRCS} ${project_HEADERS})
+add_library(quanergy_client SHARED ${client_SRCS})
 
 if(WIN32)
   target_link_libraries(quanergy_client ws2_32)
