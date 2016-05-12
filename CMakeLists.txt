@@ -2,7 +2,7 @@ project(QuanergyClient)
 cmake_minimum_required(VERSION 2.8)
 
 #  This should match what's in include/quanergy/client/version.h
-set(QUANERGY_CLIENT_VERSION "2.0.8")
+set(QUANERGY_CLIENT_VERSION "2.0.10")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -74,7 +74,7 @@ set(client_SRCS
 add_library(quanergy_client SHARED ${client_SRCS})
 
 if(WIN32)
-  target_link_library(quanergy_client ws2_32)
+  target_link_libraries(quanergy_client ws2_32)
 endif()
 
 configure_file(doxyfile.in
