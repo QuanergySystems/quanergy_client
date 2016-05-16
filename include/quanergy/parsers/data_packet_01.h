@@ -5,7 +5,7 @@
  **                                                            **
  ****************************************************************/
 
-/**  \file deserialize_00.h
+/**  \file data_packet_01.h
   *
   *  \brief Provide deserialization functionality for data packet type 0x01.
   *

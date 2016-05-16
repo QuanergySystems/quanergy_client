@@ -51,6 +51,12 @@ else()
   find_package(PCL REQUIRED common io visualization)
 endif()
 
+file(GLOB_RECURSE project_HEADERS
+    "*.h"
+    "*.hpp"
+)
+
+
 include_directories(
   include
   ${Boost_INCLUDE_DIR}
@@ -67,7 +73,7 @@ set(client_SRCS
   src/modules/polar_to_cart_converter.cpp
   src/modules/distance_filter.cpp
   src/modules/ring_intensity_filter.cpp
-  src/modules/encoder_correction.cpp
+  src/modules/encoder_angle_calibration.cpp
   src/common/point_xyz.cpp
   src/common/point_xyzir.cpp
   src/client/failover_client.cpp
@@ -75,14 +81,11 @@ set(client_SRCS
   src/parsers/data_packet_parser_01.cpp
   src/parsers/data_packet_parser_failover.cpp
   src/parsers/data_packet_parser_m8.cpp
+  ${project_HEADERS}
 )
 
-file(GLOB_RECURSE project_HEADERS
-    "*.h"
-    "*.hpp"
-)
 
-add_library(quanergy_client SHARED ${client_SRCS} ${project_HEADERS})
+add_library(quanergy_client SHARED ${client_SRCS})
 
 if(WIN32)
   target_link_libraries(quanergy_client ws2_32)
@@ -90,6 +93,26 @@ endif()
 
 configure_file(doxyfile.in
   "${PROJECT_BINARY_DIR}/doxyfile" @ONLY)
+
+#############
+## Testing ##
+#############
+
+# Unit Tests
+find_package(GTest)
+
+if (GTEST_FOUND)
+  add_executable(test_quanergy_client test/test_encoder_angle_calibration.cpp)
+
+  target_link_libraries(test_quanergy_client
+    quanergy_client
+    ${GTEST_LIBRARIES}
+    boost_system
+    pthread
+    )
+
+  add_test(encoder_calibration_unit_test test_quanergy_client)
+endif()
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -212,7 +235,7 @@ include(CPack)
 
 if (PCL_VISUALIZATION_FOUND)
   add_executable(visualizer apps/visualizer.cpp apps/visualizer_module.cpp)
-  target_link_libraries(visualizer quanergy_client ${PCL_LIBRARIES})
+  target_link_libraries(visualizer quanergy_client ${PCL_LIBRARIES} pthread)
 endif()
 
 message("PCL_LIBRARIES: ${PCL_LIBRARIES}")

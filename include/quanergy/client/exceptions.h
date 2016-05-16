@@ -69,6 +69,12 @@ namespace quanergy
     {
       virtual const char* what() const throw() { return "Firmware version mismatch"; }
     };
+    
+    /** \brief Degress per cloud must be 360 or less */
+    struct InvalidDegreesPerCloud : public std::exception
+    {
+      virtual const char* what() const throw() { return "Invalid degrees per cloud"; }
+    };
 
   } // namespace client
 

@@ -20,26 +20,28 @@
 #include <quanergy/parsers/data_packet_parser_failover.h>
 
 // module to apply encoder correction
-#include <quanergy/modules/encoder_correction.h>
+#include <quanergy/modules/encoder_angle_calibration.h>
 
 // conversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>
 
 namespace
 {
-  static const std::string AMPLITUDE_STR{"--encoder-amplitude-correction"};
-  static const std::string PHASE_STR{"--encoder-phase-correction"};
+  static const std::string MANUAL_CORRECT{"--manual-correct"};
+  static const std::string CALIBRATE_STR{"--calibrate"};
+  static const std::string AMPLITUDE_STR{"--amplitude"};
+  static const std::string PHASE_STR{"--phase"};
 }
 
 void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
-      << " --host <host> [-h | --help] [" << AMPLITUDE_STR << " <value> " << PHASE_STR << " <value>]" << std::endl << std::endl
+      << " --host <host> [-h | --help] [" << CALIBRATE_STR << "][" << MANUAL_CORRECT << " " << AMPLITUDE_STR << " <value> " << PHASE_STR << " <value>]" << std::endl << std::endl
 
-      << "    --host                          hostname or IP address of the sensor" << std::endl
-      << "    " << AMPLITUDE_STR << "  amplitude when applying encoder correction" << std::endl
-      << "    " << PHASE_STR << "      phase offset when applying encoder correction" << std::endl
-      << "-h, --help                          show this help and exit" << std::endl;
+      << "    --host        hostname or IP address of the sensor" << std::endl
+      << "    " << CALIBRATE_STR << "   calibrate the host sensor and apply calibration to outgoing points" << std::endl
+      << "    " << MANUAL_CORRECT << " --amplitude <amplitude> --phase <phase>    Manually correct encoder error specifying amplitude and phase correction, in radians" << std::endl
+      << "-h, --help        show this help and exit" << std::endl;
   return;
 }
 
@@ -50,47 +52,24 @@ typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,   /
                                                quanergy::client::DataPacketParser00,
                                                quanergy::client::DataPacketParser01> ParserType;
 typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
-typedef quanergy::client::EncoderCorrection EncoderCorrectionType;
+typedef quanergy::calibration::EncoderAngleCalibration CalibrationType;
 typedef quanergy::client::PolarToCartConverter ConverterType;
 
 int main(int argc, char** argv)
 {
+  int max_num_args = 8;
   // get host
-  if (argc < 2 || argc > 7 || pcl::console::find_switch(argc, argv, "-h") ||
+  if (argc < 2 || argc > max_num_args || pcl::console::find_switch(argc, argv, "-h") ||
       pcl::console::find_switch(argc, argv, "--help") || !pcl::console::find_switch(argc, argv, "--host"))
   {
     usage (argv);
     return (0);
   }
 
-  // if only one of the encoder correction parameters is specified, return
-  // usage statement
-  if ((pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) &&
-       !pcl::console::find_switch(argc, argv, PHASE_STR.c_str())) ||
-      (!pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) &&
-       pcl::console::find_switch(argc, argv, PHASE_STR.c_str())))
-  {
-    usage(argv);
-    return (1);
-  }
-
   std::string host;
   std::string port = "4141";
-  double amplitude = 0.;
-  double phase_offset = 0.;
 
   pcl::console::parse_argument(argc, argv, "--host", host);
-
-  // check for encoder correction arguments
-  bool correct_encoder_angle = false;
-  if (pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) &&
-      pcl::console::find_switch(argc, argv, PHASE_STR.c_str()))
-  {
-    pcl::console::parse_argument(argc, argv, AMPLITUDE_STR.c_str(), amplitude);
-    pcl::console::parse_argument(argc, argv, PHASE_STR.c_str(), phase_offset);
-    correct_encoder_angle = true;
-  }
-
 
   // create modules
   ClientType client(host, port, 100);
@@ -98,25 +77,43 @@ int main(int argc, char** argv)
   ConverterType converter;
   VisualizerModule visualizer;
 
-  EncoderCorrectionType encoder_corrector(amplitude, phase_offset);
+  CalibrationType calibrator;
 
   // setup modules
   parser.get<0>().setFrameId("quanergy");
   parser.get<1>().setFrameId("quanergy");
   parser.get<1>().setReturnSelection(quanergy::client::ReturnSelection::MAX);
+  parser.get<1>().setDegreesOfSweepPerCloud(360.0);
   parser.get<2>().setFrameId("quanergy");
 
   // connect modules
   std::vector<boost::signals2::connection> connections;
-  connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
 
-  // if an amplitude and phase offset are specified, we want an EncoderCorrectionType
-  // between the parser and the converter. Otherwise, we want want to connect
-  // the parser directly to the converter
-  if (correct_encoder_angle)
+  connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
+  
+  // if we're doing automatic calibration or if we're setting the calibration
+  // manually, include the calibrator in the chain
+  if (pcl::console::find_switch(argc, argv, CALIBRATE_STR.c_str()) ||
+      pcl::console::find_switch(argc, argv, MANUAL_CORRECT.c_str()))
   {
-    connections.push_back(parser.connect([&encoder_corrector](const ParserModuleType::ResultType& pc){ encoder_corrector.slot(pc); }));
-    connections.push_back(encoder_corrector.connect([&converter](const EncoderCorrectionType::ResultType& pc){ converter.slot(pc); }));
+    connections.push_back(parser.connect([&calibrator](const ParserModuleType::ResultType& pc){ calibrator.slot(pc); }));
+    connections.push_back(calibrator.connect([&converter](const CalibrationType::ResultType& pc){ converter.slot(pc); }));
+
+    if (pcl::console::find_switch(argc, argv, MANUAL_CORRECT.c_str()))
+    {
+      if (!pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) ||
+          !pcl::console::find_switch(argc, argv, PHASE_STR.c_str()))
+      {
+        usage(argv);
+        return(0);
+      }
+      double amplitude = 0.;
+      double phase = 0.;
+      pcl::console::parse_argument(argc, argv, AMPLITUDE_STR.c_str(), amplitude);
+      pcl::console::parse_argument(argc, argv, PHASE_STR.c_str(), phase);
+
+      calibrator.setParams(amplitude, phase);
+    }
   }
   else
   {
@@ -125,21 +122,22 @@ int main(int argc, char** argv)
 
   connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
 
-  // start client on a separate thread
+  // run the client with the calibrator and wait for a signal from the
+  // calibrator that a successful calibration has been performed
   std::thread client_thread([&client, &visualizer]
-                            {
-                              try
-                              {
-                                client.run();
-                              }
-                              catch (std::exception& e)
-                              {
-                                std::cerr << "Terminating after catching exception: " << e.what() << std::endl;
-                                visualizer.stop();
-                              }
-                            });
-
-
+  {
+    try
+    {
+      client.run();
+      
+    }
+    catch (std::exception& e)
+    {
+      std::cerr << "Terminating after catching exception: " << e.what() << std::endl;
+      visualizer.stop();
+    }
+  });
+    
   // start visualizer (blocks until stopped)
   visualizer.run();
 
