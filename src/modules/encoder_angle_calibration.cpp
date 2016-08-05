@@ -87,13 +87,6 @@ namespace quanergy
       return signal_.connect(subscriber);
     }
 
-    template <typename Rep, typename Period>
-    void EncoderAngleCalibration::setTimeout(
-        const std::chrono::duration<Rep, Period>& timeout)
-    {
-      timeout_ = std::chrono::duration_cast<std::chrono::seconds>(timeout);
-    }
-
     void EncoderAngleCalibration::setRequiredNumSamples(double num_samples)
     {
       required_samples_ = num_samples;
@@ -124,8 +117,13 @@ namespace quanergy
         {
           if (std::chrono::system_clock::now() - time_started_ > timeout_)
           {
-            throw std::runtime_error(
-                "Encoder calibration timed out."); 
+            std::stringstream msg;
+            msg << "Phase values did not converge for encoder calibration before timeout"
+                   "\nNumber of consecutive valid frames: " << num_valid_samples_ << " / " << required_samples_ << 
+                   "\nNumber of incomplete frames: " << stats_.num_incomplete_frames <<
+                   "\nNumber of phase values outside of convergence: " << stats_.num_divergent_phase_values;
+
+            throw std::runtime_error(msg.str());
           }
         }
       }
@@ -166,6 +164,7 @@ namespace quanergy
 
               return;
             }
+            stats_.num_incomplete_frames++;
 
             hvdir_pts_.clear();
             started_full_rev_ = false;
@@ -316,6 +315,7 @@ namespace quanergy
           // add the current values to the containers
           amplitude_values_.push_back(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
+          stats_.num_divergent_phase_values++;
         }
 
         last_phase_ = sine_parameters.second;

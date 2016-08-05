@@ -180,7 +180,10 @@ namespace quanergy
        * @param[in] timeout Timeout.
        */
       template<typename Rep, typename Period>
-      void setTimeout(const std::chrono::duration<Rep,Period>& timeout);
+      void setTimeout(const std::chrono::duration<Rep,Period>& timeout)
+      {
+        timeout_ = std::chrono::duration_cast<std::chrono::seconds>(timeout);
+      }
 
       /**
        * @brief Function to calculate the sinusoidal error of the horizontal
@@ -340,6 +343,15 @@ namespace quanergy
 
       /** Number of calibrations which have occurred */
       std::atomic<int> calibration_count_;
+
+      /** Struct to hold statitistics on encoder calibration to report to user
+       * if failed calibration occurrs. */
+      struct StatsType
+      {
+        int num_incomplete_frames = 0;
+        int num_divergent_phase_values = 0;
+      } stats_;
+
 
     };
 
