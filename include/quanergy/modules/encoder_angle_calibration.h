@@ -279,10 +279,10 @@ namespace quanergy
        * ticks */
       int moving_average_period_counts_ = 300;
 
-      /** This is the criteria for phase converging without outliers. If the
-       * number of consecutive trials where the phase difference does not exceed
-       * this number is above the total number of calibration trials, the
-       * calibration is complete. */
+      /** This class continually fits a sinusoid to the error between the
+       * expected horizontal angles and the horizontal angles received from the
+       * M8. We calculate this sinusoid model until the phase values converge to
+       * within this value. This value is in radians. */
       double phase_convergence_threshold_ = 0.1;
 
       /** Signal object to notify next slot */
