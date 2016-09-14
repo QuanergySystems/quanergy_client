@@ -74,37 +74,9 @@ namespace quanergy
       /** The firing rate of the LiDAR, in Hz */
       static const double FIRING_RATE;
 
-      /** Once the motor has reached stead-state, the number of encoder counts per
-       * revolution should be roughly the firing rate divided by the frame rate.
-       * This number is how many counts the current revolution can be within the
-       * theoretical steady-state number of encoder counts. */
-      static const int ENCODER_COUNT_TOLERANCE;
-
-      /** Minimum number of encoder angles to qualify full revolution at
-       * steady-state motor speed */
-      static const int MIN_ENCODER_ANGLES_PER_REV;
-
-      /** Maximum number of encoder angles to qualify full revolution at
-       * steady-state motor speed */
-      static const int MAX_ENCODER_ANGLES_PER_REV;
-
       /** Allowable tolerance within pi for an endpoint-angle in a revolution to
        * be considered near pi */
       static const double PI_TOLERANCE;
-
-      /** Moving average period to use when smoothing error signal, in encoder
-       * counts */
-      static const int MOV_AVG_PERIOD;
-
-      /** Tolerance for identifying when phase values have converged without
-       * outliers */
-      static const double PHASE_CONVERGENCE_THRESHOLD;
-
-      /** Amplitude threshold dictating if calculating the encoder offset is
-       * appropriate. If an encoder calibration returns an amplitude below this
-       * value, this class indicates that calibration is complete and applies no
-       * calibration to outgoing points. */
-      static const double AMPLITUDE_THRESHOLD;
 
     public:
 
@@ -197,6 +169,41 @@ namespace quanergy
        */
       SineParameters calculate(const std::vector<double>& encoder_angles);
 
+      /** 
+       * @brief Sets the number of motor encoder counts within the theoretical
+       * steady-state expected number when determining if the motor has reached
+       * steady-state.
+       * 
+       * @param[in] tolerance Number of encoder counts.
+       */
+      inline void setEncoderCountTolerance(int tolerance)
+      {
+        encoder_count_tolerance_ = tolerance;
+      }
+
+      /** 
+       * @brief Sets the number of encoder counts used to smooth out the error
+       * signal before modeling the sinusoid.
+       * 
+       * @param[in] period Period in encoder counts.
+       */
+      inline void setMovingAveragePeriod(int period)
+      {
+        moving_average_period_counts_ = period;
+      }
+
+      /** 
+       * @brief Sets phase convergence threshold. This class continually models
+       * sinusoid curves to the error until the difference between phase
+       * calculations is below this value.
+       * 
+       * @param[in] threshold Phase convergence threshold, in radians.
+       */
+      inline void setPhaseConvergenceThreshold(double threshold)
+      {
+        phase_convergence_threshold_ = threshold;
+      }
+
     private:
       /**
        * @brief Function to create line representing the expected encoder
@@ -261,6 +268,22 @@ namespace quanergy
        * @param[in] cloud_ptr Point cloud calibration will be applied to.
        */
       void applyCalibration(PointCloudHVDIRPtr const & cloud_ptr) const;
+
+      /** Once the motor has reached stead-state, the number of encoder counts per
+       * revolution should be roughly the firing rate divided by the frame rate.
+       * This number is how many counts the current revolution can be within the
+       * theoretical steady-state number of encoder counts. */
+      int encoder_count_tolerance_ = 200;
+      
+      /* Number of encoder counts to use when smoothing error signal, in encoder
+       * ticks */
+      int moving_average_period_counts_ = 300;
+
+      /** This is the criteria for phase converging without outliers. If the
+       * number of consecutive trials where the phase difference does not exceed
+       * this number is above the total number of calibration trials, the
+       * calibration is complete. */
+      double phase_convergence_threshold_ = 0.1;
 
       /** Signal object to notify next slot */
       Signal signal_;

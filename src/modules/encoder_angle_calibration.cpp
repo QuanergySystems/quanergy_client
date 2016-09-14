@@ -25,26 +25,12 @@ namespace quanergy
 {
   namespace calibration
   {
+    /** Laser firing rate, in Hz */
     const double EncoderAngleCalibration::FIRING_RATE = 53828.;
-
-    /** Once the motor has reached stead-state, the number of encoder counts per
-     * revolution should be roughly the firing rate divided by the frame rate.
-     * This number is how many counts the current revolution can be within the
-     * theoretical steady-state number of encoder counts. */
-    const int EncoderAngleCalibration::ENCODER_COUNT_TOLERANCE = 200;
 
     // I choose this value by looking at multiple segments of revolutions from
     // -pi to pi and found all endpoints were within this value of -pi and pi.
     const double EncoderAngleCalibration::PI_TOLERANCE = 0.01;
-
-    /* Number of encoder counts to use when smoothing error signal */
-    const int EncoderAngleCalibration::MOV_AVG_PERIOD = 300;
-
-    /** This is the criteria for phase converging without outliers. If the
-     * number of consecutive trials where the phase difference does not exceed
-     * this number is above the total number of calibration trials, the
-     * calibration is complete. */
-    const double EncoderAngleCalibration::PHASE_CONVERGENCE_THRESHOLD = 0.1;
 
     EncoderAngleCalibration::EncoderAngleCalibration()
       : started_full_rev_(false)
@@ -272,7 +258,7 @@ namespace quanergy
           amplitude_values_.push_back(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
         }
-        else if (angleDiff(sine_parameters.second, last_phase_) < PHASE_CONVERGENCE_THRESHOLD)
+        else if (angleDiff(sine_parameters.second, last_phase_) < phase_convergence_threshold_)
         {
           amplitude_values_.push_back(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
@@ -332,12 +318,16 @@ namespace quanergy
       // check to make sure the front and back horizontal angle elements are
       // near the expected endpoints (-pi and pi)
       if (max < (M_PI - PI_TOLERANCE) || min > (-M_PI + PI_TOLERANCE))
+      {
         return (false);
+      }
 
       // check that the encoder period is within the steady-state range
-      if ( hvdir_pts_.size() > ((FIRING_RATE / frame_rate_) + ENCODER_COUNT_TOLERANCE) ||
-          hvdir_pts_.size() < ((FIRING_RATE / frame_rate_) - ENCODER_COUNT_TOLERANCE) )
+      if ( hvdir_pts_.size() > ((FIRING_RATE / frame_rate_) + encoder_count_tolerance_) ||
+          hvdir_pts_.size() < ((FIRING_RATE / frame_rate_) - encoder_count_tolerance_ ))
+      {
         return (false);
+      }
 
       // iterate over hvdir_pts_ and check to make sure each point is within
       // if you divide the firing rate by the frame rate you get the number of
@@ -349,7 +339,9 @@ namespace quanergy
         // TCP packets are in points chunks of 50. If we see a delta angle of
         // more than 5 encoder counts, discard as dropped packet.
         if (std::abs(hvdir_pts_[i].h - hvdir_pts_[i-1].h) > 5 * rads_per_count)
+        {
           return (false);
+        }
       }
 
       return (true);
@@ -359,8 +351,10 @@ namespace quanergy
         const AngleContainer& encoder_angles)
     {
       if (encoder_angles.empty())
+      {
         throw std::runtime_error(
             "Cannot calculate sine parameters of empty angle set");
+      }
 
       auto slope = fitLine(encoder_angles);
 
@@ -393,7 +387,7 @@ namespace quanergy
 
       calc_sinusoid(slope, vertical_offset);
 
-      auto smoothed_sinusoid = movingAvgFilter(sinusoid, MOV_AVG_PERIOD);
+      auto smoothed_sinusoid = movingAvgFilter(sinusoid, moving_average_period_counts_);
 
       if (run_forever_)
       {
