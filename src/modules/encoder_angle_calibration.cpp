@@ -118,47 +118,38 @@ namespace quanergy
       // to check for a complete revolution
       for (const auto& pt : *cloud_ptr)
       {
-        // check fo discontinuity. If found, attempt calibration
-        if (!hvdir_pts_.empty() && std::abs(hvdir_pts_.back().h - pt.h) > M_PI)
+        if (encoder_angles_.empty())
         {
-          if (!started_full_rev_)
+          encoder_angles_.push_back(pt.h);
+        }
+        else
+        {
+          if (std::abs(encoder_angles_.back() - pt.h) > M_PI)
           {
-            hvdir_pts_.clear();
-            started_full_rev_ = true;
+            // we're at a discontinuity
+            // check that the existing hvdir_pts are complete and push them to
+            // queue
+            if (checkComplete())
+            {
+              std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
+              period_queue_.push(std::move(encoder_angles_));
+              nonempty_condition_.notify_one();
+            }
+            else
+            {
+              // record statistics in case of timeout
+              stats_.num_incomplete_frames++;
+            }
+
+            // if encoder_angles_ are not complete, discard period
+            encoder_angles_.clear();
+            encoder_angles_.push_back(pt.h);
           }
           else
           {
-            // we're at the end of a full-revolution. It's time to attempt
-            // calibration
-            if (checkComplete())
-            {
-              AngleContainer encoder_angles;
-              for (const auto& pt : hvdir_pts_)
-              {
-                encoder_angles.push_back( pt.h );
-              }
-
-              // push to queue which will be consumed by processAngles
-              {
-                std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
-                period_queue_.push(encoder_angles);
-                nonempty_condition_.notify_one();
-              }
-
-              hvdir_pts_.clear();
-              started_full_rev_ = false;
-
-              return;
-            }
-            stats_.num_incomplete_frames++;
-
-            hvdir_pts_.clear();
-            started_full_rev_ = false;
-            
+            encoder_angles_.push_back(pt.h);
           }
         }
-
-        hvdir_pts_.push_back(pt);
       }
     }
 
@@ -312,8 +303,8 @@ namespace quanergy
 
     bool EncoderAngleCalibration::checkComplete() const
     {
-      auto min = std::min(hvdir_pts_.front().h, hvdir_pts_.back().h);
-      auto max = std::max(hvdir_pts_.front().h, hvdir_pts_.back().h);
+      auto min = std::min(encoder_angles_.front(), encoder_angles_.back());
+      auto max = std::max(encoder_angles_.front(), encoder_angles_.back());
 
       // check to make sure the front and back horizontal angle elements are
       // near the expected endpoints (-pi and pi)
@@ -323,22 +314,22 @@ namespace quanergy
       }
 
       // check that the encoder period is within the steady-state range
-      if ( hvdir_pts_.size() > ((FIRING_RATE / frame_rate_) + encoder_count_tolerance_) ||
-          hvdir_pts_.size() < ((FIRING_RATE / frame_rate_) - encoder_count_tolerance_ ))
+      if ( encoder_angles_.size() > ((FIRING_RATE / frame_rate_) + encoder_count_tolerance_) ||
+          encoder_angles_.size() < ((FIRING_RATE / frame_rate_) - encoder_count_tolerance_ ))
       {
         return (false);
       }
 
-      // iterate over hvdir_pts_ and check to make sure each point is within
+      // iterate over encoder_angles_ and check to make sure each point is within
       // if you divide the firing rate by the frame rate you get the number of
       // points per rev. Convert to radians
       auto rads_per_count = 2 * M_PI / (FIRING_RATE / frame_rate_);
       
-      for (int i = 1; i < hvdir_pts_.size(); i++)
+      for (int i = 1; i < encoder_angles_.size(); i++)
       {
         // TCP packets are in points chunks of 50. If we see a delta angle of
         // more than 5 encoder counts, discard as dropped packet.
-        if (std::abs(hvdir_pts_[i].h - hvdir_pts_[i-1].h) > 5 * rads_per_count)
+        if (std::abs(encoder_angles_[i] - encoder_angles_[i-1]) > 5 * rads_per_count)
         {
           return (false);
         }

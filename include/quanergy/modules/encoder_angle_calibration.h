@@ -288,8 +288,8 @@ namespace quanergy
       /** Signal object to notify next slot */
       Signal signal_;
 
-      /** HVDIR points to be used for calibration */
-      PointCloudHVDIR hvdir_pts_;
+      /** Container for encoder angle values */
+      AngleContainer encoder_angles_;
 
       /** thread pool futures */
       std::vector<std::future<void>> futures_;
@@ -371,6 +371,7 @@ namespace quanergy
        * if failed calibration occurrs. */
       struct StatsType
       {
+        int complete_frames = 0;
         int num_incomplete_frames = 0;
         int num_divergent_phase_values = 0;
       } stats_;
