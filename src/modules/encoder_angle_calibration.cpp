@@ -12,11 +12,6 @@
 #include <fstream>
 #include <csignal>
 
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/mean.hpp>
-#include <boost/accumulators/statistics/variance.hpp>
-
 #include <quanergy/modules/encoder_angle_calibration.h>
 
 #include <Eigen/Dense>
@@ -103,6 +98,30 @@ namespace quanergy
         {
           if (std::chrono::system_clock::now() - time_started_ > timeout_)
           {
+            // if we've timed out and the phase hasn't converged, it could be
+            // because there isn't a lot of error. If this is the case, the
+            // average amplitude will be below a threshold (~0.05 rads)
+            // Check the average amplitude, if below the threshold report that
+            // no calibration is necessary and do not apply a calibration to
+            // future point clouds
+            
+            namespace ba = boost::accumulators;
+            
+            std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
+            if (ba::mean(amplitude_accumulator_) < amplitude_threshold_)
+            {
+              std::stringstream msg;
+              msg << "Encoder calibration not required for this sensor.\n"
+                "Average amplitude calculated: " << ba::mean(amplitude_accumulator_);
+              std::cout << msg.str() << std::endl;
+
+              calibration_complete_ = true;
+              amplitude_ = 0.;
+              phase_ = 0;
+              applyCalibration(cloud_ptr);
+              return;
+            }
+
             std::stringstream msg;
             msg << "Phase values did not converge for encoder calibration before timeout"
                    "\nNumber of consecutive valid frames: " << num_valid_samples_ << " / " << required_samples_ << 
@@ -243,30 +262,24 @@ namespace quanergy
         // container and find the average
         if (calibration_complete_)
           return;
+
+        namespace ba = boost::accumulators;
         
-        if (amplitude_values_.empty() && phase_averager_.empty())
+        if (ba::count(amplitude_accumulator_) == 0 && phase_averager_.empty())
         {
-          amplitude_values_.push_back(sine_parameters.first);
+          amplitude_accumulator_(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
         }
         else if (angleDiff(sine_parameters.second, last_phase_) < phase_convergence_threshold_)
         {
-          amplitude_values_.push_back(sine_parameters.first);
+          amplitude_accumulator_(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
 
           num_valid_samples_++;
 
           if (num_valid_samples_ > required_samples_)
           {
-            namespace ba = boost::accumulators;
-            // average and report to user
-            ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> 
-              amplitude_acc;
-
-            for (const auto& value : amplitude_values_)
-              amplitude_acc(value);
-
-            amplitude_ = ba::mean(amplitude_acc);
+            amplitude_ = ba::mean(amplitude_accumulator_);
             phase_ = phase_averager_.avg();
 
             std::cout << "Calibration complete." << std::endl
@@ -285,12 +298,12 @@ namespace quanergy
           // we've calculated a phase value which is outside the window of
           // convergence. Clear the amplitude and phase containers and start
           // again.
-          amplitude_values_.clear();
+          amplitude_accumulator_ = AccumulatorSet(); // resets accumulator
           phase_averager_.clear();
           num_valid_samples_ = 0;
 
           // add the current values to the containers
-          amplitude_values_.push_back(sine_parameters.first);
+          amplitude_accumulator_(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
           stats_.num_divergent_phase_values++;
         }

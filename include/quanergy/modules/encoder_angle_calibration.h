@@ -18,6 +18,11 @@
 
 #include <boost/signals2.hpp>
 
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/mean.hpp>
+#include <boost/accumulators/statistics/variance.hpp>
+
 #include <quanergy/common/point_hvdir.h>
 #include <quanergy/common/pointcloud_types.h>
 #include <quanergy/common/angle.h>
@@ -43,6 +48,8 @@ namespace quanergy
      */
 	  struct DLLEXPORT EncoderAngleCalibration
     {
+      /** typedef for accumulator set */
+      using AccumulatorSet = boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::mean, boost::accumulators::tag::variance>>;
 
       /** The type of the container that contains the encoder
        * angles */
@@ -204,6 +211,20 @@ namespace quanergy
         phase_convergence_threshold_ = threshold;
       }
 
+      /** 
+       * @brief Sets the amplitude threshold. If a timeout occurs waiting for
+       * encoder calibration to occur, the average amplitude calculated will be
+       * checked against this value. If the average amplitude is less than the
+       * amplitude_threshold_, the user will be notified that the encoder
+       * calibration cannot be accurately applied for such low error.
+       * 
+       * @param[in] threshold Amplitude threshold, in radians
+       */
+      inline void setAmplitudeThreshold(double threshold)
+      {
+        amplitude_threshold_ = threshold;
+      }
+
     private:
       /**
        * @brief Function to create line representing the expected encoder
@@ -340,9 +361,9 @@ namespace quanergy
       /** mutex for containers holding amplitude_values_ and phase_values_ */
       mutable std::mutex container_mutex_;
 
-      /** Vector to hold amplitude values. This is added to as valid calibration
+      /** Accumulator to hold amplitude values. This is added to as valid calibration
        * samples are calculated and used to eventually calculate the average */
-      std::vector<double> amplitude_values_;
+      AccumulatorSet amplitude_accumulator_;
 
       /** Special averaging container to calculate average of phase angles and
        * handle wrapping. */
@@ -368,7 +389,7 @@ namespace quanergy
       std::atomic<int> calibration_count_;
 
       /** Struct to hold statitistics on encoder calibration to report to user
-       * if failed calibration occurrs. */
+       * if failed calibration occurs. */
       struct StatsType
       {
         int complete_frames = 0;
@@ -376,7 +397,12 @@ namespace quanergy
         int num_divergent_phase_values = 0;
       } stats_;
 
-
+      /** Minimum amplitude (in rads) where a sinusoid error model is
+       * appropriate for encoder error. If a timeout occurs when waiting for
+       * the phase to converge, the average amplitude will be checked against
+       * this value to determine if a calibration should be applied to the
+       * sensor. */
+      double amplitude_threshold_ = 0.0025; // rads
     };
 
   } /* calibration */
