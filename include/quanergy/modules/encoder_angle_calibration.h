@@ -401,8 +401,8 @@ namespace quanergy
        * appropriate for encoder error. If a timeout occurs when waiting for
        * the phase to converge, the average amplitude will be checked against
        * this value to determine if a calibration should be applied to the
-       * sensor. */
-      double amplitude_threshold_ = 0.0025; // rads
+       * sensor. This default value was determined experimentally. */
+      double amplitude_threshold_ = 0.006; // rads
     };
 
   } /* calibration */
