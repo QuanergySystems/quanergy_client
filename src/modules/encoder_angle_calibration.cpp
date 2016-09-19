@@ -161,7 +161,8 @@ namespace quanergy
             }
 
             // if encoder_angles_ are not complete, discard period
-            encoder_angles_.clear();
+						// we just moved encoder_angles_. Create a new object
+            encoder_angles_ = AngleContainer();
             encoder_angles_.push_back(pt.h);
           }
           else
