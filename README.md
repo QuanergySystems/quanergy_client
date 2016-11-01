@@ -24,7 +24,7 @@ mkdir ~/QuanergySystems
 cd ~/QuanergySystems
 git clone https://github.com/QuanergySystems/quanergy_client.git
 ```
-Build quanergy_client code and test application
+Build quanergy_client code and visualizer application
 
 ```
 cd quanergy_client
@@ -33,10 +33,10 @@ cd build
 cmake ..
 make
 ```
-To test, run the test application and follow the usage instructions (Sensor IP address is xx.xx.xx.xx)
+To test, run the visualizer application and follow the usage instructions
 
 ```
-./test -host xx.xx.xx.xx 
+./visualizer 
 ```
 For documentation, run the following and then open doc/index.html in any browser.
 
