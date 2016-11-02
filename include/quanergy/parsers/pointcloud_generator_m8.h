@@ -107,6 +107,13 @@ namespace quanergy
         else
           direction = (data_packet.data[M8_FIRING_PER_PKT-1].position - data_packet.data[0].position > 4000) ? -1 : 1;
 
+        // get distance scaling
+        double distance_scaling = 0.01;
+        if (data_packet.version >= 5)
+        {
+          distance_scaling = 0.00001;
+        }
+
         // for each firing
         for (int i = 0; i < M8_FIRING_PER_PKT; ++i)
         {
@@ -142,7 +149,7 @@ namespace quanergy
           for (int j = 0; j < M8_NUM_LASERS; j++)
           {
             // convert range to meters
-            float range = data.returns_distances[0][j] * .01;
+            float range = data.returns_distances[0][j] * distance_scaling;
             unsigned char intensity = data.returns_intensities[0][j];
 
             if (range < 1E-4)
