@@ -87,6 +87,9 @@ namespace quanergy
       /// cloud degrees of sweep
       double start_azimuth_;
       double degrees_per_cloud_;
+
+      /// direction
+      int direction_ = 1; // start with an assumed direction until we can calculate
     };
 
   } // namespace client

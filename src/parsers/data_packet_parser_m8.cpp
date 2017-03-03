@@ -89,11 +89,18 @@ namespace quanergy
       ++packet_counter_;
 
       // get spin direction
-      int direction = 0;
-      if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 0)
-        direction = (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 4000) ? 1 : -1;
-      else
-        direction = (data_packet.data[M8_FIRING_PER_PKT-1].position - data_packet.data[0].position > 4000) ? -1 : 1;
+      // check 3 points in the packet to figure out which way it is spinning
+      // if the measurements disagree, it could be wrap so we'll ignore that
+      if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT/2].position < 0
+          && data_packet.data[M8_FIRING_PER_PKT/2].position - data_packet.data[M8_FIRING_PER_PKT-1].position < 0)
+      {
+        direction_ = 1;
+      }
+      else if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT/2].position > 0
+          && data_packet.data[M8_FIRING_PER_PKT/2].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 0)
+      {
+        direction_ = -1;
+      }
 
       double distance_scaling = 0.01f;
       if (data_packet.version >= 5)
@@ -118,14 +125,14 @@ namespace quanergy
         else 
         {
           // calculate delta
-          delta_angle = direction*(azimuth_angle - start_azimuth_);
+          delta_angle = direction_*(azimuth_angle - start_azimuth_);
           while ( delta_angle < 0.0 )
           {
             delta_angle += 360.0;
           }
         }
         
-        if ( delta_angle >= degrees_per_cloud_ || (degrees_per_cloud_==360.0 && (direction*azimuth_angle < direction*last_azimuth_) ))
+        if ( delta_angle >= degrees_per_cloud_ || (degrees_per_cloud_==360.0 && (direction_*azimuth_angle < direction_*last_azimuth_) ))
         {
           start_azimuth_ = azimuth_angle;
           if (current_cloud_->size () > minimum_cloud_size_)
