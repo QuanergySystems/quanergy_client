@@ -101,11 +101,19 @@ namespace quanergy
         ++packet_counter_;
 
         // get spin direction
-        int direction = 0;
-        if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 0)
-          direction = (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 4000) ? 1 : -1;
-        else
-          direction = (data_packet.data[M8_FIRING_PER_PKT-1].position - data_packet.data[0].position > 4000) ? -1 : 1;
+        // check 3 points in the packet to figure out which way it is spinning
+        // if the measurements disagree, it could be wrap so we'll ignore that
+        if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT/2].position < 0
+            && data_packet.data[M8_FIRING_PER_PKT/2].position - data_packet.data[M8_FIRING_PER_PKT-1].position < 0)
+        {
+          direction_ = 1;
+        }
+        else if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT/2].position > 0
+            && data_packet.data[M8_FIRING_PER_PKT/2].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 0)
+        {
+          direction_ = -1;
+        }
+
 
         // get distance scaling
         double distance_scaling = 0.01;
@@ -122,7 +130,7 @@ namespace quanergy
           // calculate the angle in degrees
           double azimuth_angle = (static_cast<double> ((data.position+(M8_NUM_ROT_ANGLES/2))%M8_NUM_ROT_ANGLES) / (M8_NUM_ROT_ANGLES) * 360.0) - 180.;
           // check for wrap which indicates completion of a scan
-          if (direction * azimuth_angle < direction * last_azimuth_)
+          if (direction_ * azimuth_angle < direction_ * last_azimuth_)
           {
             if (current_cloud_->size () > 0)
             {
@@ -231,6 +239,9 @@ namespace quanergy
 
       /// lookup table for vertical angle
       double vertical_angle_lookup_table_[M8_NUM_LASERS];
+
+      /// direction
+      int direction_ = 1; // start with an assumed direction until we can calculate
     };
 
   } // namespace client
