@@ -76,15 +76,20 @@ namespace quanergy
         return ret; // don't process if sensor in error
       }
 
-      // this time is used for the cloud stamp which is a 64 bit integer in units of microseconds
-      std::uint64_t time;
+      // get the timestamp of the last point in the packet as 64 bit integer in units of microseconds
+      std::uint64_t current_packet_stamp ;
       if (data_packet.version <= 3 && data_packet.version != 0)
       {
         // some versions of API put 10 ns increments in this field
-        time = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-2;
+        current_packet_stamp = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-2;
       }
       else
-        time = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-3;
+        current_packet_stamp = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-3;
+
+      if (previous_packet_stamp_ == 0)
+      {
+        previous_packet_stamp_ = current_packet_stamp;
+      }
 
       ++packet_counter_;
 
@@ -143,7 +148,13 @@ namespace quanergy
                   << maximum_cloud_size_ << ") exceeded" << std::endl;
             }
 
-            current_cloud_->header.stamp = time;
+						// interpolate the timestamp from the previous packet timestamp to the timestamp of this firing
+            const double time_since_previous_packet =
+                (current_packet_stamp - previous_packet_stamp_) * i / static_cast<double>(M8_FIRING_PER_PKT);
+            const auto current_firing_stamp = static_cast<uint64_t>(std::round(
+                previous_packet_stamp_ + time_since_previous_packet));
+
+            current_cloud_->header.stamp = current_firing_stamp;
             current_cloud_->header.seq = cloud_counter_;
             current_cloud_->header.frame_id = frame_id_;
 
@@ -246,6 +257,8 @@ namespace quanergy
 
         last_azimuth_ = azimuth_angle;
       }
+
+      previous_packet_stamp_ = current_packet_stamp;
 
       return ret;
     }
