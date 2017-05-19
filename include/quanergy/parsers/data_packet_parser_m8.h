@@ -68,6 +68,9 @@ namespace quanergy
       /// last accounted for azimuth angle
       double last_azimuth_;
 
+      /// timestamp of previous data packet (microseconds)
+      std::uint64_t previous_packet_stamp_ = 0;
+
       PointCloudHVDIRPtr current_cloud_;
       PointCloudHVDIRPtr worker_cloud_;
 
