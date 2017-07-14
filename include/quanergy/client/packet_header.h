@@ -31,35 +31,35 @@ namespace quanergy
   namespace client
   {
     /// useful consts
-    const std::uint32_t SIGNATURE     = 0x75bd7e97;
+    const uint32_t SIGNATURE     = 0x75bd7e97;
 
 #pragma pack(push, 1)
     /** \brief Header shared by all messages */
     struct PacketHeader
     {
-      std::uint32_t signature; // SIGNATURE
-      std::uint32_t size;      // bytes
-      std::uint32_t seconds;
-      std::uint32_t nanoseconds;
-      std::uint8_t  version_major;
-      std::uint8_t  version_minor;
-      std::uint8_t  version_patch;
-      std::uint8_t  packet_type;
+      uint32_t signature; // SIGNATURE
+      uint32_t size;      // bytes
+      uint32_t seconds;
+      uint32_t nanoseconds;
+      uint8_t  version_major;
+      uint8_t  version_minor;
+      uint8_t  version_patch;
+      uint8_t  packet_type;
     };
 #pragma pack(pop)
 
     /// convenience functions for deserialization of objects
-    inline std::uint8_t deserialize(std::uint8_t net_char)
+    inline uint8_t deserialize(uint8_t net_char)
     {
       return net_char;
     }
 
-    inline std::uint16_t deserialize(std::uint16_t net_short)
+    inline uint16_t deserialize(uint16_t net_short)
     {
       return ntohs(net_short);
     }
 
-    inline std::uint32_t deserialize(std::uint32_t net_long)
+    inline uint32_t deserialize(uint32_t net_long)
     {
       return ntohl(net_long);
     }
@@ -74,7 +74,7 @@ namespace quanergy
       return ntohs(net_short);
     }
 
-    inline std::int32_t deserialize(std::int32_t net_long)
+    inline int32_t deserialize(int32_t net_long)
     {
       return ntohl(net_long);
     }
