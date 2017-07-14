@@ -37,8 +37,8 @@ namespace quanergy
 
       // pcl pointcloud uses microseconds
       result->header.stamp =
-          std::uint64_t(data_packet.packet_header.seconds) * 1E6 +
-          std::uint64_t(data_packet.packet_header.nanoseconds) * 1E-3;
+          uint64_t(data_packet.packet_header.seconds) * 1E6 +
+          uint64_t(data_packet.packet_header.nanoseconds) * 1E-3;
 
       result->header.seq = data_packet.data_header.sequence;
       result->header.frame_id = frame_id_;

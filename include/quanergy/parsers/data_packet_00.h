@@ -48,30 +48,30 @@ namespace quanergy
       object.padding  = deserialize(network_order.padding);
 
       // deserialize each range
-      const std::uint32_t* net_d_ptr = reinterpret_cast<const std::uint32_t*>(network_order.returns_distances);
-      std::uint32_t* obj_d_ptr = reinterpret_cast<std::uint32_t*>(object.returns_distances);
+      const uint32_t* net_d_ptr = reinterpret_cast<const uint32_t*>(network_order.returns_distances);
+      uint32_t* obj_d_ptr = reinterpret_cast<uint32_t*>(object.returns_distances);
       std::for_each(obj_d_ptr, obj_d_ptr + M8_NUM_RETURNS * M8_NUM_LASERS,
-                    [&net_d_ptr](std::uint32_t& range)
+                    [&net_d_ptr](uint32_t& range)
                     {
                       range = deserialize(*net_d_ptr);
                       ++net_d_ptr;
                     });
 
       // deserialize each intensity
-      const std::uint8_t* net_i_ptr = reinterpret_cast<const std::uint8_t*>(network_order.returns_intensities);
-      std::uint8_t* obj_i_ptr = reinterpret_cast<std::uint8_t*>(object.returns_intensities);
+      const uint8_t* net_i_ptr = reinterpret_cast<const uint8_t*>(network_order.returns_intensities);
+      uint8_t* obj_i_ptr = reinterpret_cast<uint8_t*>(object.returns_intensities);
       std::for_each(obj_i_ptr, obj_i_ptr + M8_NUM_RETURNS * M8_NUM_LASERS,
-                    [&net_i_ptr](std::uint8_t& intensity)
+                    [&net_i_ptr](uint8_t& intensity)
                     {
                       intensity = deserialize(*net_i_ptr);
                       ++net_i_ptr;
                     });
 
       // deserialize each status
-      const std::uint8_t* net_s_ptr = reinterpret_cast<const std::uint8_t*>(network_order.returns_status);
-      std::uint8_t* obj_s_ptr = reinterpret_cast<std::uint8_t*>(object.returns_status);
+      const uint8_t* net_s_ptr = reinterpret_cast<const uint8_t*>(network_order.returns_status);
+      uint8_t* obj_s_ptr = reinterpret_cast<uint8_t*>(object.returns_status);
       std::for_each(obj_s_ptr, obj_s_ptr + M8_NUM_LASERS,
-                    [&net_s_ptr](std::uint8_t& status)
+                    [&net_s_ptr](uint8_t& status)
                     {
                       status = deserialize(*net_s_ptr);
                       ++net_s_ptr;

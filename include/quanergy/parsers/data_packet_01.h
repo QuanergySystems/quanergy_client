@@ -35,10 +35,10 @@ namespace quanergy
     /** \brief data header 0x01 */
     struct DLLEXPORT DataHeader01
     {
-      std::uint32_t sequence;
-      std::uint32_t status;
-      std::uint32_t point_count;
-      std::uint32_t reserved;
+      uint32_t sequence;
+      uint32_t status;
+      uint32_t point_count;
+      uint32_t reserved;
     };
 
     /** \brief data point 0x01 */
@@ -46,10 +46,10 @@ namespace quanergy
     {
       std::int16_t  horizontal_angle; // [-31416, 31416], 1/10,000 radians, +left, -right
       std::int16_t  vertical_angle;   // [-31416, 31416], 1/10,000 radians, +up, -down
-      std::uint32_t range;            // micrometers
-      std::uint16_t intensity;
-      std::uint8_t  status;
-      std::uint8_t  reserved;
+      uint32_t range;            // micrometers
+      uint16_t intensity;
+      uint8_t  status;
+      uint8_t  reserved;
     };
 #pragma pack(pop)
 

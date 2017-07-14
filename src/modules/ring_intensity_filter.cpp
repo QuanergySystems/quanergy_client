@@ -93,7 +93,7 @@ namespace quanergy
     }
 
 
-    float RingIntensityFilter::getRingFilterMinimumRangeThreshold (const std::uint16_t laser_beam) const
+    float RingIntensityFilter::getRingFilterMinimumRangeThreshold (const uint16_t laser_beam) const
     {
       if (laser_beam >= M8_NUM_LASERS)
       {
@@ -105,7 +105,7 @@ namespace quanergy
     }
 
 
-    void RingIntensityFilter::setRingFilterMinimumRangeThreshold (const std::uint16_t laser_beam, 
+    void RingIntensityFilter::setRingFilterMinimumRangeThreshold (const uint16_t laser_beam, 
                                                                   const float threshold)
     {
       if (laser_beam >= M8_NUM_LASERS)
@@ -120,7 +120,7 @@ namespace quanergy
     }
 
 
-    std::uint8_t RingIntensityFilter::getRingFilterMinimumIntensityThreshold (const uint16_t laser_beam) const
+    uint8_t RingIntensityFilter::getRingFilterMinimumIntensityThreshold (const uint16_t laser_beam) const
     {
       if (laser_beam >= M8_NUM_LASERS)
       {
@@ -134,7 +134,7 @@ namespace quanergy
 
 
     void RingIntensityFilter::setRingFilterMinimumIntensityThreshold (const uint16_t laser_beam, 
-                                                                      const std::uint8_t threshold)
+                                                                      const uint8_t threshold)
     {
       if (laser_beam >= M8_NUM_LASERS)
       {

@@ -29,60 +29,57 @@
 #include <quanergy/client/m8_data_packet.h>
 
 #ifdef _MSC_VER
-  #define DLLEXPORT __declspec(dllexport)
-  #define TYPENAME
+#define DLLEXPORT __declspec(dllexport)
+#define TYPENAME
 #else
-  #define DLLEXPORT
-  #define TYPENAME typename
+#define DLLEXPORT
+#define TYPENAME typename
 #endif
 
 namespace quanergy
 {
-  namespace client
-  {
-    struct DLLEXPORT RingIntensityFilter
-    {
-      typedef std::shared_ptr<RingIntensityFilter> Ptr;
+	namespace client
+	{
+		struct DLLEXPORT RingIntensityFilter
+		{
+			typedef std::shared_ptr<RingIntensityFilter> Ptr;
 
-      typedef PointCloudHVDIRPtr ResultType;
+			typedef PointCloudHVDIRPtr ResultType;
 
-      typedef boost::signals2::signal<void (const ResultType&)> Signal;
+			typedef boost::signals2::signal<void(const ResultType&)> Signal;
 
-      RingIntensityFilter();
+			RingIntensityFilter();
 
-      boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
+			boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
 
-      void slot(PointCloudHVDIRConstPtr const &);
+			void slot(PointCloudHVDIRConstPtr const &);
 
-      /** \brief For ring filtering: Returns the minimum range filter threshold for the given beam, in meters */
-      float getRingFilterMinimumRangeThreshold (const std::uint16_t laser_beam) const;
+			/** \brief For ring filtering: Returns the minimum range filter threshold for the given beam, in meters */
+			float getRingFilterMinimumRangeThreshold(const uint16_t laser_beam) const;
 
-      /** \brief For ring filtering: Set the minimum range filter threshold for the given beam, in meters
-        * This value is in meters. Defaults to 1.0
-        */
-      void setRingFilterMinimumRangeThreshold (const std::uint16_t laser_beam, const float min_threshold);
+			/** \brief For ring filtering: Set the minimum range filter threshold for the given beam, in meters
+			  * This value is in meters. Defaults to 1.0
+			  */
+			void setRingFilterMinimumRangeThreshold(const uint16_t laser_beam, const float min_threshold);
 
-      /** \brief For ring filtering: Returns the minimum intensity filter threshold for the given beam */
-      uint8_t getRingFilterMinimumIntensityThreshold (const std::uint16_t laser_beam) const;
+			/** \brief For ring filtering: Returns the minimum intensity filter threshold for the given beam */
+			uint8_t getRingFilterMinimumIntensityThreshold(const uint16_t laser_beam) const;
 
-      /** \brief For ring filtering: Set the minimum intensity filter threshold for the given beam, in meters
-        * This value is an integer between 0-255. Defaults to 0
-        */
-      void setRingFilterMinimumIntensityThreshold (const uint16_t laser_beam, const uint8_t min_threshold);
+			/** \brief For ring filtering: Set the minimum intensity filter threshold for the given beam, in meters
+			  * This value is an integer between 0-255. Defaults to 0
+			  */
+			void setRingFilterMinimumIntensityThreshold(const uint16_t laser_beam, const uint8_t min_threshold);
 
-    private:
+		private:
 
-      PointCloudHVDIR::PointType filterGhosts(PointCloudHVDIR::PointType const & from) const;
+			PointCloudHVDIR::PointType filterGhosts(PointCloudHVDIR::PointType const & from) const;
 
-      Signal signal_;
+			Signal signal_;
 
-      float ring_filter_range_[M8_NUM_LASERS];
-      std::uint8_t ring_filter_intensity_[M8_NUM_LASERS];
-    };
-
-  } // namespace filters
-
+			float ring_filter_range_[M8_NUM_LASERS];
+			uint8_t ring_filter_intensity_[M8_NUM_LASERS];
+		};
+	} // namespace filters
 } // namespace quanergy
-
 
 #endif
