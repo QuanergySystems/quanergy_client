@@ -46,7 +46,7 @@ namespace quanergy
     void DataPacketParserM8::setReturnSelection(int return_selection)
     {
       if ((return_selection != quanergy::client::ALL_RETURNS) &&
-          (return_selection < 0 || return_selection >= M8_NUM_RETURNS)
+          (return_selection < 0 || return_selection >= M8_NUM_RETURNS))
       {
         throw InvalidReturnSelection();
       }
