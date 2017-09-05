@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   // setup modules
   parser.get<0>().setFrameId("quanergy");
   parser.get<1>().setFrameId("quanergy");
-  parser.get<1>().setReturnSelection(quanergy::client::ReturnSelection::MAX);
+  parser.get<1>().setReturnSelection(0);
   parser.get<1>().setDegreesOfSweepPerCloud(360.0);
   parser.get<2>().setFrameId("quanergy");
 
