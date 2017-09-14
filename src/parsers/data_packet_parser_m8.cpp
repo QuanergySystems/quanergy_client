@@ -43,8 +43,14 @@ namespace quanergy
       }
     }
 
-    void DataPacketParserM8::setReturnSelection(ReturnSelection return_selection)
+    void DataPacketParserM8::setReturnSelection(int return_selection)
     {
+      if ((return_selection != quanergy::client::ALL_RETURNS) &&
+          (return_selection < 0 || return_selection >= M8_NUM_RETURNS))
+      {
+        throw InvalidReturnSelection();
+      }
+
       return_selection_ = return_selection;
     }
 
@@ -159,7 +165,7 @@ namespace quanergy
             current_cloud_->header.frame_id = frame_id_;
 
             // can't organize if we kept all points
-            if (return_selection_ != ReturnSelection::ALL)
+            if (return_selection_ != quanergy::client::ALL_RETURNS)
             {
               organizeCloud(current_cloud_, worker_cloud_);
             }
@@ -199,7 +205,7 @@ namespace quanergy
           hvdir.v = vertical_angle;
           hvdir.ring = j;
 
-          if (return_selection_ == ReturnSelection::ALL)
+          if (return_selection_ == quanergy::client::ALL_RETURNS)
           {
             // for the all case, we won't keep NaN points and we'll compare
             // distances to illiminate duplicates
@@ -231,9 +237,9 @@ namespace quanergy
           }
           else
           {
-            for (int i = 0; i < 3; ++i)
+            for (int i = 0; i < quanergy::client::M8_NUM_RETURNS; ++i)
             {
-              if (static_cast<int>(return_selection_) == i)
+              if (return_selection_ == i)
               {
                 hvdir.intensity = data.returns_intensities[i][j];
 

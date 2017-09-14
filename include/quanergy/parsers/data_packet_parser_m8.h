@@ -40,7 +40,8 @@ namespace quanergy
 
     const std::int32_t M8_NUM_ROT_ANGLES = 10400;
 
-    enum class ReturnSelection { MAX = 0, FIRST, LAST, ALL };
+    /** \brief Used to specify 'all' returns */
+    const int ALL_RETURNS = -1;
 
     /** \brief Not a specialization because it is intended to be used by others. */
     struct DLLEXPORT DataPacketParserM8 : public DataPacketParser
@@ -49,7 +50,7 @@ namespace quanergy
 
       bool parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result);
 
-      void setReturnSelection(ReturnSelection return_selection);
+      void setReturnSelection(int return_selection);
       void setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax);
       void setDegreesOfSweepPerCloud(double degrees_per_cloud);
       
@@ -81,7 +82,7 @@ namespace quanergy
       double vertical_angle_lookup_table_[M8_NUM_LASERS];
 
       /// return selection
-      ReturnSelection return_selection_ = ReturnSelection::MAX;
+      int return_selection_ = 0;
 
       /// cloud size limits
       std::int32_t minimum_cloud_size_ = 1;
