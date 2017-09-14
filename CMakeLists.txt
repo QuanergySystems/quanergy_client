@@ -76,10 +76,8 @@ set(client_SRCS
   src/modules/encoder_angle_calibration.cpp
   src/common/point_xyz.cpp
   src/common/point_xyzir.cpp
-  src/client/failover_client.cpp
   src/parsers/data_packet_parser_00.cpp
   src/parsers/data_packet_parser_01.cpp
-  src/parsers/data_packet_parser_failover.cpp
   src/parsers/data_packet_parser_m8.cpp
   ${project_HEADERS}
 )
