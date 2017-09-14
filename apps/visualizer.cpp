@@ -11,13 +11,11 @@
 // console parser
 #include <pcl/console/parse.h>
 
-// client; failover adds support for old M8 data
-#include <quanergy/client/failover_client.h>
+#include <quanergy/client/sensor_client.h>
 
 // parsers for the data packets we want to support
 #include <quanergy/parsers/data_packet_parser_00.h>
 #include <quanergy/parsers/data_packet_parser_01.h>
-#include <quanergy/parsers/data_packet_parser_failover.h>
 
 // module to apply encoder correction
 #include <quanergy/modules/encoder_angle_calibration.h>
@@ -45,12 +43,16 @@ void usage(char** argv)
   return;
 }
 
-/// FailoverClient allows packets to pass through that don't have a header (for old M8 data)
-typedef quanergy::client::FailoverClient ClientType;
-typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,   // return type
-                                               quanergy::client::DataPacketParserFailover, // following are data packet types
-                                               quanergy::client::DataPacketParser00,
-                                               quanergy::client::DataPacketParser01> ParserType;
+typedef quanergy::client::SensorClient ClientType;
+typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,                      // return type
+                                               quanergy::client::DataPacketParser00,              // PARSER_00_INDEX
+                                               quanergy::client::DataPacketParser01> ParserType;  // PARSER_00_INDEX
+enum
+{
+  PARSER_00_INDEX = 0,
+  PARSER_01_INDEX = 1
+};
+
 typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
 typedef quanergy::calibration::EncoderAngleCalibration CalibrationType;
 typedef quanergy::client::PolarToCartConverter ConverterType;
@@ -80,11 +82,10 @@ int main(int argc, char** argv)
   CalibrationType calibrator;
 
   // setup modules
-  parser.get<0>().setFrameId("quanergy");
-  parser.get<1>().setFrameId("quanergy");
-  parser.get<1>().setReturnSelection(0);
-  parser.get<1>().setDegreesOfSweepPerCloud(360.0);
-  parser.get<2>().setFrameId("quanergy");
+  parser.get<PARSER_00_INDEX>().setFrameId("quanergy");
+  parser.get<PARSER_00_INDEX>().setReturnSelection(0);
+  parser.get<PARSER_00_INDEX>().setDegreesOfSweepPerCloud(360.0);
+  parser.get<PARSER_01_INDEX>().setFrameId("quanergy");
 
   // connect modules
   std::vector<boost::signals2::connection> connections;
