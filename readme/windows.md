@@ -10,6 +10,7 @@
 2. Install PCL 1.8.0 All-in-one for MSVC2013 (Win32 or x64) found here: http://unanancyowen.com/?p=1255&lang=en
     - Install PCL 1.8.0 in either "C:\Program Files\PCL 1.8.0" or "C:\Program Files (x86)\PCL 1.8.0"
     - In "System Properties"->"Advanced"->"Environment Variables", set the following user variables
+
 ```
 PCL_ROOT     C:\Program Files\PCL 1.8.0 (or C:\Program Files (x86)\PCL 1.8.0)
 Path         ;%PCL_ROOT%\bin;%PCL_ROOT%\3rdParty\FLANN\bin;%PCL_ROOT%\3rdParty\VTK\bin
@@ -22,6 +23,7 @@ Path         ;%PCL_ROOT%\bin;%PCL_ROOT%\3rdParty\FLANN\bin;%PCL_ROOT%\3rdParty\V
     - Set "Where to build the binaries:" to C:\location\of\quanergy_client_build
     - Press "Configure" and select "Visual Studio 12 2013" or "Visual Studio 12 2013 Win64" as the generator.  Use default native compilers.
         If an error occurs where it cannot find the VTK install in PCL, add the variable `CMAKE_PREFIX_PATH = C:/Program Files/PCL 1.8.0/3rdParty/VTK` (or `C:/Program Files (x86)/PCL 1.8.0/3rdParty/VTK`). If an error occurs where it cannot find the Boost install in PCL, add the variables:
+
 ```
             BOOST_INCLUDEDIR = C:/Program Files/PCL 1.8.0/3rdParty/Boost/include/boost-1_57 (or C:/Program Files (x86)/PCL 1.8.0/3rdParty/Boost/include/boost-1_57
             BOOST_LIBRARYDIR = C:/Program Files/PCL 1.8.0/3rdParty/Boost/lib (or C:/Program Files (x86)/PCL 1.8.0/3rdParty/Boost/lib)
