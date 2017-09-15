@@ -18,6 +18,7 @@
 #include <quanergy/parsers/data_packet_parser_00.h>
 #include <quanergy/parsers/data_packet_parser_01.h>
 #include <quanergy/parsers/data_packet_parser_failover.h>
+#include <quanergy/parsers/variadic_packet_parser.h>
 
 // module to apply encoder correction
 #include <quanergy/modules/encoder_angle_calibration.h>
