@@ -15,6 +15,8 @@
 #ifndef QUANERGY_CLIENT_M8_DATA_PACKET_H
 #define QUANERGY_CLIENT_M8_DATA_PACKET_H
 
+#include <cstdint>
+
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
 #else

@@ -41,7 +41,7 @@ namespace quanergy
      * with the sine error parameters and apply the calibration to incoming
      * points.
      */
-    struct EncoderAngleCalibration
+	  struct DLLEXPORT EncoderAngleCalibration
     {
 
       /** The type of the container that contains the encoder
