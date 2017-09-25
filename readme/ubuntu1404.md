@@ -6,7 +6,7 @@ The following will install prerequisites including PCL which requires a ppa be a
 ```
 sudo add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
 sudo apt-get update
-sudo apt-get install git build-essential libboost-all-dev libpcl-all 
+sudo apt-get install cmake git build-essential libboost-all-dev libpcl-all 
 ```
 ## Build Instructions
 Clone the SDK repository
