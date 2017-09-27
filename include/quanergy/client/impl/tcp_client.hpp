@@ -185,6 +185,8 @@ namespace quanergy
     template <class HEADER>
     void TCPClient<HEADER>::handleReadBody(const boost::system::error_code& error)
     {
+      size_t queue_size = 0;
+
       if (kill_)
       {
         return;
@@ -202,7 +204,9 @@ namespace quanergy
         // copy into shared_ptr
         buff_queue_.push(std::make_shared<std::vector<char>>(buff_));
 
-        if (buff_queue_.size() > max_queue_size_)
+        queue_size = buff_queue_.size();
+
+        if (queue_size > max_queue_size_)
         {
           buff_queue_.pop();
           lk.unlock();
@@ -213,7 +217,16 @@ namespace quanergy
           lk.unlock();
         }
 
-        buff_queue_conditional_.notify_one();
+        // Free up the CPU to allow the consumer thread a chance to keep up.
+        if (queue_size > 1)
+        {
+          std::this_thread::yield();
+        }
+        else
+        {
+          // Consumer thread only waits to be notified when the queue is (was) empty
+          buff_queue_conditional_.notify_one();
+        }
       }
 
       // get ready to read again
@@ -236,11 +249,16 @@ namespace quanergy
         if (kill_)
           return;
 
-        auto packet = buff_queue_.front();
-        buff_queue_.pop();
+        decltype(buff_queue_) local_q;
+        std::swap(buff_queue_, local_q);
         lk.unlock();
 
-        signal_(packet);
+        while (!local_q.empty())
+        {
+          auto packet = local_q.front();
+          local_q.pop();
+          signal_(packet);
+        }
       }
     }
 

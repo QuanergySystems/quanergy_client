@@ -23,6 +23,10 @@ namespace quanergy
       , start_azimuth_(0)
       , degrees_per_cloud_(360.0)
     {
+      // Reserve space ahead of time for incoming data
+      current_cloud_->reserve(maximum_cloud_size_);
+      worker_cloud_->reserve(maximum_cloud_size_);
+
       for (std::uint32_t i = 0; i <= M8_NUM_ROT_ANGLES; i++)
       {
         // Shift by half the rot angles to keep the number positive when wrapping.
@@ -186,6 +190,7 @@ namespace quanergy
           current_cloud_.reset(new PointCloudHVDIR());
           // at first we assume it is dense
           current_cloud_->is_dense = true;
+          current_cloud_->reserve(maximum_cloud_size_);
           cloudfull = false;
         }
 
