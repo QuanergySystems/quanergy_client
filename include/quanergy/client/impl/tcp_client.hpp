@@ -220,7 +220,7 @@ namespace quanergy
         // Free up the CPU to allow the consumer thread a chance to keep up.
         if (queue_size > 1)
         {
-          std::this_thread::sleep_for(std::chrono::milliseconds(1));
+          std::this_thread::yield();
         }
         else
         {
@@ -249,11 +249,16 @@ namespace quanergy
         if (kill_)
           return;
 
-        auto packet = buff_queue_.front();
-        buff_queue_.pop();
+        decltype(buff_queue_) local_q;
+        std::swap(buff_queue_, local_q);
         lk.unlock();
 
-        signal_(packet);
+        while (!local_q.empty())
+        {
+          auto packet = local_q.front();
+          local_q.pop();
+          signal_(packet);
+        }
       }
     }
 

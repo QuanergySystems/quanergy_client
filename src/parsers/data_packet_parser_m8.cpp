@@ -186,6 +186,7 @@ namespace quanergy
           current_cloud_.reset(new PointCloudHVDIR());
           // at first we assume it is dense
           current_cloud_->is_dense = true;
+          current_cloud_->reserve(maximum_cloud_size_);
           cloudfull = false;
         }
 
