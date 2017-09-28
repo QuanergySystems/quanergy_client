@@ -54,6 +54,10 @@ else()
   find_package(PCL REQUIRED common io visualization)
 endif()
 
+if (NOT "${PCL_LIBRARIES}" STREQUAL "")
+  list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
+endif()
+
 file(GLOB_RECURSE project_HEADERS
     "*.h"
     "*.hpp"
