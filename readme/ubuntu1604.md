@@ -1,12 +1,10 @@
-# Ubuntu 14.04 LTS Build of QuanergyClient
+# Ubuntu 16.04 LTS Build of QuanergyClient
 
 ## Install Prerequisites
-The following will install prerequisites including PCL which requires a ppa be added.
+The following will install prerequisites including PCL 
 
 ```
-sudo add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
-sudo apt-get update
-sudo apt-get install cmake git build-essential libboost-all-dev libpcl-all 
+sudo apt-get install cmake git build-essential libboost-all-dev libpcl-dev libproj-dev 
 ```
 ## Build Instructions
 Clone the SDK repository
