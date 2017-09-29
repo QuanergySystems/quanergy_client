@@ -29,11 +29,14 @@ make
 To test, run the visualizer application and follow the usage instructions
 
 ```
-./visualizer 
+./visualizer --help
 ```
 ## Documentation
 For documentation, run the following and then open doc/index.html in any browser.
 
 ```
+sudo apt-get install doxygen
+cd ~/QuanergySystems
+cmake ..
 make doc
 ```
