@@ -54,7 +54,7 @@ else()
   find_package(PCL REQUIRED common io visualization)
 endif()
 
-# Workaround required for due to bug in VTK6 for Ubuntu 16.04
+# Workaround required due to a bug in VTK6 for Ubuntu 16.04
 # See https://bugs.launchpad.net/ubuntu/+source/vtk6/+bug/1573234
 if (NOT "${PCL_LIBRARIES}" STREQUAL "")
   list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")

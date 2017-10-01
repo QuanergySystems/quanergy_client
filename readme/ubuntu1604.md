@@ -41,7 +41,7 @@ For documentation, run the following and then open doc/index.html in any browser
 
 ```
 sudo apt-get install doxygen
-cd ~/QuanergySystems
+cd ~/QuanergySystems/quanergy_client/build
 cmake ..
 make doc
 ```
