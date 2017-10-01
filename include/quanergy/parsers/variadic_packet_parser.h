@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <quanergy/parsers/packet_parser.h>
+
 /** \brief VariadicPacketParer takes a list of parsers and iterates through them. */
 namespace quanergy
 {
