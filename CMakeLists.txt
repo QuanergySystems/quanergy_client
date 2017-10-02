@@ -81,6 +81,7 @@ set(client_SRCS
   src/common/point_xyzir.cpp
   src/parsers/data_packet_parser_00.cpp
   src/parsers/data_packet_parser_01.cpp
+  src/parsers/data_packet_parser_04.cpp
   src/parsers/data_packet_parser_m8.cpp
   ${project_HEADERS}
 )

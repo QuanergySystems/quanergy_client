@@ -16,6 +16,7 @@
 // parsers for the data packets we want to support
 #include <quanergy/parsers/data_packet_parser_00.h>
 #include <quanergy/parsers/data_packet_parser_01.h>
+#include <quanergy/parsers/data_packet_parser_04.h>
 #include <quanergy/parsers/variadic_packet_parser.h>
 
 // module to apply encoder correction
@@ -47,11 +48,13 @@ void usage(char** argv)
 typedef quanergy::client::SensorClient ClientType;
 typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,                      // return type
                                                quanergy::client::DataPacketParser00,              // PARSER_00_INDEX
-                                               quanergy::client::DataPacketParser01> ParserType;  // PARSER_00_INDEX
+                                               quanergy::client::DataPacketParser01,              // PARSER_00_INDEX
+                                               quanergy::client::DataPacketParser04> ParserType;  // PARSER_04_INDEX
 enum
 {
   PARSER_00_INDEX = 0,
-  PARSER_01_INDEX = 1
+  PARSER_01_INDEX = 1,
+  PARSER_04_INDEX = 2
 };
 
 typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
@@ -87,6 +90,7 @@ int main(int argc, char** argv)
   parser.get<PARSER_00_INDEX>().setReturnSelection(0);
   parser.get<PARSER_00_INDEX>().setDegreesOfSweepPerCloud(360.0);
   parser.get<PARSER_01_INDEX>().setFrameId("quanergy");
+  parser.get<PARSER_04_INDEX>().setFrameId("quanergy");
 
   // connect modules
   std::vector<boost::signals2::connection> connections;
