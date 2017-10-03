@@ -35,8 +35,10 @@ namespace quanergy
         return success; // don't process if sensor in error
       }
 
-      // Verify that the return ID matches what has been requested
-      if (data_packet.data.data_header.return_id != return_selection_)
+      // If the return selection has been explicitly set,
+      // verify that the return ID matches what has been requested
+      if (return_selection_ != quanergy::client::ALL_RETURNS &&
+          data_packet.data.data_header.return_id != return_selection_)
       {
         throw ReturnIDMismatchError();
       }
@@ -124,10 +126,7 @@ namespace quanergy
             current_cloud_->header.frame_id = frame_id_;
 
             // can't organize if we kept all points
-            if (return_selection_ != quanergy::client::ALL_RETURNS)
-            {
-              organizeCloud(current_cloud_, worker_cloud_);
-            }
+            organizeCloud(current_cloud_, worker_cloud_);
 
             ++cloud_counter_;
 

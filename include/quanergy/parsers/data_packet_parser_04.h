@@ -32,6 +32,14 @@ namespace quanergy
   {
     struct DLLEXPORT DataPacketParser04 : DataPacketParserM8
     {
+      // Constructor
+      DataPacketParser04() : DataPacketParserM8()
+      {
+        // For 04 packets, return selection is done on the sensor, so if not explicitly set,
+        // we will process whatever 04 packets we receive.
+        return_selection_ = quanergy::client::ALL_RETURNS;
+      }
+
       bool validate(const std::vector<char>& packet);
   
       bool parse(DataPacket04 const & data_packet, PointCloudHVDIRPtr& result);
