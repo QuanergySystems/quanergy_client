@@ -5,7 +5,7 @@ These instructions were tested for the following configuration:
 * Windows 7 64-bit
 * Visual Studio 2013 (tested with Community Edition)
 * CMake
-  - tested with latest version 3.9.4 available at time of writing [here](https://cmake.org/files/v3.9/cmake-3.9.4-win64-x64.msi)
+    - tested with latest version 3.9.4 available at time of writing [here](https://cmake.org/files/v3.9/cmake-3.9.4-win64-x64.msi)
 
 ## Install Prerequisites
 
@@ -35,7 +35,7 @@ Update environment variables
 Download copy of QuanergyClient source from GitHub.
 
 ```
-    git clone https://github.com/QuanergySystems/quanergy_client.git
+git clone https://github.com/QuanergySystems/quanergy_client.git
 ```
 Use CMake GUI to configure Visual Studio 2013 Solution
 
