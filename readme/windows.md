@@ -47,7 +47,7 @@ Use CMake GUI to configure Visual Studio 2013 Solution
   * If an error occurs where it cannot find the Boost install in PCL, use "Add Entry" button to add the following:
     - PATH variable `BOOST_INCLUDEDIR = C:/Program Files/PCL 1.8.0/3rdParty/Boost/include/boost-1_61`
     - PATH variable `BOOST_LIBRARYDIR = C:/Program Files/PCL 1.8.0/3rdParty/Boost/lib`
-    - Boost_USE_STATIC_LIBS set to true (check the box)
+    - BOOL variable `Boost_USE_STATIC_LIBS = True` (check the box)
     - Press "Configure" again
   * Press "Generate" to create the Visual Studio 2013 solution of QuanergyClient
 
@@ -66,6 +66,7 @@ Build quanergy_client code and visualizer application in Visual Studio 2013
    ".\visualizer.exe --host <IP Address of Sensor>"
 ```
 
-Cloud Viewer window should appear.  When sensor is up to speed, use mouse to manipulate th view of point cloud.
-**NOTE:** The point cloud may not appear until the mouse has moved the view.
+Cloud Viewer window should appear.  When sensor is up to speed, use mouse to manipulate the view of point cloud.
+
+**NOTE:** The point cloud may not appear until the mouse is used to move the view.
 
