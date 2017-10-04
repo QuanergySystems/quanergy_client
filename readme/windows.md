@@ -5,7 +5,7 @@ These instructions were tested for the following configuration:
 * Windows 7 64-bit
 * Visual Studio 2013 (tested with Community Edition)
 * CMake
-- tested with latest version 3.9.4 available at time of writing [here](https://cmake.org/files/v3.9/cmake-3.9.4-win64-x64.msi)
+  - tested with latest version 3.9.4 available at time of writing [here](https://cmake.org/files/v3.9/cmake-3.9.4-win64-x64.msi)
 
 ## Install Prerequisites
 
@@ -42,14 +42,14 @@ Use CMake GUI to configure Visual Studio 2013 Solution
 1. Set "Where is the source code:" to C:\location\of\quanergy_client
 2. Set "Where to build the binaries:" to C:\location\of\quanergy_client\build
 3. Press "Configure" 
-* Select "Visual Studio 12 2013 Win64" as the generator.
-* Use default native compilers.
-* If an error occurs where it cannot find the Boost install in PCL, use "Add Entry" button to add the following:
-- PATH variable `BOOST_INCLUDEDIR = C:/Program Files/PCL 1.8.0/3rdParty/Boost/include/boost-1_61`
-- PATH variable `BOOST_LIBRARYDIR = C:/Program Files/PCL 1.8.0/3rdParty/Boost/lib`
-- Boost_USE_STATIC_LIBS set to true (check the box)
-- Press "Configure" again
-* Press "Generate" to create the Visual Studio 2013 solution of QuanergyClient
+  * Select "Visual Studio 12 2013 Win64" as the generator.
+  * Use default native compilers.
+  * If an error occurs where it cannot find the Boost install in PCL, use "Add Entry" button to add the following:
+    - PATH variable `BOOST_INCLUDEDIR = C:/Program Files/PCL 1.8.0/3rdParty/Boost/include/boost-1_61`
+    - PATH variable `BOOST_LIBRARYDIR = C:/Program Files/PCL 1.8.0/3rdParty/Boost/lib`
+    - Boost_USE_STATIC_LIBS set to true (check the box)
+    - Press "Configure" again
+  * Press "Generate" to create the Visual Studio 2013 solution of QuanergyClient
 
 Build quanergy_client code and visualizer application in Visual Studio 2013
 
@@ -66,6 +66,6 @@ Build quanergy_client code and visualizer application in Visual Studio 2013
    ".\visualizer.exe --host <IP Address of Sensor>"
 ```
 
-4. Cloud Viewer window should appear.  When sensor is up to speed, use mouse to manipulate th view of point cloud.
+Cloud Viewer window should appear.  When sensor is up to speed, use mouse to manipulate th view of point cloud.
 **NOTE:** The point cloud may not appear until the mouse has moved the view.
 
