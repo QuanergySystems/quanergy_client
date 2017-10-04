@@ -4,8 +4,7 @@ These instructions were tested for the following configuration:
 
 * Windows 7 64-bit
 * Visual Studio 2013 (tested with Community Edition)
-* CMake
-    - tested with latest version 3.9.4 available at time of writing [here](https://cmake.org/files/v3.9/cmake-3.9.4-win64-x64.msi)
+* CMake (tested with latest version 3.9.4 available at time of writing [here](https://cmake.org/files/v3.9/cmake-3.9.4-win64-x64.msi))
 
 ## Install Prerequisites
 
@@ -63,7 +62,7 @@ Build quanergy_client code and visualizer application in Visual Studio 2013
 3. At command prompt enter:
 
 ```
-   ".\visualizer.exe --host <IP Address of Sensor>"
+.\visualizer.exe --host <IP Address of Sensor>
 ```
 
 Cloud Viewer window should appear.  When sensor is up to speed, use mouse to manipulate the view of point cloud.
