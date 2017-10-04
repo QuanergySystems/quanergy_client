@@ -4,16 +4,19 @@ These instructions were tested for the following configuration:
     - Windows 7 64-bit
     - Visual Studio 2013 (tested with Community Edition)
     - CMake (tested with latest version 3.9.4 available at time of writing here: https://cmake.org/files/v3.9/cmake-3.9.4-win64-x64.msi)
+
 ```
 ## Install Prerequisites
 
-1. Install Visual C++ Redistributable Packages for Visual Studio 2013 64-bit (vcredist_x64.exe) found here: https://www.microsoft.com/en-us/download/details.aspx?id=40784
+Install Visual C++ Redistributable Packages for Visual Studio 2013 64-bit (vcredist_x64.exe) found here: https://www.microsoft.com/en-us/download/details.aspx?id=40784
+
 ```
-2. Install PCL 1.8.0 All-in-one for MSVC2013 (x64) found here: http://unanancyowen.com/?p=1255&lang=en
+Install PCL 1.8.0 All-in-one for MSVC2013 (x64) found here: http://unanancyowen.com/?p=1255&lang=en
     - Select "Add PCL to the system path for all users."
     - Install PCL 1.8.0 in "C:\Program Files\PCL 1.8.0" 
+
 ```
-3. Update environment variables
+Update environment variables
     a. Open "System Properties" dialog
        Start > Control Panel > System and Security > System > Advanced system settings
     b. From "System Properties", open "Environment Variables" dialog
@@ -22,10 +25,14 @@ These instructions were tested for the following configuration:
        Edit "Path" variable under "System variables"
        Append ";%OPENNI2_REDIST64%" to "Path"
 ```
-3. Download copy of QuanergyClient source from GitHub.
+## Build Instructions
+Download copy of QuanergyClient source from GitHub.
+
+```
     git clone https://github.com/QuanergySystems/quanergy_client.git
 ```
-4. Open CMake 3.2.3 to start converting cmake files to Visual Studio 2013 solutions.
+
+Use CMake GUI to configure Visual Studio 2013 Solution
     - Set "Where is the source code:" to C:\location\of\quanergy_client
     - Set "Where to build the binaries:" to C:\location\of\quanergy_client\build
     - Press "Configure" 
@@ -38,11 +45,11 @@ These instructions were tested for the following configuration:
         - Press "Configure" again
     - Press "Generate" to create the Visual Studio 2013 solution of QuanergyClient
 ```
-5. Configuring and Building QuanergyClient in Visual Studio 2013
+Build quanergy_client code and visualizer application in Visual Studio 2013
     - Open QuanergyClient.sln in C:\location\of\quanergy_client_build
     - Right-click on ALL_BUILD in the Solution Explorer and select "Build".  Do this for both Debug and Release builds.
 ```
-6. Verify build
+## Test build
    Use Windows Explorer to navigate to "C:\location\of\quanergy_client\build\Release"
    Hold Left-Shift and right-click for pop-up menu and select "Open command window here"
    At command prompt enter:
