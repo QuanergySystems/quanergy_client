@@ -78,12 +78,21 @@ namespace quanergy
     bool DataPacketParserM8::parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result)
     {
       bool ret = false;
-      if (data_packet.status != 0)
+
+      if (static_cast<StatusType>(data_packet.status) != StatusType::GOOD)
       {
         std::cerr << "Sensor status nonzero: " << data_packet.status;
-        if (data_packet.status == 1)
+        if (static_cast<std::uint16_t>(data_packet.status) & static_cast<std::uint16_t>(StatusType::SENSOR_SW_FW_MISMATCH))
+        {
           throw FirmwareVersionMismatchError();
-        return ret; // don't process if sensor in error
+        }
+        else if (static_cast<std::uint16_t>(data_packet.status) & static_cast<std::uint16_t>(StatusType::WATCHDOG_VIOLATION))
+        {
+          throw FirmwareWatchdogViolationError();
+        }
+
+        // Status flag is set, but is not currently known in this version of the software
+        throw FirmwareUnknownError();
       }
 
       // get the timestamp of the last point in the packet as 64 bit integer in units of microseconds
