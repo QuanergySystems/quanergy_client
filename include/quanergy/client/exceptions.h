@@ -70,6 +70,20 @@ namespace quanergy
       virtual const char* what() const throw() { return "Firmware version mismatch"; }
     };
     
+    /** \brief Firmware watchdog is not receiving an internal signal */
+    struct FirmwareWatchdogViolationError : public std::exception
+    {
+      virtual const char* what() const throw() { return "Firmware watchdog violation"; }
+    };
+
+    /** \brief Firmware unknown error
+     * Raised for status bits that are not presently assigned.
+     */
+    struct FirmwareUnknownError : public std::exception
+    {
+      virtual const char* what() const throw() { return "Firmware unknown error"; }
+    };
+
     /** \brief Degress per cloud must be 360 or less */
     struct InvalidDegreesPerCloud : public std::exception
     {

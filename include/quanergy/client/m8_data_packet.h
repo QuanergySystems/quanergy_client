@@ -35,6 +35,17 @@ namespace quanergy
     /// The total number of lasers on the M8 Sensor
     const int M8_NUM_LASERS = 8;
 
+    /**
+     *  \brief StatusType is a 16-bit bitfield that defines the know status flags
+     *         possible in the M8DataPacket status field.
+     */
+    enum struct StatusType : std::uint16_t
+    {
+      GOOD                   = 0, ///< Good data
+      SENSOR_SW_FW_MISMATCH  = 1 << 0, ///< Sensor SW/FW mismatch
+      WATCHDOG_VIOLATION     = 1 << 1 ///< Internal software not responding
+    };
+
 #pragma pack(push, 1)
     /// \brief structure that holds the sensor firing output
     struct DLLEXPORT M8FiringData
