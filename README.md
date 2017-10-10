@@ -6,5 +6,7 @@ This SDK serves as sample code for connecting to Quanergy sensors.
 
 [Ubuntu 16.04 LTS](readme/ubuntu1604.md)
 
-[Windows](readme/windows.md)
+[Windows 7 VS2013](readme/win7vs2013.md)
+
+[Windows 7 VS2015](readme/win7vs2015.md)
 
