@@ -96,6 +96,14 @@ namespace quanergy
       virtual const char* what() const throw() { return "Invalid return selection"; }
     };
 
+    /** \brief Return ID coming from sensor doesn't match requested Return ID */
+    struct ReturnIDMismatchError : public std::exception
+    {
+      virtual const char* what() const throw() { return "Return ID mismatch"; }
+    };
+
+
+
   } // namespace client
 
 } // namespace quanergy
