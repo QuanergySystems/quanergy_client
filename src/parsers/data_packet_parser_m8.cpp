@@ -94,8 +94,6 @@ namespace quanergy
         // Status flag is set, but the value is not currently known in
         // this version of the software.  Since the status is not
         // necessarily fatal, do nothing.
-
-        // throw FirmwareUnknownError();
       }
 
       // get the timestamp of the last point in the packet as 64 bit integer in units of microseconds
