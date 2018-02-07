@@ -27,12 +27,21 @@ namespace quanergy
     {
       bool success = false;
 
-      if (data_packet.data.data_header.status != 0)
+      if (static_cast<StatusType>(data_packet.data.data_header.status) != StatusType::GOOD)
       {
         std::cerr << "Sensor status nonzero: " << data_packet.data.data_header.status;
-        if (data_packet.data.data_header.status == 1)
+        if (static_cast<std::uint16_t>(data_packet.data.data_header.status) & static_cast<std::uint16_t>(StatusType::SENSOR_SW_FW_MISMATCH))
+        {
           throw FirmwareVersionMismatchError();
-        return success; // don't process if sensor in error
+        }
+        else if (static_cast<std::uint16_t>(data_packet.data.data_header.status) & static_cast<std::uint16_t>(StatusType::WATCHDOG_VIOLATION))
+        {
+          throw FirmwareWatchdogViolationError();
+        }
+
+        // Status flag is set, but the value is not known by this
+        // version of the software.  Since the status is not
+        // necessarily fatal, do nothing.
       }
 
       // If the return selection has been explicitly set,
