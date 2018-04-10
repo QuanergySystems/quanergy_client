@@ -94,6 +94,9 @@ namespace quanergy
 
       /// direction
       int direction_ = 1; // start with an assumed direction until we can calculate
+
+      /// previous status
+      StatusType previous_status_ = StatusType::GOOD;
     };
 
   } // namespace client

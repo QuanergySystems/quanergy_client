@@ -79,9 +79,10 @@ namespace quanergy
     {
       bool ret = false;
 
-      if (static_cast<StatusType>(data_packet.status) != StatusType::GOOD)
+      StatusType current_status = StatusType(data_packet.status);
+
+      if (current_status != StatusType::GOOD)
       {
-        std::cerr << "Sensor status nonzero: " << data_packet.status;
         if (static_cast<std::uint16_t>(data_packet.status) & static_cast<std::uint16_t>(StatusType::SENSOR_SW_FW_MISMATCH))
         {
           throw FirmwareVersionMismatchError();
@@ -93,7 +94,15 @@ namespace quanergy
 
         // Status flag is set, but the value is not currently known in
         // this version of the software.  Since the status is not
-        // necessarily fatal, do nothing.
+        // necessarily fatal, print the status value, but otherwise do
+        // nothing.
+      }
+
+      if (current_status != previous_status_)
+      {
+        std::cerr << "Sensor status: " << std::uint16_t(current_status) << std::endl;
+
+        previous_status_ = current_status;
       }
 
       // get the timestamp of the last point in the packet as 64 bit integer in units of microseconds
