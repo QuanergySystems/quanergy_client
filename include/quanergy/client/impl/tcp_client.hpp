@@ -206,16 +206,12 @@ namespace quanergy
 
         queue_size = buff_queue_.size();
 
-        if (queue_size > max_queue_size_)
+        while (queue_size > max_queue_size_)
         {
           buff_queue_.pop();
-          lk.unlock();
           std::cout << "Warning: Client dropped packet due to full buffer" << std::endl;
         }
-        else
-        {
-          lk.unlock();
-        }
+        lk.unlock();
 
         // Free up the CPU to allow the consumer thread a chance to keep up.
         if (queue_size > 1)
