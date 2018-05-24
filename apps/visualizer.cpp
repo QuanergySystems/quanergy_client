@@ -145,6 +145,9 @@ int main(int argc, char** argv)
     connections.push_back(parser.connect([&converter](const ParserModuleType::ResultType& pc){ converter.slot(pc); }));
   }
 
+  ////////////////////////////////////////////
+  /// connect application specific logic here to consume the point cloud
+  ////////////////////////////////////////////
   // connect the converter to the visualizer
   connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
 
@@ -163,6 +166,9 @@ int main(int argc, char** argv)
     }
   });
 
+  ////////////////////////////////////////
+  /// put application specific logic here
+  ////////////////////////////////////////
   // start visualizer (blocks until stopped)
   visualizer.run();
 
