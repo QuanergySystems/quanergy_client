@@ -53,7 +53,7 @@ typedef quanergy::client::SensorClient ClientType;
 // VariadicPacketParser produces a polar point cloud; it uses information in the packet to find the correct parser from the ones supplied
 typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,                      // return type
 quanergy::client::DataPacketParser00,              // PARSER_00_INDEX
-quanergy::client::DataPacketParser01,              // PARSER_00_INDEX
+quanergy::client::DataPacketParser01,              // PARSER_01_INDEX
 quanergy::client::DataPacketParser04> ParserType;  // PARSER_04_INDEX
 
 // enum to make indexing into the VariadicPacketParser easier
