@@ -186,7 +186,7 @@ int main(int argc, char** argv)
     }
   });
 
-  while (true)
+  while (state != State::EXIT)
   {
     // get input
     ////////////////////////////////////////
@@ -212,7 +212,6 @@ int main(int argc, char** argv)
       {
         state = State::EXIT;
         client.stop();
-        break; // exit while loop
       }
       else
       {
