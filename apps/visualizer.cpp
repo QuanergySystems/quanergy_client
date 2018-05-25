@@ -25,6 +25,7 @@
 // conversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>
 
+// define some strings that will be used on command line
 namespace
 {
   static const std::string MANUAL_CORRECT{"--manual-correct"};
@@ -33,23 +34,29 @@ namespace
   static const std::string PHASE_STR{"--phase"};
 }
 
+// output usage message
 void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
-      << " --host <host> [-h | --help] [" << CALIBRATE_STR << "][" << MANUAL_CORRECT << " " << AMPLITUDE_STR << " <value> " << PHASE_STR << " <value>]" << std::endl << std::endl
+            << " --host <host> [-h | --help] [" << CALIBRATE_STR << "][" << MANUAL_CORRECT << " " << AMPLITUDE_STR << " <value> " << PHASE_STR << " <value>]" << std::endl << std::endl
 
-      << "    --host        hostname or IP address of the sensor" << std::endl
-      << "    " << CALIBRATE_STR << "   calibrate the host sensor and apply calibration to outgoing points" << std::endl
-      << "    " << MANUAL_CORRECT << " --amplitude <amplitude> --phase <phase>    Manually correct encoder error specifying amplitude and phase correction, in radians" << std::endl
-      << "-h, --help        show this help and exit" << std::endl;
+            << "    --host        hostname or IP address of the sensor" << std::endl
+            << "    " << CALIBRATE_STR << "   calibrate the host sensor and apply calibration to outgoing points" << std::endl
+            << "    " << MANUAL_CORRECT << " --amplitude <amplitude> --phase <phase>    Manually correct encoder error specifying amplitude and phase correction, in radians" << std::endl
+            << "-h, --help        show this help and exit" << std::endl;
   return;
 }
 
+// convenient typedefs
+// SensorClient connects to any quanergy sensor; it pulls TCP packets off the stream, queues them, and then signals them on a separate thread
 typedef quanergy::client::SensorClient ClientType;
+// VariadicPacketParser produces a polar point cloud; it uses information in the packet to find the correct parser from the ones supplied
 typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,                      // return type
-                                               quanergy::client::DataPacketParser00,              // PARSER_00_INDEX
-                                               quanergy::client::DataPacketParser01,              // PARSER_00_INDEX
-                                               quanergy::client::DataPacketParser04> ParserType;  // PARSER_04_INDEX
+quanergy::client::DataPacketParser00,              // PARSER_00_INDEX
+quanergy::client::DataPacketParser01,              // PARSER_01_INDEX
+quanergy::client::DataPacketParser04> ParserType;  // PARSER_04_INDEX
+
+// enum to make indexing into the VariadicPacketParser easier
 enum
 {
   PARSER_00_INDEX = 0,
@@ -57,8 +64,12 @@ enum
   PARSER_04_INDEX = 2
 };
 
+// more typedefs
+// PacketParserModule wraps the parser with signal/slot functionality
 typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
+// EncoderAngleCalibration provides some calibration functionality for M8
 typedef quanergy::calibration::EncoderAngleCalibration CalibrationType;
+// PolarToCartConverter converts the polar point cloud to Cartesian
 typedef quanergy::client::PolarToCartConverter ConverterType;
 
 int main(int argc, char** argv)
@@ -86,15 +97,19 @@ int main(int argc, char** argv)
   CalibrationType calibrator;
 
   // setup modules
+  // setFrameId sets the frame id in the PCL point clouds
   parser.get<PARSER_00_INDEX>().setFrameId("quanergy");
+  // setReturnSelection allows choosing between the 3 returns (Packet00, only)
   parser.get<PARSER_00_INDEX>().setReturnSelection(0);
+  // setDegreesOfSweepPerCloud allows breaking the point clouds into smaller pieces (M8 only)
   parser.get<PARSER_00_INDEX>().setDegreesOfSweepPerCloud(360.0);
   parser.get<PARSER_01_INDEX>().setFrameId("quanergy");
   parser.get<PARSER_04_INDEX>().setFrameId("quanergy");
 
-  // connect modules
+  // store connections for cleaner shutdown
   std::vector<boost::signals2::connection> connections;
 
+  // connect the packets from the client to the parser
   connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
   
   // if we're doing automatic calibration or if we're setting the calibration
@@ -102,9 +117,12 @@ int main(int argc, char** argv)
   if (pcl::console::find_switch(argc, argv, CALIBRATE_STR.c_str()) ||
       pcl::console::find_switch(argc, argv, MANUAL_CORRECT.c_str()))
   {
+    // connect the parser to the calibrator
     connections.push_back(parser.connect([&calibrator](const ParserModuleType::ResultType& pc){ calibrator.slot(pc); }));
+    // connect the calibrator to the converter
     connections.push_back(calibrator.connect([&converter](const CalibrationType::ResultType& pc){ converter.slot(pc); }));
 
+    // set calibrator parameters
     if (pcl::console::find_switch(argc, argv, MANUAL_CORRECT.c_str()))
     {
       if (!pcl::console::find_switch(argc, argv, AMPLITUDE_STR.c_str()) ||
@@ -123,13 +141,17 @@ int main(int argc, char** argv)
   }
   else
   {
+    // connect the parser to the converter
     connections.push_back(parser.connect([&converter](const ParserModuleType::ResultType& pc){ converter.slot(pc); }));
   }
 
+  ////////////////////////////////////////////
+  /// connect application specific logic here to consume the point cloud
+  ////////////////////////////////////////////
+  // connect the converter to the visualizer
   connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
 
-  // run the client with the calibrator and wait for a signal from the
-  // calibrator that a successful calibration has been performed
+  // run the client in a separate thread
   std::thread client_thread([&client, &visualizer]
   {
     try
@@ -143,7 +165,10 @@ int main(int argc, char** argv)
       visualizer.stop();
     }
   });
-    
+
+  ////////////////////////////////////////
+  /// put application specific logic here
+  ////////////////////////////////////////
   // start visualizer (blocks until stopped)
   visualizer.run();
 
