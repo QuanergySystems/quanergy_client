@@ -25,13 +25,13 @@ namespace quanergy
       , max_queue_size_(max_queue_size)
       , kill_(true)
     {
-      read_socket_.reset(new boost::asio::ip::tcp::socket(io_service_));
     }
 
     template <class HEADER>
     TCPClient<HEADER>::~TCPClient()
     {
       stop();
+      read_socket_.reset();
     }
 
     template <class HEADER>
@@ -47,27 +47,29 @@ namespace quanergy
         return;
 
       kill_ = false;
+      read_socket_.reset(new boost::asio::ip::tcp::socket(io_service_));
       io_service_.reset();
-      startDataConnect();
 
-      // create thread for parsing
       std::exception_ptr eptr;
-      signal_thread_.reset(new std::thread([this, &eptr]
-                                          {
-                                            try
-                                            {
-                                              signalPackets();
-                                            }
-                                            catch (...)
-                                            {
-                                              eptr = std::current_exception();
-                                              stop();
-                                            }
-                                          }));
-
-      // Add this thread to the pool to handle data
       try
       {
+        startDataConnect();
+
+        // create thread for parsing
+        signal_thread_.reset(new std::thread([this, &eptr]
+                                            {
+                                              try
+                                              {
+                                                signalPackets();
+                                              }
+                                              catch (...)
+                                              {
+                                                eptr = std::current_exception();
+                                                stop();
+                                              }
+                                            }));
+
+        // Add this thread to the pool to handle data
         io_service_.run();
       }
       catch (...)
@@ -79,12 +81,24 @@ namespace quanergy
       signal_thread_->join();
       signal_thread_.reset();
 
+      {
+        std::unique_lock<std::mutex> lk(buff_queue_mutex_);
+        // remove anything still in the queue
+        while (!buff_queue_.empty())
+        {
+          buff_queue_.pop();
+        }
+      }
+
       if (eptr) std::rethrow_exception(eptr);
     }
 
     template <class HEADER>
     void TCPClient<HEADER>::stop()
     {
+      if (kill_)
+        return;
+
       kill_ = true;
       // close socket before stopping service to cancel async operations
       read_socket_->close();
