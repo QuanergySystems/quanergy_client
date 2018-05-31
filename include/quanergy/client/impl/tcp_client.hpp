@@ -199,8 +199,6 @@ namespace quanergy
     template <class HEADER>
     void TCPClient<HEADER>::handleReadBody(const boost::system::error_code& error)
     {
-      size_t queue_size = 0;
-
       if (kill_)
       {
         return;
@@ -218,9 +216,7 @@ namespace quanergy
         // copy into shared_ptr
         buff_queue_.push(std::make_shared<std::vector<char>>(buff_));
 
-        queue_size = buff_queue_.size();
-
-        while (queue_size > max_queue_size_)
+        while (buff_queue_.size() > max_queue_size_)
         {
           buff_queue_.pop();
           std::cout << "Warning: Client dropped packet due to full buffer" << std::endl;
@@ -228,7 +224,7 @@ namespace quanergy
         lk.unlock();
 
         // Free up the CPU to allow the consumer thread a chance to keep up.
-        if (queue_size > 1)
+        if (buff_queue_.size() > 1)
         {
           std::this_thread::yield();
         }
