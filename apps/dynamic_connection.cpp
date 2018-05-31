@@ -1,12 +1,13 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2016 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2018 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
 
-// visualization module
-#include "visualizer_module.h"
+// control flow management
+#include <mutex>
+#include <condition_variable>
 
 // console parser
 #include <pcl/console/parse.h>
@@ -92,7 +93,6 @@ int main(int argc, char** argv)
   ClientType client(host, port, 100);
   ParserModuleType parser;
   ConverterType converter;
-  VisualizerModule visualizer;
 
   CalibrationType calibrator;
 
@@ -148,29 +148,80 @@ int main(int argc, char** argv)
   ////////////////////////////////////////////
   /// connect application specific logic here to consume the point cloud
   ////////////////////////////////////////////
-  // connect the converter to the visualizer
-  connections.push_back(converter.connect([&visualizer](const ConverterType::ResultType& pc){ visualizer.slot(pc); }));
+  unsigned int cloud_count = 0;
+  connections.push_back(converter.connect([&cloud_count](const ConverterType::ResultType& /*pc*/){ ++cloud_count; if(cloud_count % 100 == 0) std::cout << "clouds received: " << cloud_count << std::endl; }));
 
+  // variables to help with control flow
+  std::mutex state_mutex;
+  std::condition_variable state_condition;
+  enum struct State {RUN, STOP, EXIT};
+  State state(State::STOP);
+  
   // run the client in a separate thread
-  std::thread client_thread([&client, &visualizer]
+  std::thread client_thread([&client, &state, &state_condition, &state_mutex]
   {
-    try
+    while (true)
     {
-      client.run();
-      
-    }
-    catch (std::exception& e)
-    {
-      std::cerr << "Terminating after catching exception: " << e.what() << std::endl;
-      visualizer.stop();
+      try
+      {
+        {
+          // wait for state to be change from STOP; this is scoped for the lock
+          std::unique_lock<std::mutex> lk(state_mutex);
+          state_condition.wait(lk, [&state]{return state != State::STOP;});
+
+          if (state == State::EXIT)
+          {
+            break; // exit while loop
+          }
+        }
+
+        client.run();
+      }      
+      catch (std::exception& e)
+      {
+        std::cerr << "Caught exception (" << e.what() << "); stopping" << std::endl;
+        std::lock_guard<std::mutex> lk(state_mutex);
+        state = State::STOP;
+      }
     }
   });
 
-  ////////////////////////////////////////
-  /// put application specific logic here
-  ////////////////////////////////////////
-  // start visualizer (blocks until stopped)
-  visualizer.run();
+  while (state != State::EXIT)
+  {
+    // get input
+    ////////////////////////////////////////
+    /// put application specific logic here
+    ////////////////////////////////////////
+    std::string input;
+    std::cout << "Enter 'run' to connect, 'stop' to disconnect, or 'exit' to exit the program" << std::endl;
+    std::getline(std::cin, input);
+    
+    {
+      // set the state and take appropriate action; this is scoped for the lock
+      std::lock_guard<std::mutex> lk(state_mutex);
+      if (input == "run")
+      {
+        state = State::RUN;
+      }
+      else if (input == "stop")
+      {
+        state = State::STOP;
+        client.stop();
+      }
+      else if (input == "exit")
+      {
+        state = State::EXIT;
+        client.stop();
+      }
+      else
+      {
+        std::cout << "Input (" << input << ") doesn't match any of the accepted options" << std::endl;
+      }
+    }
+
+    // notify the condition variable to stop waiting
+    state_condition.notify_one();
+  }
 
   // clean up
   client.stop();

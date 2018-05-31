@@ -15,7 +15,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unknown-pragmas -fno-strict-aliasing -Wno-format-extra-args -Wno-sign-compare -Wno-invalid-offsetof -Wno-conversion")
 endif()
 
-
 # Offer the user the choice of overriding the installation directories
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
@@ -244,5 +243,8 @@ if (PCL_VISUALIZATION_FOUND)
   add_executable(visualizer apps/visualizer.cpp apps/visualizer_module.cpp)
   target_link_libraries(visualizer quanergy_client ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 endif()
+
+add_executable(dynamic_connection apps/dynamic_connection.cpp)
+target_link_libraries(dynamic_connection quanergy_client ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 
 message("PCL_LIBRARIES: ${PCL_LIBRARIES}")
