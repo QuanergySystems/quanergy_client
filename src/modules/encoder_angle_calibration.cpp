@@ -273,7 +273,7 @@ namespace quanergy
           amplitude_values_.push_back(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
         }
-        else if (angleDiff(sine_parameters.second, last_phase_) < PHASE_CONVERGENCE_THRESHOLD)
+        else if (std::abs(angleDiff(sine_parameters.second, last_phase_)) < PHASE_CONVERGENCE_THRESHOLD)
         {
           amplitude_values_.push_back(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
