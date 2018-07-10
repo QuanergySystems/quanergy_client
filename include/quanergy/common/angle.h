@@ -17,21 +17,25 @@ namespace quanergy
   namespace common
   {
     /**
-     * @brief Calculates the difference between two angles.
+     * @brief Calculates the signed difference between two angles.
      *
      * @param[in] a First angle
      * @param[in] b Second angle
      *
-     * @return Difference between angles in radians.
+     * @return Signed difference between angles in radians.
      */
     template <typename Scalar>
     Scalar angleDiff(Scalar a, Scalar b)
     {
-      Scalar angle = std::abs(a - b);
-      if (angle > M_PI)
-        angle = 2 * M_PI - angle;
+      Scalar diff = a - b;
 
-      return angle;
+      // Wrap to -pi to pi
+      Scalar angle = std::fmod(diff + M_PI, 2 * M_PI);
+      if (angle < 0)
+      {
+        angle += 2 * M_PI;
+      }
+      return angle - M_PI;
     }
 
     /** 
