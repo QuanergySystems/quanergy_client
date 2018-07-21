@@ -4,7 +4,7 @@
 The following will install prerequisites including PCL 
 
 ```
-sudo apt-get install cmake git build-essential libboost-all-dev libpcl-dev libproj-dev 
+sudo apt-get install cmake git build-essential libboost-all-dev libpcl-dev libproj-dev libvtk6-dev
 ```
 ## Fix known issue with PCL in Ubuntu 16.04
 Installing the following package eliminates this compile time warning:
