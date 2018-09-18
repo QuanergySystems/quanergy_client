@@ -32,7 +32,7 @@ make
 ```
 
 ## Troubleshooting
-If during the build, you see the error message:
+If during the build you see the error message:
 ```
 cannot find -lvtkproj4
 ```
