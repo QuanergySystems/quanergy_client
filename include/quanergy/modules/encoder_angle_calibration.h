@@ -90,7 +90,7 @@ namespace quanergy
       /** 
        * @brief Constructor
        */
-      EncoderAngleCalibration();
+      EncoderAngleCalibration() = default;
 
       /**
        * @brief Empty destructor
@@ -352,11 +352,11 @@ namespace quanergy
 
       /** number of encoder calibrations to run before before averaging
        * amplitude and phase values and reporting these to user */
-      std::atomic<int> required_samples_;
+      std::atomic<int> required_samples_ {100};
 
       /** number of calibrations which have currently been processed. Used to
        * check against required_samples_ */
-      std::atomic<int> num_valid_samples_;
+      std::atomic<int> num_valid_samples_ {0};
 
       /** mutex for containers holding amplitude_values_ and phase_values_ */
       mutable std::mutex container_mutex_;
@@ -383,10 +383,10 @@ namespace quanergy
 
       /** flag indicating whether or not the first calibration has been
        * performed. This flag gets set to false after the first run */
-      std::atomic<bool> first_run_;
+      std::atomic<bool> first_run_ {true};
 
       /** Number of calibrations which have occurred */
-      std::atomic<int> calibration_count_;
+      std::atomic<int> calibration_count_ {0};
 
       /** Struct to hold statitistics on encoder calibration to report to user
        * if failed calibration occurs. */

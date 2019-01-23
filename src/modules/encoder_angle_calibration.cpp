@@ -27,20 +27,6 @@ namespace quanergy
     // -pi to pi and found all endpoints were within this value of -pi and pi.
     const double EncoderAngleCalibration::PI_TOLERANCE = 0.01;
 
-    EncoderAngleCalibration::EncoderAngleCalibration()
-      : started_full_rev_(false)
-      , calibration_complete_(false)
-      , required_samples_(100)
-      , num_valid_samples_(0)
-      , first_run_(true)
-      , calibration_count_(0)
-    {
-      unsigned int num_threads = std::thread::hardware_concurrency();
-      for (int i = 0; i < num_threads; i++)
-        futures_.push_back(std::async(
-            std::launch::async, &EncoderAngleCalibration::processAngles, this));
-    }
-
     EncoderAngleCalibration::~EncoderAngleCalibration()
     {
       calibration_complete_ = true;
@@ -84,6 +70,16 @@ namespace quanergy
         return;
       }
 
+      // if we haven't fired up the threads to calculate the encoder error, fire
+      // them up now
+      if (futures_.empty())
+      {
+        unsigned int num_threads = std::thread::hardware_concurrency();
+        for (int i = 0; i < num_threads; i++)
+          futures_.push_back(std::async(
+              std::launch::async, &EncoderAngleCalibration::processAngles, this));
+      }
+
       // if this is the first time to slot is called, we want to record the time
       // we started calibrating. If the timeout has elapsed, we'll want to throw
       // an exception.
@@ -111,7 +107,7 @@ namespace quanergy
             if (ba::mean(amplitude_accumulator_) < amplitude_threshold_)
             {
               std::stringstream msg;
-              msg << "Encoder calibration not required for this sensor.\n"
+              msg << "QuanergyClient: Encoder calibration not required for this sensor.\n"
                 "Average amplitude calculated: " << ba::mean(amplitude_accumulator_);
               std::cout << msg.str() << std::endl;
 
@@ -123,7 +119,7 @@ namespace quanergy
             }
 
             std::stringstream msg;
-            msg << "Phase values did not converge for encoder calibration before timeout"
+            msg << "QuanergyClient: Phase values did not converge for encoder calibration before timeout"
                    "\nNumber of consecutive valid frames: " << num_valid_samples_ << " / " << required_samples_ << 
                    "\nNumber of incomplete frames: " << stats_.num_incomplete_frames <<
                    "\nNumber of phase values outside of convergence: " << stats_.num_divergent_phase_values;
@@ -237,7 +233,7 @@ namespace quanergy
         {
           if (first_run_)
           {
-            std::cout << "AMPLITUDE(rads), PHASE(rads)" << std::endl;
+            std::cout << "QuanergyClient: AMPLITUDE(rads), PHASE(rads)" << std::endl;
             first_run_ = false;
           }
 
@@ -283,7 +279,7 @@ namespace quanergy
             amplitude_ = ba::mean(amplitude_accumulator_);
             phase_ = phase_averager_.avg();
 
-            std::cout << "Calibration complete." << std::endl
+            std::cout << "QuanergyClient: Calibration complete." << std::endl
               << "  amplitude : " << amplitude_ << std::endl
               << "  phase     : " << phase_ << std::endl;
 
@@ -358,7 +354,7 @@ namespace quanergy
       if (encoder_angles.empty())
       {
         throw std::runtime_error(
-            "Cannot calculate sine parameters of empty angle set");
+            "QuanergyClient: Cannot calculate sine parameters of empty angle set");
       }
 
       auto slope = fitLine(encoder_angles);
@@ -570,7 +566,7 @@ namespace quanergy
       auto min_index = std::distance(sine_signal.begin(),it_min);
 
       if (min_index == max_index)
-        throw std::runtime_error("Peak detection found min and max peaks to be same value");
+        throw std::runtime_error("QuanergyClient: Peak detection found min and max peaks to be same value");
 
       // these indices are in encoder counts where the first angle starts at
       // either -pi or pi since the motor direction is arbitrary. Determine
