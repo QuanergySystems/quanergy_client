@@ -87,6 +87,9 @@ namespace quanergy
       {
         if (!started_calibration_)
         {
+          std::cout << "QuanergyClient: Starting encoder calibration. This may take up to "
+                    << std::chrono::duration_cast<std::chrono::seconds>(timeout_).count()
+                    << " seconds to complete..." << std::endl;
           started_calibration_ = true;
           time_started_ = std::chrono::system_clock::now();
         }
@@ -129,7 +132,7 @@ namespace quanergy
         }
       }
 
-      // Add the points to a point cloud. Do this until we have enough points to
+      // Add the points to a point cloud. Do this until we have enough points
       // to check for a complete revolution
       for (const auto& pt : *cloud_ptr)
       {
