@@ -12,11 +12,6 @@
 #include <fstream>
 #include <csignal>
 
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/mean.hpp>
-#include <boost/accumulators/statistics/variance.hpp>
-
 #include <quanergy/modules/encoder_angle_calibration.h>
 
 #include <Eigen/Dense>
@@ -25,40 +20,12 @@ namespace quanergy
 {
   namespace calibration
   {
+    /** Laser firing rate, in Hz */
     const double EncoderAngleCalibration::FIRING_RATE = 53828.;
-
-    /** Once the motor has reached stead-state, the number of encoder counts per
-     * revolution should be roughly the firing rate divided by the frame rate.
-     * This number is how many counts the current revolution can be within the
-     * theoretical steady-state number of encoder counts. */
-    const int EncoderAngleCalibration::ENCODER_COUNT_TOLERANCE = 200;
 
     // I choose this value by looking at multiple segments of revolutions from
     // -pi to pi and found all endpoints were within this value of -pi and pi.
     const double EncoderAngleCalibration::PI_TOLERANCE = 0.01;
-
-    /* Number of encoder counts to use when smoothing error signal */
-    const int EncoderAngleCalibration::MOV_AVG_PERIOD = 300;
-
-    /** This is the criteria for phase converging without outliers. If the
-     * number of consecutive trials where the phase difference does not exceed
-     * this number is above the total number of calibration trials, the
-     * calibration is complete. */
-    const double EncoderAngleCalibration::PHASE_CONVERGENCE_THRESHOLD = 0.1;
-
-    EncoderAngleCalibration::EncoderAngleCalibration()
-      : started_full_rev_(false)
-      , calibration_complete_(false)
-      , required_samples_(100)
-      , num_valid_samples_(0)
-      , first_run_(true)
-      , calibration_count_(0)
-    {
-      unsigned int num_threads = std::thread::hardware_concurrency();
-      for (int i = 0; i < num_threads; i++)
-        futures_.push_back(std::async(
-            std::launch::async, &EncoderAngleCalibration::processAngles, this));
-    }
 
     EncoderAngleCalibration::~EncoderAngleCalibration()
     {
@@ -87,13 +54,6 @@ namespace quanergy
       return signal_.connect(subscriber);
     }
 
-    template <typename Rep, typename Period>
-    void EncoderAngleCalibration::setTimeout(
-        const std::chrono::duration<Rep, Period>& timeout)
-    {
-      timeout_ = std::chrono::duration_cast<std::chrono::seconds>(timeout);
-    }
-
     void EncoderAngleCalibration::setRequiredNumSamples(double num_samples)
     {
       required_samples_ = num_samples;
@@ -110,6 +70,16 @@ namespace quanergy
         return;
       }
 
+      // if we haven't fired up the threads to calculate the encoder error, fire
+      // them up now
+      if (futures_.empty())
+      {
+        unsigned int num_threads = std::thread::hardware_concurrency();
+        for (int i = 0; i < num_threads; i++)
+          futures_.push_back(std::async(
+              std::launch::async, &EncoderAngleCalibration::processAngles, this));
+      }
+
       // if this is the first time to slot is called, we want to record the time
       // we started calibrating. If the timeout has elapsed, we'll want to throw
       // an exception.
@@ -117,6 +87,9 @@ namespace quanergy
       {
         if (!started_calibration_)
         {
+          std::cout << "QuanergyClient: Starting encoder calibration. This may take up to "
+                    << std::chrono::duration_cast<std::chrono::seconds>(timeout_).count()
+                    << " seconds to complete..." << std::endl;
           started_calibration_ = true;
           time_started_ = std::chrono::system_clock::now();
         }
@@ -124,56 +97,78 @@ namespace quanergy
         {
           if (std::chrono::system_clock::now() - time_started_ > timeout_)
           {
-            throw std::runtime_error(
-                "Encoder calibration timed out."); 
+            // if we've timed out and the phase hasn't converged, it could be
+            // because there isn't a lot of error. If this is the case, the
+            // average amplitude will be below a threshold (~0.05 rads)
+            // Check the average amplitude, if below the threshold report that
+            // no calibration is necessary and do not apply a calibration to
+            // future point clouds
+            
+            namespace ba = boost::accumulators;
+            
+            std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
+            if (ba::mean(amplitude_accumulator_) < amplitude_threshold_)
+            {
+              std::stringstream msg;
+              msg << "QuanergyClient: Encoder calibration not required for this sensor.\n"
+                "Average amplitude calculated: " << ba::mean(amplitude_accumulator_);
+              std::cout << msg.str() << std::endl;
+
+              calibration_complete_ = true;
+              amplitude_ = 0.;
+              phase_ = 0;
+              applyCalibration(cloud_ptr);
+              return;
+            }
+
+            std::stringstream msg;
+            msg << "QuanergyClient: Phase values did not converge for encoder calibration before timeout"
+                   "\nNumber of consecutive valid frames: " << num_valid_samples_ << " / " << required_samples_ << 
+                   "\nNumber of incomplete frames: " << stats_.num_incomplete_frames <<
+                   "\nNumber of phase values outside of convergence: " << stats_.num_divergent_phase_values;
+
+            throw std::runtime_error(msg.str());
           }
         }
       }
 
-      // Add the points to a point cloud. Do this until we have enough points to
+      // Add the points to a point cloud. Do this until we have enough points
       // to check for a complete revolution
       for (const auto& pt : *cloud_ptr)
       {
-        // check fo discontinuity. If found, attempt calibration
-        if (!hvdir_pts_.empty() && std::abs(hvdir_pts_.back().h - pt.h) > M_PI)
+        if (encoder_angles_.empty())
         {
-          if (!started_full_rev_)
+          encoder_angles_.push_back(pt.h);
+        }
+        else
+        {
+          if (std::abs(encoder_angles_.back() - pt.h) > M_PI)
           {
-            hvdir_pts_.clear();
-            started_full_rev_ = true;
+            // we're at a discontinuity
+            // check that the existing hvdir_pts are complete and push them to
+            // queue
+            if (checkComplete())
+            {
+              std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
+              period_queue_.push(std::move(encoder_angles_));
+              nonempty_condition_.notify_one();
+            }
+            else
+            {
+              // record statistics in case of timeout
+              stats_.num_incomplete_frames++;
+            }
+
+            // if encoder_angles_ are not complete, discard period
+						// we just moved encoder_angles_. Create a new object
+            encoder_angles_ = AngleContainer();
+            encoder_angles_.push_back(pt.h);
           }
           else
           {
-            // we're at the end of a full-revolution. It's time to attempt
-            // calibration
-            if (checkComplete())
-            {
-              AngleContainer encoder_angles;
-              for (const auto& pt : hvdir_pts_)
-              {
-                encoder_angles.push_back( pt.h );
-              }
-
-              // push to queue which will be consumed by processAngles
-              {
-                std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
-                period_queue_.push(encoder_angles);
-                nonempty_condition_.notify_one();
-              }
-
-              hvdir_pts_.clear();
-              started_full_rev_ = false;
-
-              return;
-            }
-
-            hvdir_pts_.clear();
-            started_full_rev_ = false;
-            
+            encoder_angles_.push_back(pt.h);
           }
         }
-
-        hvdir_pts_.push_back(pt);
       }
     }
 
@@ -241,7 +236,7 @@ namespace quanergy
         {
           if (first_run_)
           {
-            std::cout << "AMPLITUDE(rads), PHASE(rads)" << std::endl;
+            std::cout << "QuanergyClient: AMPLITUDE(rads), PHASE(rads)" << std::endl;
             first_run_ = false;
           }
 
@@ -267,33 +262,27 @@ namespace quanergy
         // container and find the average
         if (calibration_complete_)
           return;
+
+        namespace ba = boost::accumulators;
         
-        if (amplitude_values_.empty() && phase_averager_.empty())
+        if (ba::count(amplitude_accumulator_) == 0 && phase_averager_.empty())
         {
-          amplitude_values_.push_back(sine_parameters.first);
+          amplitude_accumulator_(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
         }
-        else if (angleDiff(sine_parameters.second, last_phase_) < PHASE_CONVERGENCE_THRESHOLD)
+        else if (angleDiff(sine_parameters.second, last_phase_) < phase_convergence_threshold_)
         {
-          amplitude_values_.push_back(sine_parameters.first);
+          amplitude_accumulator_(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
 
           num_valid_samples_++;
 
           if (num_valid_samples_ > required_samples_)
           {
-            namespace ba = boost::accumulators;
-            // average and report to user
-            ba::accumulator_set<double, ba::stats<ba::tag::mean, ba::tag::variance>> 
-              amplitude_acc;
-
-            for (const auto& value : amplitude_values_)
-              amplitude_acc(value);
-
-            amplitude_ = ba::mean(amplitude_acc);
+            amplitude_ = ba::mean(amplitude_accumulator_);
             phase_ = phase_averager_.avg();
 
-            std::cout << "Calibration complete." << std::endl
+            std::cout << "QuanergyClient: Calibration complete." << std::endl
               << "  amplitude : " << amplitude_ << std::endl
               << "  phase     : " << phase_ << std::endl;
 
@@ -309,13 +298,14 @@ namespace quanergy
           // we've calculated a phase value which is outside the window of
           // convergence. Clear the amplitude and phase containers and start
           // again.
-          amplitude_values_.clear();
+          amplitude_accumulator_ = AccumulatorSet(); // resets accumulator
           phase_averager_.clear();
           num_valid_samples_ = 0;
 
           // add the current values to the containers
-          amplitude_values_.push_back(sine_parameters.first);
+          amplitude_accumulator_(sine_parameters.first);
           phase_averager_.accumulate(sine_parameters.second);
+          stats_.num_divergent_phase_values++;
         }
 
         last_phase_ = sine_parameters.second;
@@ -326,30 +316,36 @@ namespace quanergy
 
     bool EncoderAngleCalibration::checkComplete() const
     {
-      auto min = std::min(hvdir_pts_.front().h, hvdir_pts_.back().h);
-      auto max = std::max(hvdir_pts_.front().h, hvdir_pts_.back().h);
+      auto min = std::min(encoder_angles_.front(), encoder_angles_.back());
+      auto max = std::max(encoder_angles_.front(), encoder_angles_.back());
 
       // check to make sure the front and back horizontal angle elements are
       // near the expected endpoints (-pi and pi)
       if (max < (M_PI - PI_TOLERANCE) || min > (-M_PI + PI_TOLERANCE))
+      {
         return (false);
+      }
 
       // check that the encoder period is within the steady-state range
-      if ( hvdir_pts_.size() > ((FIRING_RATE / frame_rate_) + ENCODER_COUNT_TOLERANCE) ||
-          hvdir_pts_.size() < ((FIRING_RATE / frame_rate_) - ENCODER_COUNT_TOLERANCE) )
+      if ( encoder_angles_.size() > ((FIRING_RATE / frame_rate_) + encoder_count_tolerance_) ||
+          encoder_angles_.size() < ((FIRING_RATE / frame_rate_) - encoder_count_tolerance_ ))
+      {
         return (false);
+      }
 
-      // iterate over hvdir_pts_ and check to make sure each point is within
+      // iterate over encoder_angles_ and check to make sure each point is within
       // if you divide the firing rate by the frame rate you get the number of
       // points per rev. Convert to radians
       auto rads_per_count = 2 * M_PI / (FIRING_RATE / frame_rate_);
       
-      for (int i = 1; i < hvdir_pts_.size(); i++)
+      for (int i = 1; i < encoder_angles_.size(); i++)
       {
         // TCP packets are in points chunks of 50. If we see a delta angle of
         // more than 5 encoder counts, discard as dropped packet.
-        if (std::abs(hvdir_pts_[i].h - hvdir_pts_[i-1].h) > 5 * rads_per_count)
+        if (std::abs(encoder_angles_[i] - encoder_angles_[i-1]) > 5 * rads_per_count)
+        {
           return (false);
+        }
       }
 
       return (true);
@@ -359,8 +355,10 @@ namespace quanergy
         const AngleContainer& encoder_angles)
     {
       if (encoder_angles.empty())
+      {
         throw std::runtime_error(
-            "Cannot calculate sine parameters of empty angle set");
+            "QuanergyClient: Cannot calculate sine parameters of empty angle set");
+      }
 
       auto slope = fitLine(encoder_angles);
 
@@ -393,7 +391,7 @@ namespace quanergy
 
       calc_sinusoid(slope, vertical_offset);
 
-      auto smoothed_sinusoid = movingAvgFilter(sinusoid, MOV_AVG_PERIOD);
+      auto smoothed_sinusoid = movingAvgFilter(sinusoid, moving_average_period_counts_);
 
       if (run_forever_)
       {
@@ -571,7 +569,7 @@ namespace quanergy
       auto min_index = std::distance(sine_signal.begin(),it_min);
 
       if (min_index == max_index)
-        throw std::runtime_error("Peak detection found min and max peaks to be same value");
+        throw std::runtime_error("QuanergyClient: Peak detection found min and max peaks to be same value");
 
       // these indices are in encoder counts where the first angle starts at
       // either -pi or pi since the motor direction is arbitrary. Determine

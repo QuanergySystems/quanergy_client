@@ -18,6 +18,11 @@
 
 #include <boost/signals2.hpp>
 
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/mean.hpp>
+#include <boost/accumulators/statistics/variance.hpp>
+
 #include <quanergy/common/point_hvdir.h>
 #include <quanergy/common/pointcloud_types.h>
 #include <quanergy/common/angle.h>
@@ -43,6 +48,8 @@ namespace quanergy
      */
 	  struct DLLEXPORT EncoderAngleCalibration
     {
+      /** typedef for accumulator set */
+      using AccumulatorSet = boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::mean, boost::accumulators::tag::variance>>;
 
       /** The type of the container that contains the encoder
        * angles */
@@ -74,44 +81,16 @@ namespace quanergy
       /** The firing rate of the LiDAR, in Hz */
       static const double FIRING_RATE;
 
-      /** Once the motor has reached stead-state, the number of encoder counts per
-       * revolution should be roughly the firing rate divided by the frame rate.
-       * This number is how many counts the current revolution can be within the
-       * theoretical steady-state number of encoder counts. */
-      static const int ENCODER_COUNT_TOLERANCE;
-
-      /** Minimum number of encoder angles to qualify full revolution at
-       * steady-state motor speed */
-      static const int MIN_ENCODER_ANGLES_PER_REV;
-
-      /** Maximum number of encoder angles to qualify full revolution at
-       * steady-state motor speed */
-      static const int MAX_ENCODER_ANGLES_PER_REV;
-
       /** Allowable tolerance within pi for an endpoint-angle in a revolution to
        * be considered near pi */
       static const double PI_TOLERANCE;
-
-      /** Moving average period to use when smoothing error signal, in encoder
-       * counts */
-      static const int MOV_AVG_PERIOD;
-
-      /** Tolerance for identifying when phase values have converged without
-       * outliers */
-      static const double PHASE_CONVERGENCE_THRESHOLD;
-
-      /** Amplitude threshold dictating if calculating the encoder offset is
-       * appropriate. If an encoder calibration returns an amplitude below this
-       * value, this class indicates that calibration is complete and applies no
-       * calibration to outgoing points. */
-      static const double AMPLITUDE_THRESHOLD;
 
     public:
 
       /** 
        * @brief Constructor
        */
-      EncoderAngleCalibration();
+      EncoderAngleCalibration() = default;
 
       /**
        * @brief Empty destructor
@@ -180,7 +159,10 @@ namespace quanergy
        * @param[in] timeout Timeout.
        */
       template<typename Rep, typename Period>
-      void setTimeout(const std::chrono::duration<Rep,Period>& timeout);
+      void setTimeout(const std::chrono::duration<Rep,Period>& timeout)
+      {
+        timeout_ = std::chrono::duration_cast<std::chrono::seconds>(timeout);
+      }
 
       /**
        * @brief Function to calculate the sinusoidal error of the horizontal
@@ -193,6 +175,55 @@ namespace quanergy
        * second element as the phase offset of the sinusoid.
        */
       SineParameters calculate(const std::vector<double>& encoder_angles);
+
+      /** 
+       * @brief Sets the number of motor encoder counts within the theoretical
+       * steady-state expected number when determining if the motor has reached
+       * steady-state.
+       * 
+       * @param[in] tolerance Number of encoder counts.
+       */
+      inline void setEncoderCountTolerance(int tolerance)
+      {
+        encoder_count_tolerance_ = tolerance;
+      }
+
+      /** 
+       * @brief Sets the number of encoder counts used to smooth out the error
+       * signal before modeling the sinusoid.
+       * 
+       * @param[in] period Period in encoder counts.
+       */
+      inline void setMovingAveragePeriod(int period)
+      {
+        moving_average_period_counts_ = period;
+      }
+
+      /** 
+       * @brief Sets phase convergence threshold. This class continually models
+       * sinusoid curves to the error until the difference between phase
+       * calculations is below this value.
+       * 
+       * @param[in] threshold Phase convergence threshold, in radians.
+       */
+      inline void setPhaseConvergenceThreshold(double threshold)
+      {
+        phase_convergence_threshold_ = threshold;
+      }
+
+      /** 
+       * @brief Sets the amplitude threshold. If a timeout occurs waiting for
+       * encoder calibration to occur, the average amplitude calculated will be
+       * checked against this value. If the average amplitude is less than the
+       * amplitude_threshold_, the user will be notified that the encoder
+       * calibration cannot be accurately applied for such low error.
+       * 
+       * @param[in] threshold Amplitude threshold, in radians
+       */
+      inline void setAmplitudeThreshold(double threshold)
+      {
+        amplitude_threshold_ = threshold;
+      }
 
     private:
       /**
@@ -259,11 +290,27 @@ namespace quanergy
        */
       void applyCalibration(PointCloudHVDIRPtr const & cloud_ptr) const;
 
+      /** Once the motor has reached stead-state, the number of encoder counts per
+       * revolution should be roughly the firing rate divided by the frame rate.
+       * This number is how many counts the current revolution can be within the
+       * theoretical steady-state number of encoder counts. */
+      int encoder_count_tolerance_ = 200;
+      
+      /* Number of encoder counts to use when smoothing error signal, in encoder
+       * ticks */
+      int moving_average_period_counts_ = 300;
+
+      /** This class continually fits a sinusoid to the error between the
+       * expected horizontal angles and the horizontal angles received from the
+       * M8. We calculate this sinusoid model until the phase values converge to
+       * within this value. This value is in radians. */
+      double phase_convergence_threshold_ = 0.1;
+
       /** Signal object to notify next slot */
       Signal signal_;
 
-      /** HVDIR points to be used for calibration */
-      PointCloudHVDIR hvdir_pts_;
+      /** Container for encoder angle values */
+      AngleContainer encoder_angles_;
 
       /** thread pool futures */
       std::vector<std::future<void>> futures_;
@@ -305,18 +352,18 @@ namespace quanergy
 
       /** number of encoder calibrations to run before before averaging
        * amplitude and phase values and reporting these to user */
-      std::atomic<int> required_samples_;
+      std::atomic<int> required_samples_ {100};
 
       /** number of calibrations which have currently been processed. Used to
        * check against required_samples_ */
-      std::atomic<int> num_valid_samples_;
+      std::atomic<int> num_valid_samples_ {0};
 
       /** mutex for containers holding amplitude_values_ and phase_values_ */
       mutable std::mutex container_mutex_;
 
-      /** Vector to hold amplitude values. This is added to as valid calibration
+      /** Accumulator to hold amplitude values. This is added to as valid calibration
        * samples are calculated and used to eventually calculate the average */
-      std::vector<double> amplitude_values_;
+      AccumulatorSet amplitude_accumulator_;
 
       /** Special averaging container to calculate average of phase angles and
        * handle wrapping. */
@@ -336,11 +383,26 @@ namespace quanergy
 
       /** flag indicating whether or not the first calibration has been
        * performed. This flag gets set to false after the first run */
-      std::atomic<bool> first_run_;
+      std::atomic<bool> first_run_ {true};
 
       /** Number of calibrations which have occurred */
-      std::atomic<int> calibration_count_;
+      std::atomic<int> calibration_count_ {0};
 
+      /** Struct to hold statitistics on encoder calibration to report to user
+       * if failed calibration occurs. */
+      struct StatsType
+      {
+        int complete_frames = 0;
+        int num_incomplete_frames = 0;
+        int num_divergent_phase_values = 0;
+      } stats_;
+
+      /** Minimum amplitude (in rads) where a sinusoid error model is
+       * appropriate for encoder error. If a timeout occurs when waiting for
+       * the phase to converge, the average amplitude will be checked against
+       * this value to determine if a calibration should be applied to the
+       * sensor. This default value was determined experimentally. */
+      double amplitude_threshold_ = 0.006; // rads
     };
 
   } /* calibration */
