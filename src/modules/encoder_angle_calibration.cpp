@@ -27,6 +27,37 @@ namespace quanergy
     // -pi to pi and found all endpoints were within this value of -pi and pi.
     const double EncoderAngleCalibration::PI_TOLERANCE = 0.01;
 
+    EncoderAngleCalibration::EncoderAngleCalibration()
+    {
+      reset();
+    }
+
+    void EncoderAngleCalibration::reset()
+    {
+      // mark complete and clean up threads
+      calibration_complete_ = true;
+      amplitude_ = 0.;
+      phase_ = 0.;
+      nonempty_condition_.notify_all();
+
+      for (auto& future : futures_)
+      {
+        future.get();
+      }
+      futures_.clear();
+
+      // reset variables
+      num_valid_samples_ = 0;
+      amplitude_accumulator_ = AccumulatorSet();
+      phase_averager_.clear();
+      last_phase_ = 0.;
+      started_calibration_ = false;
+      first_run_ = true;
+      calibration_count_ = 0;
+      stats_ = StatsType();
+      calibration_complete_ = false;
+    }
+
     EncoderAngleCalibration::~EncoderAngleCalibration()
     {
       calibration_complete_ = true;

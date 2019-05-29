@@ -90,12 +90,17 @@ namespace quanergy
       /** 
        * @brief Constructor
        */
-      EncoderAngleCalibration() = default;
+      EncoderAngleCalibration();
 
       /**
        * @brief Empty destructor
        */
       ~EncoderAngleCalibration();
+
+      /**
+       * @brief Resets the calibrator so it can be run again
+       */
+      void reset();
 
       /** 
        * @brief Adds subscriber to be called after this classes functionality is
@@ -325,13 +330,9 @@ namespace quanergy
        * queue contains a vector of encoder angles for a full period */
       std::queue<AngleContainer> period_queue_;
 
-      /** Flag indicating that we've started a full revolution of h angles from
-       * -pi to pi */
-      std::atomic<bool> started_full_rev_;
-
       /** Flag indicating calibration is complete. Used to withstand spurious
        * wakeups from condition variable */
-      std::atomic<bool> calibration_complete_;
+      std::atomic<bool> calibration_complete_ {false};
 
       /** Calculated amplitude */
       double amplitude_ = 0.;

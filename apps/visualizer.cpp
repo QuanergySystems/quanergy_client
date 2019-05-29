@@ -112,6 +112,14 @@ int main(int argc, char** argv)
   // connect the packets from the client to the parser
   connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
   
+  if (pcl::console::find_switch(argc, argv, CALIBRATE_STR.c_str()) &&
+      pcl::console::find_switch(argc, argv, MANUAL_CORRECT.c_str()))
+  {
+    std::cout << "Cannot perform calibration and apply manual correction simultaneously." << std::endl;
+    usage(argv);
+    return(0);
+  }
+
   // if we're doing automatic calibration or if we're setting the calibration
   // manually, include the calibrator in the chain
   if (pcl::console::find_switch(argc, argv, CALIBRATE_STR.c_str()) ||
