@@ -90,12 +90,17 @@ namespace quanergy
       /** 
        * @brief Constructor
        */
-      EncoderAngleCalibration() = default;
+      EncoderAngleCalibration();
 
       /**
        * @brief Empty destructor
        */
       ~EncoderAngleCalibration();
+
+      /**
+       * @brief Resets the calibrator so it can be run again
+       */
+      void reset();
 
       /** 
        * @brief Adds subscriber to be called after this classes functionality is

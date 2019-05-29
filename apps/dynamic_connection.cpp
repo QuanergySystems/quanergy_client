@@ -207,6 +207,11 @@ int main(int argc, char** argv)
       {
         state = State::STOP;
         client.stop();
+
+        if (pcl::console::find_switch(argc, argv, CALIBRATE_STR.c_str()))
+        {
+          calibrator.reset();
+        }
       }
       else if (input == "exit")
       {
