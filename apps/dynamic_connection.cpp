@@ -33,16 +33,18 @@ namespace
   static const std::string CALIBRATE_STR{"--calibrate"};
   static const std::string AMPLITUDE_STR{"--amplitude"};
   static const std::string PHASE_STR{"--phase"};
+  static const std::string FRAME_RATE_STR{"--frame-rate"};
 }
 
 // output usage message
 void usage(char** argv)
 {
   std::cout << "usage: " << argv[0]
-            << " --host <host> [-h | --help] [" << CALIBRATE_STR << "][" << MANUAL_CORRECT << " " << AMPLITUDE_STR << " <value> " << PHASE_STR << " <value>]" << std::endl << std::endl
+            << " --host <host> [-h | --help] [" << CALIBRATE_STR << "][" << FRAME_RATE_STR << " <value> ][" << MANUAL_CORRECT << " " << AMPLITUDE_STR << " <value> " << PHASE_STR << " <value>]" << std::endl << std::endl
 
             << "    --host        hostname or IP address of the sensor" << std::endl
             << "    " << CALIBRATE_STR << "   calibrate the host sensor and apply calibration to outgoing points" << std::endl
+            << "    " << FRAME_RATE_STR << "  frame_rate of data; used by calibration only"
             << "    " << MANUAL_CORRECT << " --amplitude <amplitude> --phase <phase>    Manually correct encoder error specifying amplitude and phase correction, in radians" << std::endl
             << "-h, --help        show this help and exit" << std::endl;
   return;
@@ -145,6 +147,13 @@ int main(int argc, char** argv)
       pcl::console::parse_argument(argc, argv, PHASE_STR.c_str(), phase);
 
       calibrator.setParams(amplitude, phase);
+    }
+    else if (pcl::console::find_switch(argc, argv, FRAME_RATE_STR.c_str()))
+    {
+      double frame_rate = 10.;
+      pcl::console::parse_argument(argc, argv, FRAME_RATE_STR.c_str(), frame_rate);
+
+      calibrator.setFrameRate(frame_rate);
     }
   }
   else
