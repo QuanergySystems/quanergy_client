@@ -25,6 +25,12 @@ namespace quanergy
 
     bool DataPacketParser04::parse(DataPacket04 const & data_packet, PointCloudHVDIRPtr & result)
     {
+      // check that vertical angles have been defined
+      if (vertical_angle_lookup_table_.empty())
+      {
+        throw InvalidVerticalAngles("In parse, the vertical angle lookup table is empty; need to call setVerticalAngles.");
+      }
+
       bool success = false;
 
       StatusType current_status = StatusType(data_packet.data.data_header.status);

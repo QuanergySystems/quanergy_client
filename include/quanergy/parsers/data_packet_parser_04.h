@@ -40,11 +40,11 @@ namespace quanergy
         return_selection_ = quanergy::client::ALL_RETURNS;
       }
 
-      bool validate(const std::vector<char>& packet);
+      virtual bool validate(const std::vector<char>& packet) override;
   
       bool parse(DataPacket04 const & data_packet, PointCloudHVDIRPtr& result);
 
-      bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result);
+      virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result) override;
 
     };
 

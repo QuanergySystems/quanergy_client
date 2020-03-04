@@ -39,12 +39,6 @@ namespace quanergy
 
         horizontal_angle_lookup_table_[i] = rad;
       }
-
-      const double* angle_in_radians = M8_VERTICAL_ANGLES;
-      for (std::uint32_t i = 0; i < M8_NUM_LASERS; ++i, ++angle_in_radians)
-      {
-        vertical_angle_lookup_table_[i] = *angle_in_radians;
-      }
     }
 
     void DataPacketParserM8::setReturnSelection(int return_selection)
@@ -75,8 +69,49 @@ namespace quanergy
       degrees_per_cloud_ = degrees_per_cloud;
     }
 
+    void DataPacketParserM8::setVerticalAngles(const std::vector<double> &vertical_angles)
+    {
+      if (vertical_angles.size() != M8_NUM_LASERS)
+      {
+        throw InvalidVerticalAngles(std::string("Vertical Angles must be size: ")
+                                    + std::to_string(M8_NUM_LASERS)
+                                    + "; got a vector of length: "
+                                    + std::to_string(vertical_angles.size()));
+      }
+
+      vertical_angle_lookup_table_.resize(vertical_angles.size());
+
+      for (std::uint32_t i = 0; i < M8_NUM_LASERS; ++i)
+      {
+        vertical_angle_lookup_table_[i] = vertical_angles[i];
+      }
+    }
+
+    void DataPacketParserM8::setVerticalAngles(SensorType sensor)
+    {
+      if (sensor == SensorType::M8)
+      {
+        std::vector<double> vertical_angles(quanergy::client::M8_VERTICAL_ANGLES,
+                                            quanergy::client::M8_VERTICAL_ANGLES + quanergy::client::M8_NUM_LASERS);
+        setVerticalAngles(vertical_angles);
+      }
+      else if (sensor == SensorType::MQ8)
+      {
+        std::vector<double> vertical_angles(quanergy::client::MQ8_VERTICAL_ANGLES,
+                                            quanergy::client::MQ8_VERTICAL_ANGLES + quanergy::client::M8_NUM_LASERS);
+        setVerticalAngles(vertical_angles);
+      }
+    }
+
+
     bool DataPacketParserM8::parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result)
     {
+      // check that vertical angles have been defined
+      if (vertical_angle_lookup_table_.empty())
+      {
+        throw InvalidVerticalAngles("In parse, the vertical angle lookup table is empty; need to call setVerticalAngles.");
+      }
+
       bool ret = false;
 
       StatusType current_status = StatusType(data_packet.status);

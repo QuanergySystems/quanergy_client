@@ -11,8 +11,7 @@ namespace quanergy
 {
   namespace client
   {
-    DataPacketParser00::DataPacketParser00()
-      : DataPacketParserM8()
+    DataPacketParser00::DataPacketParser00() : DataPacketParserM8()
     {}
 
     bool DataPacketParser00::validate(const std::vector<char>& packet)

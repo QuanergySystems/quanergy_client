@@ -102,6 +102,24 @@ namespace quanergy
       virtual const char* what() const throw() { return "Return ID mismatch"; }
     };
 
+    struct InvalidVerticalAngles: public std::runtime_error
+    {
+      explicit InvalidVerticalAngles(const std::string& message)
+        : std::runtime_error(message) {}
+    };
+
+    /** \brief HTTP response malformed */
+    struct InvalidHTTPResponse : public std::exception
+    {
+      virtual const char* what() const throw() { return "Invalid HTTP Response"; }
+    };
+
+    /** \brief error reading from socket */
+    struct HTTPResponseError : public std::runtime_error
+    {
+      explicit HTTPResponseError(const std::string& message)
+        : std::runtime_error(message) {}
+    };
 
 
   } // namespace client

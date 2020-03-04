@@ -34,9 +34,9 @@ namespace quanergy
     {
       DataPacketParser00();
 
-      virtual bool validate(const std::vector<char>& packet);
+      virtual bool validate(const std::vector<char>& packet) override;
 
-      virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result);
+      virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result) override;
     };
 
   } // namespace client
