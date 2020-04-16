@@ -14,8 +14,8 @@
 // TCP client for sensor
 #include <quanergy/client/sensor_client.h>
 
-// HTTP client to get calibration info from sensors
-#include <quanergy/client/http_client.h>
+// to get device info from sensor
+#include <quanergy/client/device_info.h>
 
 // parsers for the data packets we want to support
 #include <quanergy/parsers/data_packet_parser_00.h>
@@ -113,7 +113,6 @@ int main(int argc, char** argv)
 
   // create modules
   ClientType client(host, port, 100);
-  quanergy::client::HTTPClient http_client(host);
   ParserModuleType parser;
   ConverterType converter;
   VisualizerModule visualizer;
@@ -123,11 +122,12 @@ int main(int argc, char** argv)
   // are we doing encoder calibration?
   bool perform_encoder_calibration = pcl::console::find_switch(argc, argv, CALIBRATE_STR.c_str())
                                      || pcl::console::find_switch(argc, argv, MANUAL_CORRECT.c_str());
-  double amplitude = 0.;
-  double phase = 0.;
 
   if (pcl::console::find_switch(argc, argv, MANUAL_CORRECT.c_str()))
   {
+    double amplitude = 0.;
+    double phase = 0.;
+
     // get calibrator parameters
     pcl::console::parse_argument(argc, argv, AMPLITUDE_STR.c_str(), amplitude);
     pcl::console::parse_argument(argc, argv, PHASE_STR.c_str(), phase);
@@ -148,52 +148,20 @@ int main(int argc, char** argv)
   parser.get<PARSER_04_INDEX>().setFrameId("quanergy");
 
 
-  // get deviceInfo from sensor for calibration
-  std::stringstream device_info_stream;
+  // get deviceInfo from sensor and apply calibration
   try
   {
-    http_client.read("/PSIA/System/deviceInfo", device_info_stream);
-    boost::property_tree::ptree device_info_tree;
-    boost::property_tree::read_xml(device_info_stream, device_info_tree);
+    quanergy::client::DeviceInfo device_info(host);
 
-    // check sensor type
-    auto model = device_info_tree.get<std::string>("DeviceInfo.model");
+    // get sensor type
+    auto model = device_info.model();
     std::cout << "got model: " << model << std::endl;
 
-    auto calibration_data = device_info_tree.get_child_optional("DeviceInfo.calibration");
-    if (!calibration_data)
+    if (model.find("MQ") != std::string::npos
+        || model.find("M8") != std::string::npos)
     {
-      if (model.find("MQ") != std::string::npos)
-      {
-        std::cerr << "ERROR: MQ sensor has no calibration information" << std::endl;
-        return -2;
-      }
-      else if (model.find("M8") != std::string::npos)
-      {
-        std::cout << "No calibration information available on sensor, proceeding with M8 defaults" << std::endl;
-
-        // tell parsers to use M8 defaults
-        parser.get<PARSER_00_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
-        parser.get<PARSER_04_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
-      }
-      else if (model.find("S3") != std::string::npos)
-      {
-        // Calibration data is not currently supported on S3, so silently proceed
-      }
-      else
-      {
-        std::cerr << "ERROR: unrecognized sensor model" << std::endl;
-        return -2;
-      }
-    }
-    else
-    {
-      std::cout << "got cal" << std::endl;
-      if (model.find("MQ") == std::string::npos && model.find("M8") == std::string::npos)
-      {
-        std::cout << "Found calibration information for an unsupported sensor type; ignoring" << std::endl;
-      }
-      else
+      // get calibration info
+      if (device_info.amplitude() && device_info.phase())
       {
         if (perform_encoder_calibration)
         {
@@ -204,50 +172,36 @@ int main(int argc, char** argv)
           // since we have cal values from sensor, we need to include encoder calibration
           perform_encoder_calibration = true;
 
-          // get encoder cal values; they get applied later
-          amplitude = calibration_data->get<double>("encoder.amplitude");
-          phase = calibration_data->get<double>("encoder.phase");
-
           // this also turns off the recalculation of calibration params
-          calibrator.setParams(amplitude, phase);
+          calibrator.setParams(*device_info.amplitude(), *device_info.phase());
         }
+      }
 
-        // get vertical angles
-        std::vector<double> vertical_angles(
-              calibration_data->get<unsigned int>("lasers.<xmlattr>.number"), 0.);
-
-        for (auto& laser : calibration_data->get_child("lasers"))
-        {
-          if (laser.first == "laser")
-          {
-            auto id = laser.second.get<unsigned int>("<xmlattr>.id");
-            if (id > vertical_angles.size())
-            {
-              std::cerr << "ERROR: invalid laser id in calibration info" << std::endl;
-              return -2;
-            }
-            else
-            {
-              vertical_angles[id] = laser.second.get<double>("v");
-            }
-          }
-        }
-
+      auto vertical_angles = device_info.verticalAngles();
+      if (!vertical_angles.empty())
+      {
         // send the vertical angles to the parsers
         parser.get<PARSER_00_INDEX>().setVerticalAngles(vertical_angles);
         parser.get<PARSER_04_INDEX>().setVerticalAngles(vertical_angles);
       }
+      else if (model.find("M8") != std::string::npos)
+      {
+        std::cout << "No calibration information available on sensor, proceeding with M8 defaults" << std::endl;
+
+        // tell parsers to use M8 defaults
+        parser.get<PARSER_00_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
+        parser.get<PARSER_04_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
+      }
+      else
+      {
+        std::cerr << "MQ sensor found with no vertical angles on the sensor" << std::endl;
+        return -1;
+      }
     }
   }
-  catch (boost::property_tree::ptree_error e)
+  catch (const std::exception& e)
   {
-    std::cerr << "caught ptree error: " << e.what() << std::endl;
-    return -1;
-  }
-
-  catch (std::exception e)
-  {
-    std::cerr << "caught exception in http client read: " << e.what() << std::endl;
+    std::cerr << "caught exception in device info retrieval: " << e.what() << std::endl;
     return -1;
   }
 

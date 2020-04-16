@@ -83,6 +83,8 @@ set(client_SRCS
   src/parsers/data_packet_parser_04.cpp
   src/parsers/data_packet_parser_m8.cpp
   src/client/http_client.cpp
+  src/client/device_info.cpp
+  src/pipelines/sensor_pipeline.cpp
   ${project_HEADERS}
 )
 
