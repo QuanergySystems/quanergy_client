@@ -16,6 +16,8 @@
   <EncoderCorrection>
     <!-- whether to calculate the parameters from sensor data before applying -->
     <calibrate>false</calibrate>
+    <!-- frame rate of the sensor; used when calibrate == true only -->
+    <frameRate>10.0</frameRate>
     <!-- whther to override parameters on the sensor -->
     <override>false</override>
     <!-- amplitude (radians) for override -->

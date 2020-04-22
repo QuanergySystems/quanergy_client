@@ -1,6 +1,6 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2016 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
@@ -34,23 +34,34 @@ int main(int argc, char** argv)
   description.add_options()
     ("help,h", "Display this help message")
     ("settings-file,s", po::value<std::string>(),
-      "Settings file. Command line arguments override settings in the file.")
-    ("host", po::value<std::string>(&pipeline_settings.host), "Host name or IP of the sensor.")
-    ("frame,f", po::value<std::string>(&pipeline_settings.frame), "Frame name inserted in the point cloud.")
-    ("return,r", po::value<std::string>(&return_string),
+      "Settings file. Setting file values override defaults and command line arguments override the settings file.")
+    ("host", po::value<std::string>(&pipeline_settings.host),
+      "Host name or IP of the sensor.")
+    ("frame,f", po::value<std::string>(&pipeline_settings.frame)->
+      default_value(pipeline_settings.frame),
+      "Frame name inserted in the point cloud.")
+    ("return,r", po::value<std::string>(&return_string)->
+      default_value(pipeline_settings.stringFromReturn(pipeline_settings.return_selection)),
       "Return selection for multiple return M-series sensors. "
       "Options are 0, 1, 2, or all. If 'all' is chosen, then all 3 returns will be in an unorganized point cloud.")
     ("calibrate", po::bool_switch(&pipeline_settings.calibrate),
       "Flag indicating encoder calibration should be performed and applied to outgoing points")
+    ("frame-rate", po::value<double>(&pipeline_settings.frame_rate)->
+      default_value(pipeline_settings.frame_rate),
+      "Frame rate used when peforming encoder calibration")
     ("manual-correct", po::value<std::vector<float>>(&correct_params)->multitoken()->value_name("amplitude phase"),
       "Correct encoder error with user defined values. Both amplitude and phase are in radians")
-    ("min-distance", po::value<float>(&pipeline_settings.min_distance),
+    ("min-distance", po::value<float>(&pipeline_settings.min_distance)->
+      default_value(pipeline_settings.min_distance),
       "minimum distance (inclusive) for distance filtering.")
-    ("max-distance", po::value<float>(&pipeline_settings.max_distance),
+    ("max-distance", po::value<float>(&pipeline_settings.max_distance)->
+      default_value(pipeline_settings.max_distance),
       "maximum distance (inclusive) for distance filtering.")
-    ("min-cloud-size", po::value<std::int32_t>(&pipeline_settings.min_cloud_size),
+    ("min-cloud-size", po::value<std::int32_t>(&pipeline_settings.min_cloud_size)->
+      default_value(pipeline_settings.min_cloud_size),
       "minimum cloud size; produces an error and ignores clouds smaller than this")
-    ("max-cloud-size", po::value<std::int32_t>(&pipeline_settings.max_cloud_size),
+    ("max-cloud-size", po::value<std::int32_t>(&pipeline_settings.max_cloud_size)->
+      default_value(pipeline_settings.max_cloud_size),
       "maximum cloud size; produces an error and ignores clouds larger than this");
 
   try

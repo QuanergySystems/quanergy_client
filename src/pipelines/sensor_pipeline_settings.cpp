@@ -65,6 +65,7 @@ void SensorPipelineSettings::load(const SettingsFileLoader& settings)
   max_distance = settings.get("Settings.DistanceFilter.max", max_distance);
 
   calibrate = settings.get("Settings.EncoderCorrection.calibrate", calibrate);
+  frame_rate = settings.get("Settings.EncoderCorrection.frameRate", frame_rate);
   override_encoder_params = settings.get("Settings.EncoderCorrection.override", override_encoder_params);
   amplitude = settings.get("Settings.EncoderCorrection.amplitude", amplitude);
   phase = settings.get("Settings.EncoderCorrection.phase", phase);

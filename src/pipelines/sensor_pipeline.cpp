@@ -23,6 +23,7 @@ namespace quanergy
         if (settings.calibrate)
         {
           std::cout << "Encoder calibration will be performed" << std::endl;
+          encoder_corrector.setFrameRate(settings.frame_rate);
         }
         else if (settings.override_encoder_params)
         {

@@ -29,6 +29,7 @@ namespace quanergy
       // Encoder correction terms; for newer sensors, these are retrieved from the sensor but can be overridden
       // this is generally only applicable to high precision applications such as mapping
       bool calibrate = false; // whether to perform calibration and apply; takes precidence over other options
+      double frame_rate = 10.0; // frame rate of the sensor is used for calibration calculation only
       bool override_encoder_params = false; // whether to override sensor values
       float amplitude = 0.f; // radians
       float phase = 0.f;     // radians
