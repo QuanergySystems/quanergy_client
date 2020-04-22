@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 {
   namespace po = boost::program_options;
 
-  po::options_description description("Quanergy Client Visualizer");
+  po::options_description description("Quanergy Client Dynamic Connection");
   const po::positional_options_description p; // empty positional options
 
   quanergy::pipeline::SensorPipelineSettings pipeline_settings;
