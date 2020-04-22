@@ -2,7 +2,7 @@ project(QuanergyClient)
 cmake_minimum_required(VERSION 2.8)
 
 #  This should match what's in include/quanergy/client/version.h
-set(QUANERGY_CLIENT_VERSION "3.3.2")
+set(QUANERGY_CLIENT_VERSION "4.0.0")
 
 #required to prevent macro definition of min and max in windows
 add_definitions(-DNOMINMAX)
