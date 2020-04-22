@@ -102,6 +102,7 @@ namespace quanergy
       virtual const char* what() const throw() { return "Return ID mismatch"; }
     };
 
+    /** \brief Invalid vertical angles provided */
     struct InvalidVerticalAngles: public std::runtime_error
     {
       explicit InvalidVerticalAngles(const std::string& message)

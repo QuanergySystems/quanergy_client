@@ -6,6 +6,7 @@
 // to output some status
 #include <iostream>
 
+// for parsing device info
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 

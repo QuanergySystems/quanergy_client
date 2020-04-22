@@ -55,6 +55,9 @@ namespace quanergy
     /** \brief Used to specify 'all' returns */
     const int ALL_RETURNS = -1;
 
+    /** \brief limits cloud size for memory considerations; this is much larger than needed */
+    const std::int32_t MAX_CLOUD_SIZE = 1E6;
+
     /** \brief Not a specialization because it is intended to be used by others. */
     struct DLLEXPORT DataPacketParserM8 : public DataPacketParser
     {
@@ -103,7 +106,7 @@ namespace quanergy
 
       /// cloud size limits
       std::int32_t minimum_cloud_size_ = 1;
-      std::int32_t maximum_cloud_size_ = 1E6; // excessively large but protects memory usage
+      std::int32_t maximum_cloud_size_ = MAX_CLOUD_SIZE;
       
       /// cloud degrees of sweep
       double start_azimuth_;

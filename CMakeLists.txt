@@ -45,13 +45,14 @@ ENDIF("${is_system_dir}" STREQUAL "-1")
 
 
 
-find_package(Boost COMPONENTS system thread REQUIRED)
-
 if (NoViz OR CMAKE_CROSSCOMPILING)
   find_package(PCL REQUIRED common io)
 else()
   find_package(PCL REQUIRED common io visualization)
 endif()
+
+find_package(Boost COMPONENTS system thread program_options REQUIRED)
+
 
 file(GLOB_RECURSE project_HEADERS
     "*.h"
@@ -61,11 +62,11 @@ file(GLOB_RECURSE project_HEADERS
 
 include_directories(
   include
-  ${Boost_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS})
 
 link_directories(
-  ${Boost_LIBRARY_DIR}
+  ${Boost_LIBRARY_DIRS}
   ${PCL_LIBRARY_DIRS})
 
 add_definitions(${PCL_DEFINITIONS})
@@ -84,6 +85,7 @@ set(client_SRCS
   src/parsers/data_packet_parser_m8.cpp
   src/client/http_client.cpp
   src/client/device_info.cpp
+  src/pipelines/sensor_pipeline_settings.cpp
   src/pipelines/sensor_pipeline.cpp
   ${project_HEADERS}
 )
@@ -93,6 +95,8 @@ add_library(quanergy_client SHARED ${client_SRCS})
 
 if(WIN32)
   target_link_libraries(quanergy_client ws2_32 ${Boost_LIBRARIES})
+else()
+  target_link_libraries(quanergy_client ${Boost_LIBRARIES})
 endif()
 
 configure_file(doxyfile.in

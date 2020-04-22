@@ -54,6 +54,12 @@ namespace quanergy
 
     void DataPacketParserM8::setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax)
     {
+      if(szmin > MAX_CLOUD_SIZE || szmax > MAX_CLOUD_SIZE)
+      {
+        throw std::invalid_argument(std::string("Cloud size limits cannot be larger than ")
+                                    + std::to_string(MAX_CLOUD_SIZE));
+      }
+
       if(szmin > 0)
         minimum_cloud_size_ = std::max(1,szmin);
       if(szmax > 0)
