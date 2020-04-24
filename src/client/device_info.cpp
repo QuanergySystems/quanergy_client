@@ -1,3 +1,10 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
 #include <quanergy/client/device_info.h>
 
 // HTTP client to get calibration info from sensors

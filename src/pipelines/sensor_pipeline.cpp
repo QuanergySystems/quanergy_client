@@ -1,3 +1,10 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
 #include <quanergy/pipelines/sensor_pipeline.h>
 
 #include <quanergy/client/device_info.h>
@@ -16,8 +23,10 @@ namespace quanergy
       auto model = device_info.model();
       std::cout << "got model from device info: " << model << std::endl;
 
-      if (model.find("MQ") != std::string::npos
-          || model.find("M8") != std::string::npos)
+      bool mechanical = model.find("MQ") != std::string::npos
+                              || model.find("M8") != std::string::npos;
+
+      if (mechanical)
       {
         // encoder params
         if (settings.calibrate)
@@ -102,38 +111,60 @@ namespace quanergy
         );
       }
 
-      // Connect modules
-      // Parser to Encoder Corrector
-      connections.push_back(
-        parser.connect(
-          [this](const ParserModule::ResultType& pc)
-          { encoder_corrector.slot(pc); }
-        )
-      );
+      if (mechanical)
+      {
+        // Connect modules for mechanical
+        // Parser to Encoder Corrector
+        connections.push_back(
+          parser.connect(
+            [this](const ParserModule::ResultType& pc)
+            { encoder_corrector.slot(pc); }
+          )
+        );
 
-      // Encoder Corrector to Distance Filter
-      connections.push_back(
-        encoder_corrector.connect(
-          [this](const quanergy::calibration::EncoderAngleCalibration::ResultType& pc)
-          { distance_filter.slot(pc); }
-        )
-      );
+        // Encoder Corrector to Distance Filter
+        connections.push_back(
+          encoder_corrector.connect(
+            [this](const quanergy::calibration::EncoderAngleCalibration::ResultType& pc)
+            { distance_filter.slot(pc); }
+          )
+        );
 
-      // Distance Filter to Ring Intensity Filter
-      connections.push_back(
-        distance_filter.connect(
-          [this](const quanergy::client::DistanceFilter::ResultType& pc)
-          { ring_intensity_filter.slot(pc); }
-        )
-      );
+        // Distance Filter to Ring Intensity Filter
+        connections.push_back(
+          distance_filter.connect(
+            [this](const quanergy::client::DistanceFilter::ResultType& pc)
+            { ring_intensity_filter.slot(pc); }
+          )
+        );
 
-      // Ring Intensity Filter to Polar->Cartesian Converter
-      connections.push_back(
-        ring_intensity_filter.connect(
-          [this](const quanergy::client::RingIntensityFilter::ResultType& pc)
-          { cartesian_converter.slot(pc); }
-        )
-      );
+        // Ring Intensity Filter to Polar->Cartesian Converter
+        connections.push_back(
+          ring_intensity_filter.connect(
+            [this](const quanergy::client::RingIntensityFilter::ResultType& pc)
+            { cartesian_converter.slot(pc); }
+          )
+        );
+      }
+      else
+      {
+        // Connect modules for solid state
+        // Parser to Distance Filter
+        connections.push_back(
+          parser.connect(
+            [this](const ParserModule::ResultType& pc)
+            { distance_filter.slot(pc); }
+          )
+        );
+
+        // Distance Filter to Polar->Cartesian Converter
+        connections.push_back(
+          distance_filter.connect(
+            [this](const quanergy::client::DistanceFilter::ResultType& pc)
+            { cartesian_converter.slot(pc); }
+          )
+        );
+      }
     }
 
     SensorPipeline::~SensorPipeline()

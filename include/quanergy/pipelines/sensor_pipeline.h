@@ -1,3 +1,10 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
 #include <memory>
 
 // parsers for the data packets we want to support
@@ -28,8 +35,6 @@ namespace quanergy
       */
     struct SensorPipeline
     {
-      using Ptr = std::unique_ptr<SensorPipeline>;
-
       // the parser type being used; this supports all Quanergy sensors by checking which of the provided
       // parsers supports the data packet recieved
       using Parser =  quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,      // return type

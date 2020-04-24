@@ -51,7 +51,7 @@ else()
   find_package(PCL REQUIRED common io visualization)
 endif()
 
-find_package(Boost COMPONENTS system thread program_options REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
 
 
 file(GLOB_RECURSE project_HEADERS

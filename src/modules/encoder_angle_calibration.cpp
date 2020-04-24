@@ -1,6 +1,6 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2016 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
@@ -165,6 +165,7 @@ namespace quanergy
 
       // Add the points to a point cloud. Do this until we have enough points
       // to check for a complete revolution
+      encoder_angles_.reserve(cloud_ptr->size());
       for (const auto& pt : *cloud_ptr)
       {
         if (encoder_angles_.empty())
@@ -193,6 +194,7 @@ namespace quanergy
             // if encoder_angles_ are not complete, discard period
 						// we just moved encoder_angles_. Create a new object
             encoder_angles_ = AngleContainer();
+            encoder_angles_.reserve(cloud_ptr->size());
             encoder_angles_.push_back(pt.h);
           }
           else
@@ -226,6 +228,14 @@ namespace quanergy
       {
         // corrects in place, saves copying other values
         point.h = point.h - (amplitude_ * std::sin(point.h + phase_));
+        if (point.h < -M_PI)
+        {
+          point.h += 2 * M_PI;
+        }
+        else if (point.h > M_PI)
+        {
+          point.h -= 2 * M_PI;
+        }
       }
 
       signal_(cloud_ptr);

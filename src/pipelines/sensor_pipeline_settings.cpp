@@ -1,3 +1,10 @@
+/****************************************************************
+ **                                                            **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
+ **  Contact: http://www.quanergy.com                          **
+ **                                                            **
+ ****************************************************************/
+
 #include <quanergy/pipelines/sensor_pipeline_settings.h>
 
 #include <boost/lexical_cast.hpp>
@@ -53,9 +60,7 @@ void SensorPipelineSettings::load(const SettingsFileLoader& settings)
 {
   host = settings.get("Settings.host", host);
 
-  std::cout << "frame before: " << frame << std::endl;
   frame = settings.get("Settings.frame", frame);
-  std::cout << "frame after: " << frame << std::endl;
 
   std::string r = stringFromReturn(return_selection);
   r = settings.get("Settings.return", r);

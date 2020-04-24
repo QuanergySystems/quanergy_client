@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Settings>
-  <!-- sensor host nmae or IP can be provided here 
+  <!-- sensor host name or IP can be provided here 
        though it is typically done on command line. -->
   <host></host>
 
@@ -12,7 +12,7 @@
        options: 0, 1, 2, or all -->
   <return>0</return>
 
-  <!-- encoder correction parameters -->
+  <!-- encoder correction parameters; M-series only -->
   <EncoderCorrection>
     <!-- whether to calculate the parameters from sensor data before applying -->
     <calibrate>false</calibrate>

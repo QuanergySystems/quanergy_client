@@ -33,7 +33,7 @@ int main(int argc, char** argv)
   std::string port = "4141";
 
   description.add_options()
-    ("help,h", "Display this help message")
+    ("help,h", "Display this help message.")
     ("settings-file,s", po::value<std::string>(),
       "Settings file. Setting file values override defaults and command line arguments override the settings file.")
     ("host", po::value<std::string>(&pipeline_settings.host),
@@ -46,12 +46,12 @@ int main(int argc, char** argv)
       "Return selection for multiple return M-series sensors. "
       "Options are 0, 1, 2, or all. If 'all' is chosen, then all 3 returns will be in an unorganized point cloud.")
     ("calibrate", po::bool_switch(&pipeline_settings.calibrate),
-      "Flag indicating encoder calibration should be performed and applied to outgoing points")
+      "Flag indicating encoder calibration should be performed and applied to outgoing points; M-series only.")
     ("frame-rate", po::value<double>(&pipeline_settings.frame_rate)->
       default_value(pipeline_settings.frame_rate),
-      "Frame rate used when peforming encoder calibration")
+      "Frame rate used when peforming encoder calibration; M-series only.")
     ("manual-correct", po::value<std::vector<float>>(&correct_params)->multitoken()->value_name("amplitude phase"),
-      "Correct encoder error with user defined values. Both amplitude and phase are in radians")
+      "Correct encoder error with user defined values. Both amplitude and phase are in radians; M-series only.")
     ("min-distance", po::value<float>(&pipeline_settings.min_distance)->
       default_value(pipeline_settings.min_distance),
       "minimum distance (inclusive) for distance filtering.")
@@ -60,10 +60,10 @@ int main(int argc, char** argv)
       "maximum distance (inclusive) for distance filtering.")
     ("min-cloud-size", po::value<std::int32_t>(&pipeline_settings.min_cloud_size)->
       default_value(pipeline_settings.min_cloud_size),
-      "minimum cloud size; produces an error and ignores clouds smaller than this")
+      "minimum cloud size; produces an error and ignores clouds smaller than this.")
     ("max-cloud-size", po::value<std::int32_t>(&pipeline_settings.max_cloud_size)->
       default_value(pipeline_settings.max_cloud_size),
-      "maximum cloud size; produces an error and ignores clouds larger than this");
+      "maximum cloud size; produces an error and ignores clouds larger than this.");
 
   try
   {
