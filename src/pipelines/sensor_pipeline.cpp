@@ -165,6 +165,11 @@ namespace quanergy
           )
         );
       }
+
+      // connect to an async module so downstream work happens on a separate thread
+      connections.push_back(cartesian_converter.connect(
+          [this](const quanergy::client::PolarToCartConverter::ResultType& pc){ async.slot(pc); }
+      ));
     }
 
     SensorPipeline::~SensorPipeline()

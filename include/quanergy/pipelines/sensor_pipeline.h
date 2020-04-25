@@ -5,6 +5,9 @@
  **                                                            **
  ****************************************************************/
 
+#ifndef QUANERGY_CLIENT_SENSOR_PIPELINE_H
+#define QUANERGY_CLIENT_SENSOR_PIPELINE_H
+
 #include <memory>
 
 // parsers for the data packets we want to support
@@ -22,6 +25,9 @@
 
 // module to apply encoder correction
 #include <quanergy/modules/encoder_angle_calibration.h>
+
+// async module for multithreading
+#include <quanergy/pipelines/async.h>
 
 // for setting file
 #include <quanergy/pipelines/sensor_pipeline_settings.h>
@@ -63,6 +69,10 @@ namespace quanergy
       quanergy::client::RingIntensityFilter ring_intensity_filter;
       // polar to cart converter; converts from the polar PCL cloud to a Cartesian one
       quanergy::client::PolarToCartConverter cartesian_converter;
+      // async module to put the processing of the output cloud on a separate thread
+      using AsyncType = quanergy::pipeline::AsyncModule<boost::shared_ptr<pcl::PointCloud<quanergy::PointXYZIR>>>;
+      AsyncType async;
+
 
       // vector to hold connections for better cleanup
       std::vector<boost::signals2::connection> connections;
@@ -89,10 +99,12 @@ namespace quanergy
        *  \returns connection object created
        */
       boost::signals2::connection connect(
-          const TYPENAME quanergy::client::PolarToCartConverter::Signal::slot_type& subscriber)
+          const TYPENAME AsyncType::Signal::slot_type& subscriber)
       {
-        return cartesian_converter.connect(subscriber);
+        return async.connect(subscriber);
       }
     };
   }
 }
+
+#endif

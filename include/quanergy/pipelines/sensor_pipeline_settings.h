@@ -5,6 +5,9 @@
  **                                                            **
  ****************************************************************/
 
+#ifndef QUANERGY_CLIENT_SENSOR_PIPELINE_SETTINGS_H
+#define QUANERGY_CLIENT_SENSOR_PIPELINE_SETTINGS_H
+
 #include <quanergy/parsers/data_packet_parser_m8.h>
 
 // for setting file
@@ -80,3 +83,5 @@ namespace quanergy
     };
   }
 }
+
+#endif
