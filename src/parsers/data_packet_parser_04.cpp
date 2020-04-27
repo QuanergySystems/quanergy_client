@@ -81,18 +81,18 @@ namespace quanergy
 
       ++packet_counter_;
 
-      M8DataPacket04 const & data = data_packet.data;
+      MSeriesDataPacket04 const & data = data_packet.data;
 
       // get spin direction
       // check 3 points in the packet to figure out which way it is spinning
       // if the measurements disagree, it could be wrap so we'll ignore that
-      if ((data.firings[0].position - data.firings[M8_FIRING_PER_PKT/2].position < 0) &&
-          (data.firings[M8_FIRING_PER_PKT/2].position - data.firings[M8_FIRING_PER_PKT-1].position < 0))
+      if ((data.firings[0].position - data.firings[M_SERIES_FIRING_PER_PKT/2].position < 0) &&
+          (data.firings[M_SERIES_FIRING_PER_PKT/2].position - data.firings[M_SERIES_FIRING_PER_PKT-1].position < 0))
       {
         direction_ = 1;
       }
-      else if ((data.firings[0].position - data.firings[M8_FIRING_PER_PKT/2].position > 0) && 
-               (data.firings[M8_FIRING_PER_PKT/2].position - data.firings[M8_FIRING_PER_PKT-1].position > 0))
+      else if ((data.firings[0].position - data.firings[M_SERIES_FIRING_PER_PKT/2].position > 0) && 
+               (data.firings[M_SERIES_FIRING_PER_PKT/2].position - data.firings[M_SERIES_FIRING_PER_PKT-1].position > 0))
       {
         direction_ = -1;
       }
@@ -103,12 +103,12 @@ namespace quanergy
       bool cloudfull = (current_cloud_->size() >= maximum_cloud_size_);
 
       // for each firing
-      for (int i = 0; i < M8_FIRING_PER_PKT; ++i)
+      for (int i = 0; i < M_SERIES_FIRING_PER_PKT; ++i)
       {
-        M8FiringData04 const & firing = data.firings[i];
+        MSeriesFiringData04 const & firing = data.firings[i];
 
         // calculate the angle in degrees
-        float azimuth_angle = (static_cast<float> ((firing.position+(M8_NUM_ROT_ANGLES/2))%M8_NUM_ROT_ANGLES) / float(M8_NUM_ROT_ANGLES) * 360.0f) - 180.0f;
+        float azimuth_angle = (static_cast<float> ((firing.position+(M_SERIES_NUM_ROT_ANGLES/2))%M_SERIES_NUM_ROT_ANGLES) / float(M_SERIES_NUM_ROT_ANGLES) * 360.0f) - 180.0f;
 
         float delta_angle = 0;
 
@@ -143,7 +143,7 @@ namespace quanergy
 
             // interpolate the timestamp from the previous packet timestamp to the timestamp of this firing
             double const time_since_previous_packet =
-              (current_packet_stamp - previous_packet_stamp_) * i / static_cast<double>(M8_FIRING_PER_PKT);
+              (current_packet_stamp - previous_packet_stamp_) * i / static_cast<double>(M_SERIES_FIRING_PER_PKT);
             std::uint64_t const current_firing_stamp = static_cast<uint64_t>(std::round(
                 previous_packet_stamp_ + time_since_previous_packet));
 
@@ -180,7 +180,7 @@ namespace quanergy
 
         double const horizontal_angle = horizontal_angle_lookup_table_[firing.position];
 
-        for (int j = 0; j < M8_NUM_LASERS; j++)
+        for (int j = 0; j < M_SERIES_NUM_LASERS; j++)
         {
           // output point
           PointCloudHVDIR::PointType hvdir;

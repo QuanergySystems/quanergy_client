@@ -23,7 +23,7 @@ int SensorPipelineSettings::returnFromString(const std::string& r)
   else if (!r.empty() && std::all_of(r.begin(), r.end(), ::isdigit))
   {
     ret = std::atoi(r.c_str());
-    if (ret < 0 || ret >= quanergy::client::M8_NUM_RETURNS)
+    if (ret < 0 || ret >= quanergy::client::M_SERIES_NUM_LASERS)
     {
       throw std::invalid_argument("Invalid return selection");
     }
@@ -44,7 +44,7 @@ std::string SensorPipelineSettings::stringFromReturn(int r)
   {
     ret = "all";
   }
-  else if (r >= 0 && r < quanergy::client::M8_NUM_RETURNS)
+  else if (r >= 0 && r < quanergy::client::M_SERIES_NUM_LASERS)
   {
     ret = std::to_string(r);
   }
@@ -79,7 +79,7 @@ void SensorPipelineSettings::load(const SettingsFileLoader& settings)
   max_cloud_size = settings.get("Settings.maxCloudSize", max_cloud_size);
 
   /// ring filter settings only relevant for M-series
-  for (int i = 0; i < quanergy::client::M8_NUM_LASERS; i++)
+  for (int i = 0; i < quanergy::client::M_SERIES_NUM_LASERS; i++)
   {
     const std::string num = boost::lexical_cast<std::string>(i);
 

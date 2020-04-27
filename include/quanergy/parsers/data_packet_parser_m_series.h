@@ -1,21 +1,21 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
 
-/**  \file data_packet_parser_m8.h
+/**  \file data_packet_parser_m_series.h
  *
- *   \brief Provide pointcloud parser functionality for m8 and MQ8 data.
+ *   \brief Provide pointcloud parser functionality for M8 and MQ8 data.
  */
  
-#ifndef QUANERGY_PARSERS_DATA_PACKET_PARSER_M8_H
-#define QUANERGY_PARSERS_DATA_PACKET_PARSER_M8_H
+#ifndef QUANERGY_PARSERS_DATA_PACKET_PARSER_M_H
+#define QUANERGY_PARSERS_DATA_PACKET_PARSER_M_H
 
 #include <quanergy/parsers/data_packet_parser.h>
 
-#include <quanergy/client/m8_data_packet.h>
+#include <quanergy/client/m_series_data_packet.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
@@ -50,7 +50,7 @@ namespace quanergy
 
     enum struct SensorType {M8, MQ8};
 
-    const std::int32_t M8_NUM_ROT_ANGLES = 10400;
+    const std::int32_t M_SERIES_NUM_ROT_ANGLES = 10400;
 
     /** \brief Used to specify 'all' returns */
     const int ALL_RETURNS = -1;
@@ -59,11 +59,11 @@ namespace quanergy
     const std::int32_t MAX_CLOUD_SIZE = 1E6;
 
     /** \brief Not a specialization because it is intended to be used by others. */
-    struct DLLEXPORT DataPacketParserM8 : public DataPacketParser
+    struct DLLEXPORT DataPacketParserMSeries : public DataPacketParser
     {
-      DataPacketParserM8();
+      DataPacketParserMSeries();
 
-      virtual bool parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result);
+      virtual bool parse(const MSeriesDataPacket& data_packet, PointCloudHVDIRPtr& result);
 
       void setReturnSelection(int return_selection);
       void setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax);

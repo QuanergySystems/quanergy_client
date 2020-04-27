@@ -8,7 +8,7 @@
 #ifndef QUANERGY_CLIENT_SENSOR_PIPELINE_SETTINGS_H
 #define QUANERGY_CLIENT_SENSOR_PIPELINE_SETTINGS_H
 
-#include <quanergy/parsers/data_packet_parser_m8.h>
+#include <quanergy/parsers/data_packet_parser_m_series.h>
 
 // for setting file
 #include <boost/property_tree/ptree.hpp>
@@ -57,8 +57,8 @@ namespace quanergy
       // Ring filter; generally this is not needed
       // Only can be configured in settings file
       // only relevant for M-series
-      float ring_range[quanergy::client::M8_NUM_LASERS] = {0.f};
-      std::uint16_t ring_intensity[quanergy::client::M8_NUM_LASERS] = {0};
+      float ring_range[quanergy::client::M_SERIES_NUM_LASERS] = {0.f};
+      std::uint16_t ring_intensity[quanergy::client::M_SERIES_NUM_LASERS] = {0};
 
       /** \brief load settings from SettingsFileLoader
        *  \param settings SettingsFileLoader to load from

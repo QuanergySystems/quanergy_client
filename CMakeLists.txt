@@ -82,7 +82,7 @@ set(client_SRCS
   src/parsers/data_packet_parser_00.cpp
   src/parsers/data_packet_parser_01.cpp
   src/parsers/data_packet_parser_04.cpp
-  src/parsers/data_packet_parser_m8.cpp
+  src/parsers/data_packet_parser_m_series.cpp
   src/client/http_client.cpp
   src/client/device_info.cpp
   src/pipelines/sensor_pipeline_settings.cpp

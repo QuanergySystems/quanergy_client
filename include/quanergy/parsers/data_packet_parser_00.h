@@ -18,7 +18,7 @@
 #include <quanergy/common/pointcloud_types.h>
 
 #include <quanergy/parsers/data_packet_00.h>
-#include <quanergy/parsers/data_packet_parser_m8.h>
+#include <quanergy/parsers/data_packet_parser_m_series.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
@@ -30,7 +30,7 @@ namespace quanergy
 {
   namespace client
   {
-    struct DLLEXPORT DataPacketParser00 : public DataPacketParserM8
+    struct DLLEXPORT DataPacketParser00 : public DataPacketParserMSeries
     {
       DataPacketParser00();
 

@@ -18,7 +18,7 @@
 
 #include <quanergy/parsers/data_packet_04.h>
 
-#include <quanergy/parsers/data_packet_parser_m8.h>
+#include <quanergy/parsers/data_packet_parser_m_series.h>
 
 #ifdef _MSC_VER
 #define DLLEXPORT __declspec(dllexport)
@@ -30,10 +30,10 @@ namespace quanergy
 {
   namespace client
   {
-    struct DLLEXPORT DataPacketParser04 : DataPacketParserM8
+    struct DLLEXPORT DataPacketParser04 : DataPacketParserMSeries
     {
       // Constructor
-      DataPacketParser04() : DataPacketParserM8()
+      DataPacketParser04() : DataPacketParserMSeries()
       {
         // For 04 packets, return selection is done on the sensor, so if not explicitly set,
         // we will process whatever 04 packets we receive.

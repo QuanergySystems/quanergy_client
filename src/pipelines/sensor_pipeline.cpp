@@ -101,7 +101,7 @@ namespace quanergy
       distance_filter.setMinimumDistanceThreshold(settings.min_distance);
 
       // ring intensity filter
-      for (int i = 0; i < quanergy::client::M8_NUM_LASERS; ++i)
+      for (int i = 0; i < quanergy::client::M_SERIES_NUM_LASERS; ++i)
       {
         ring_intensity_filter.setRingFilterMinimumRangeThreshold(
           i, settings.ring_range[i]

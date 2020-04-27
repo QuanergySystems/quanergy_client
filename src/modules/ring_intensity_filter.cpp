@@ -14,7 +14,7 @@ namespace quanergy
 
     RingIntensityFilter::RingIntensityFilter()
     {
-      for (uint16_t i = 0; i < M8_NUM_LASERS; ++i)
+      for (uint16_t i = 0; i < M_SERIES_NUM_LASERS; ++i)
       {
         ring_filter_range_[i] = 1.0f;
         ring_filter_intensity_[i] = 0.0f;
@@ -81,7 +81,7 @@ namespace quanergy
       to.h = from.h;
       to.v = from.v;
 
-      to.d = ((from.ring < M8_NUM_LASERS) &&
+      to.d = ((from.ring < M_SERIES_NUM_LASERS) &&
               (from.d < ring_filter_range_[from.ring]) &&
               (from.intensity < ring_filter_intensity_[from.ring]))
         ?
@@ -95,9 +95,9 @@ namespace quanergy
 
     float RingIntensityFilter::getRingFilterMinimumRangeThreshold (const std::uint16_t laser_beam) const
     {
-      if (laser_beam >= M8_NUM_LASERS)
+      if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        std::cerr << "Index out of bound! Beam index should be between 0 and " << M8_NUM_LASERS << std::endl;
+        std::cerr << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
         return std::numeric_limits<float>::quiet_NaN();
       }
 
@@ -108,10 +108,10 @@ namespace quanergy
     void RingIntensityFilter::setRingFilterMinimumRangeThreshold (const std::uint16_t laser_beam, 
                                                                   const float threshold)
     {
-      if (laser_beam >= M8_NUM_LASERS)
+      if (laser_beam >= M_SERIES_NUM_LASERS)
       {
         std::cerr << "Index out of bound! Beam index should be between 0 and " 
-                  << M8_NUM_LASERS << std::endl;
+                  << M_SERIES_NUM_LASERS << std::endl;
       }
       else
       {
@@ -122,10 +122,10 @@ namespace quanergy
 
     std::uint8_t RingIntensityFilter::getRingFilterMinimumIntensityThreshold (const uint16_t laser_beam) const
     {
-      if (laser_beam >= M8_NUM_LASERS)
+      if (laser_beam >= M_SERIES_NUM_LASERS)
       {
         std::cerr << "Index out of bound! Beam index should be between 0 and " 
-                  << M8_NUM_LASERS << std::endl;
+                  << M_SERIES_NUM_LASERS << std::endl;
         return -1;
       }
 
@@ -136,9 +136,9 @@ namespace quanergy
     void RingIntensityFilter::setRingFilterMinimumIntensityThreshold (const uint16_t laser_beam, 
                                                                       const std::uint8_t threshold)
     {
-      if (laser_beam >= M8_NUM_LASERS)
+      if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        std::cerr << "Index out of bound! Beam index should be between 0 and " << M8_NUM_LASERS << std::endl;
+        std::cerr << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
       }
       else
       {
