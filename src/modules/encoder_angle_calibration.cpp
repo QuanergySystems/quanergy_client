@@ -197,6 +197,14 @@ namespace quanergy
 
     void EncoderAngleCalibration::setParams(double amplitude, double phase)
     {
+      // In reality, amplitude should be much much less than this but this
+      // protects the integrity of the math
+      if (amplitude < -2 * M_PI || amplitude > 2 * M_PI
+          || phase < -2 * M_PI || phase > 2 * M_PI)
+      {
+        throw std::invalid_argument("EncoderAngleCalibration amplitude or phase out of range [-2PI, 2PI]");
+      }
+
       amplitude_ = amplitude;
       phase_ = phase;
 
