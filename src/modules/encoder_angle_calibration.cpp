@@ -168,40 +168,30 @@ namespace quanergy
       encoder_angles_.reserve(cloud_ptr->size());
       for (const auto& pt : *cloud_ptr)
       {
-        if (encoder_angles_.empty())
+        if (!encoder_angles_.empty() && std::abs(encoder_angles_.back() - pt.h) > M_PI)
         {
-          encoder_angles_.push_back(pt.h);
-        }
-        else
-        {
-          if (std::abs(encoder_angles_.back() - pt.h) > M_PI)
+          // we're at a discontinuity
+          // check that the existing hvdir_pts are complete and push them to
+          // queue
+          if (checkComplete())
           {
-            // we're at a discontinuity
-            // check that the existing hvdir_pts are complete and push them to
-            // queue
-            if (checkComplete())
-            {
-              std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
-              period_queue_.push(std::move(encoder_angles_));
-              nonempty_condition_.notify_one();
-            }
-            else
-            {
-              // record statistics in case of timeout
-              stats_.num_incomplete_frames++;
-            }
-
-            // if encoder_angles_ are not complete, discard period
-						// we just moved encoder_angles_. Create a new object
-            encoder_angles_ = AngleContainer();
-            encoder_angles_.reserve(cloud_ptr->size());
-            encoder_angles_.push_back(pt.h);
+            std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
+            period_queue_.push(std::move(encoder_angles_));
+            nonempty_condition_.notify_one();
           }
           else
           {
-            encoder_angles_.push_back(pt.h);
+            // record statistics in case of timeout
+            stats_.num_incomplete_frames++;
           }
+
+          // if encoder_angles_ are not complete, discard period
+          // we just moved encoder_angles_. Create a new object
+          encoder_angles_ = AngleContainer();
+          encoder_angles_.reserve(cloud_ptr->size());
         }
+
+        encoder_angles_.push_back(pt.h);
       }
     }
 

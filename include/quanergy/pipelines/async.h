@@ -84,7 +84,7 @@ namespace quanergy
 
         if (input_queue_.size() > max_queue_size_)
         {
-          std::cout << "Warning: AsyncModule dropped input due to full buffer" << std::endl;
+          std::cerr << "Warning: AsyncModule dropped input due to full buffer" << std::endl;
           input_queue_.pop();
         }
 
