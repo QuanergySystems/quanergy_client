@@ -28,7 +28,7 @@ namespace quanergy
   namespace client
   {
 
-    const double M8_VERTICAL_ANGLES[] = { 
+    static const double M8_VERTICAL_ANGLES[] = {
       -0.318505, 
       -0.2692, 
       -0.218009, 
@@ -38,7 +38,7 @@ namespace quanergy
       0.f, 
       0.0557982 };
 
-    const double MQ8_VERTICAL_ANGLES[] = {
+    static const double MQ8_VERTICAL_ANGLES[] = {
       -0.24435,
       -0.18326,
       -0.14137,
@@ -50,13 +50,13 @@ namespace quanergy
 
     enum struct SensorType {M8, MQ8};
 
-    const std::int32_t M_SERIES_NUM_ROT_ANGLES = 10400;
+    static const std::int32_t M_SERIES_NUM_ROT_ANGLES = 10400;
 
     /** \brief Used to specify 'all' returns */
-    const int ALL_RETURNS = -1;
+    static const int ALL_RETURNS = -1;
 
     /** \brief limits cloud size for memory considerations; this is much larger than needed */
-    const std::int32_t MAX_CLOUD_SIZE = 1E6;
+    static const std::int32_t MAX_CLOUD_SIZE = 1E6;
 
     /** \brief Not a specialization because it is intended to be used by others. */
     struct DLLEXPORT DataPacketParserMSeries : public DataPacketParser

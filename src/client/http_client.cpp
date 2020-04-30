@@ -64,6 +64,7 @@ namespace quanergy
         throw InvalidHTTPResponse();
       }
 
+      // Status code 200 = OK
       if (status_code != 200)
       {
         throw HTTPResponseError(std::string("HTTP response returned error code: ") + std::to_string(status_code));

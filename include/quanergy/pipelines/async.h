@@ -64,7 +64,10 @@ namespace quanergy
           kill_ = true;
         }
         input_queue_conditional_.notify_one();
-        signal_thread_->join();
+        if (signal_thread_ && signal_thread_->joinable())
+        {
+          signal_thread_->join();
+        }
       }
 
       boost::signals2::connection connect(const typename Signal::slot_type& subscriber)
@@ -82,7 +85,8 @@ namespace quanergy
 
         input_queue_.push(input);
 
-        if (input_queue_.size() > max_queue_size_)
+        // while shouldn't be necessary but doesn't hurt just to be sure
+        while (input_queue_.size() > max_queue_size_)
         {
           std::cerr << "Warning: AsyncModule dropped input due to full buffer" << std::endl;
           input_queue_.pop();
