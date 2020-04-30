@@ -1,6 +1,6 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
@@ -9,7 +9,7 @@
  *
  *  \brief Filters HVDIR points based on intensity for a given ring.
  *
- *  This filter is designed to remove ring artifacts that are sometimes found in prototype M8 sensors
+ *  This filter is designed to remove ring artifacts that are sometimes found in prototype M-Series sensors
  */
 
 #ifndef QUANERGY_MODULES_RING_INTENSITY_FILTER_H
@@ -25,8 +25,8 @@
 #include <quanergy/common/point_hvdir.h>
 #include <quanergy/common/pointcloud_types.h>
 
-// For M8_NUM_LASERS
-#include <quanergy/client/m8_data_packet.h>
+// For M_SERIES_NUM_LASERS
+#include <quanergy/client/m_series_data_packet.h>
 
 #ifdef _MSC_VER
   #define DLLEXPORT __declspec(dllexport)
@@ -76,8 +76,8 @@ namespace quanergy
 
       Signal signal_;
 
-      float ring_filter_range_[M8_NUM_LASERS];
-      std::uint8_t ring_filter_intensity_[M8_NUM_LASERS];
+      float ring_filter_range_[M_SERIES_NUM_LASERS];
+      std::uint8_t ring_filter_intensity_[M_SERIES_NUM_LASERS];
     };
 
   } // namespace filters

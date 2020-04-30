@@ -1,6 +1,6 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
@@ -90,7 +90,7 @@ namespace quanergy
       virtual const char* what() const throw() { return "Invalid degrees per cloud"; }
     };
 
-    /** \brief Return selction must be less than M8_NUM_RETURNS */
+    /** \brief Return selction must be less than M_SERIES_NUM_LASERS */
     struct InvalidReturnSelection : public std::exception
     {
       virtual const char* what() const throw() { return "Invalid return selection"; }
@@ -102,6 +102,25 @@ namespace quanergy
       virtual const char* what() const throw() { return "Return ID mismatch"; }
     };
 
+    /** \brief Invalid vertical angles provided */
+    struct InvalidVerticalAngles: public std::runtime_error
+    {
+      explicit InvalidVerticalAngles(const std::string& message)
+        : std::runtime_error(message) {}
+    };
+
+    /** \brief HTTP response malformed */
+    struct InvalidHTTPResponse : public std::exception
+    {
+      virtual const char* what() const throw() { return "Invalid HTTP Response"; }
+    };
+
+    /** \brief error reading from socket */
+    struct HTTPResponseError : public std::runtime_error
+    {
+      explicit HTTPResponseError(const std::string& message)
+        : std::runtime_error(message) {}
+    };
 
 
   } // namespace client

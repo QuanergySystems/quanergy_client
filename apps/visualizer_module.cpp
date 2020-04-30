@@ -30,14 +30,13 @@ void VisualizerModule::slot(const quanergy::PointCloudXYZIRConstPtr& new_cloud)
   pcl::visualization::PointCloudColorHandlerGenericField<quanergy::PointXYZIR> color_handler(new_cloud, "intensity");
 
   // don't block if visualizer isn't available
-  if (pc_mutex_.try_lock_for(std::chrono::milliseconds(10)))
+  std::unique_lock<std::timed_mutex> lock(pc_mutex_, std::chrono::milliseconds(10));
+  if (lock)
   {
     if (!viewer_.updatePointCloud<quanergy::PointXYZIR>(new_cloud, color_handler, new_cloud->header.frame_id))
     {
       viewer_.addPointCloud<quanergy::PointXYZIR>(new_cloud, color_handler, new_cloud->header.frame_id);
     }
-
-    pc_mutex_.unlock();
   }
 }
 

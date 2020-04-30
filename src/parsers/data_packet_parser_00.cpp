@@ -11,8 +11,7 @@ namespace quanergy
 {
   namespace client
   {
-    DataPacketParser00::DataPacketParser00()
-      : DataPacketParserM8()
+    DataPacketParser00::DataPacketParser00() : DataPacketParserMSeries()
     {}
 
     bool DataPacketParser00::validate(const std::vector<char>& packet)
@@ -29,7 +28,7 @@ namespace quanergy
     {
       DataPacket00 data_packet;
       deserialize(packet.data(), data_packet);
-      return DataPacketParserM8::parse(data_packet.data_body, result);
+      return DataPacketParserMSeries::parse(data_packet.data_body, result);
     }
   } // namespace client
 

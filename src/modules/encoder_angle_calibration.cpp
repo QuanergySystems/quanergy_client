@@ -1,6 +1,6 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2016 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
@@ -165,46 +165,46 @@ namespace quanergy
 
       // Add the points to a point cloud. Do this until we have enough points
       // to check for a complete revolution
+      encoder_angles_.reserve(cloud_ptr->size());
       for (const auto& pt : *cloud_ptr)
       {
-        if (encoder_angles_.empty())
+        if (!encoder_angles_.empty() && std::abs(encoder_angles_.back() - pt.h) > M_PI)
         {
-          encoder_angles_.push_back(pt.h);
-        }
-        else
-        {
-          if (std::abs(encoder_angles_.back() - pt.h) > M_PI)
+          // we're at a discontinuity
+          // check that the existing hvdir_pts are complete and push them to
+          // queue
+          if (checkComplete())
           {
-            // we're at a discontinuity
-            // check that the existing hvdir_pts are complete and push them to
-            // queue
-            if (checkComplete())
-            {
-              std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
-              period_queue_.push(std::move(encoder_angles_));
-              nonempty_condition_.notify_one();
-            }
-            else
-            {
-              // record statistics in case of timeout
-              stats_.num_incomplete_frames++;
-            }
-
-            // if encoder_angles_ are not complete, discard period
-						// we just moved encoder_angles_. Create a new object
-            encoder_angles_ = AngleContainer();
-            encoder_angles_.push_back(pt.h);
+            std::lock_guard<decltype(queue_mutex_)> lock(queue_mutex_);
+            period_queue_.push(std::move(encoder_angles_));
+            nonempty_condition_.notify_one();
           }
           else
           {
-            encoder_angles_.push_back(pt.h);
+            // record statistics in case of timeout
+            stats_.num_incomplete_frames++;
           }
+
+          // if encoder_angles_ are not complete, discard period
+          // we just moved encoder_angles_. Create a new object
+          encoder_angles_ = AngleContainer();
+          encoder_angles_.reserve(cloud_ptr->size());
         }
+
+        encoder_angles_.push_back(pt.h);
       }
     }
 
     void EncoderAngleCalibration::setParams(double amplitude, double phase)
     {
+      // In reality, amplitude should be much much less than this but this
+      // protects the integrity of the math
+      if (amplitude < -2 * M_PI || amplitude > 2 * M_PI
+          || phase < -2 * M_PI || phase > 2 * M_PI)
+      {
+        throw std::invalid_argument("EncoderAngleCalibration amplitude or phase out of range [-2PI, 2PI]");
+      }
+
       amplitude_ = amplitude;
       phase_ = phase;
 
@@ -226,6 +226,14 @@ namespace quanergy
       {
         // corrects in place, saves copying other values
         point.h = point.h - (amplitude_ * std::sin(point.h + phase_));
+        if (point.h < -M_PI)
+        {
+          point.h += 2 * M_PI;
+        }
+        else if (point.h > M_PI)
+        {
+          point.h -= 2 * M_PI;
+        }
       }
 
       signal_(cloud_ptr);

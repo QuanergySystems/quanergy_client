@@ -1,6 +1,6 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2016 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
@@ -42,7 +42,7 @@ namespace quanergy
     /**
      * @brief This class calculates the error in the encoder angles and returns
      * the amplitude and phase shift of the sine function modeling the error in
-     * the encoder angles for the M8 Sensor. This class can also be provided
+     * the encoder angles for the M-Series Sensors. This class can also be provided
      * with the sine error parameters and apply the calibration to incoming
      * points.
      */
@@ -307,7 +307,7 @@ namespace quanergy
 
       /** This class continually fits a sinusoid to the error between the
        * expected horizontal angles and the horizontal angles received from the
-       * M8. We calculate this sinusoid model until the phase values converge to
+       * M-Series Sensor. We calculate this sinusoid model until the phase values converge to
        * within this value. This value is in radians. */
       double phase_convergence_threshold_ = 0.1;
 
@@ -340,7 +340,7 @@ namespace quanergy
       /** Calculated phase (radians) */
       double phase_ = 0.;
 
-      /** Frame rate of M8 sensor */
+      /** Frame rate of M-Series sensor */
       double frame_rate_ = 10.;
 
       /** Flag indicating that we're outputting calibration results constantly

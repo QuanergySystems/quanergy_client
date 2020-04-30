@@ -5,21 +5,21 @@
  **                                                            **
  ****************************************************************/
 
-#include <quanergy/parsers/data_packet_parser_m8.h>
+#include <quanergy/parsers/data_packet_parser_m_series.h>
 
 namespace quanergy
 {
   namespace client
   {
 
-    DataPacketParserM8::DataPacketParserM8()
+    DataPacketParserMSeries::DataPacketParserMSeries()
       : DataPacketParser()
       , packet_counter_(0)
       , cloud_counter_(0)
       , last_azimuth_(65000)
       , current_cloud_(new PointCloudHVDIR())
       , worker_cloud_(new PointCloudHVDIR())
-      , horizontal_angle_lookup_table_(M8_NUM_ROT_ANGLES+1)
+      , horizontal_angle_lookup_table_(M_SERIES_NUM_ROT_ANGLES+1)
       , start_azimuth_(0)
       , degrees_per_cloud_(360.0)
     {
@@ -27,30 +27,24 @@ namespace quanergy
       current_cloud_->reserve(maximum_cloud_size_);
       worker_cloud_->reserve(maximum_cloud_size_);
 
-      for (std::uint32_t i = 0; i <= M8_NUM_ROT_ANGLES; i++)
+      for (std::uint32_t i = 0; i <= M_SERIES_NUM_ROT_ANGLES; i++)
       {
         // Shift by half the rot angles to keep the number positive when wrapping.
-        std::uint32_t j = (i + M8_NUM_ROT_ANGLES/2) % M8_NUM_ROT_ANGLES;
+        std::uint32_t j = (i + M_SERIES_NUM_ROT_ANGLES/2) % M_SERIES_NUM_ROT_ANGLES;
 
         // normalized
-        double n = static_cast<double>(j) / static_cast<double>(M8_NUM_ROT_ANGLES);
+        double n = static_cast<double>(j) / static_cast<double>(M_SERIES_NUM_ROT_ANGLES);
 
         double rad = n * M_PI * 2.0 - M_PI;
 
         horizontal_angle_lookup_table_[i] = rad;
       }
-
-      const double* angle_in_radians = M8_VERTICAL_ANGLES;
-      for (std::uint32_t i = 0; i < M8_NUM_LASERS; ++i, ++angle_in_radians)
-      {
-        vertical_angle_lookup_table_[i] = *angle_in_radians;
-      }
     }
 
-    void DataPacketParserM8::setReturnSelection(int return_selection)
+    void DataPacketParserMSeries::setReturnSelection(int return_selection)
     {
       if ((return_selection != quanergy::client::ALL_RETURNS) &&
-          (return_selection < 0 || return_selection >= M8_NUM_RETURNS))
+          (return_selection < 0 || return_selection >= M_SERIES_NUM_LASERS))
       {
         throw InvalidReturnSelection();
       }
@@ -58,15 +52,21 @@ namespace quanergy
       return_selection_ = return_selection;
     }
 
-    void DataPacketParserM8::setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax)
+    void DataPacketParserMSeries::setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax)
     {
+      if(szmin > MAX_CLOUD_SIZE || szmax > MAX_CLOUD_SIZE)
+      {
+        throw std::invalid_argument(std::string("Cloud size limits cannot be larger than ")
+                                    + std::to_string(MAX_CLOUD_SIZE));
+      }
+
       if(szmin > 0)
         minimum_cloud_size_ = std::max(1,szmin);
       if(szmax > 0)
         maximum_cloud_size_ = std::max(minimum_cloud_size_,szmax);
     }
     
-    void DataPacketParserM8::setDegreesOfSweepPerCloud(double degrees_per_cloud)
+    void DataPacketParserMSeries::setDegreesOfSweepPerCloud(double degrees_per_cloud)
     {
       if ( degrees_per_cloud < 0 || degrees_per_cloud > 360.0 ) 
       {
@@ -75,8 +75,49 @@ namespace quanergy
       degrees_per_cloud_ = degrees_per_cloud;
     }
 
-    bool DataPacketParserM8::parse(const M8DataPacket& data_packet, PointCloudHVDIRPtr& result)
+    void DataPacketParserMSeries::setVerticalAngles(const std::vector<double> &vertical_angles)
     {
+      if (vertical_angles.size() != M_SERIES_NUM_LASERS)
+      {
+        throw InvalidVerticalAngles(std::string("Vertical Angles must be size: ")
+                                    + std::to_string(M_SERIES_NUM_LASERS)
+                                    + "; got a vector of length: "
+                                    + std::to_string(vertical_angles.size()));
+      }
+
+      vertical_angle_lookup_table_.resize(vertical_angles.size());
+
+      for (std::uint32_t i = 0; i < M_SERIES_NUM_LASERS; ++i)
+      {
+        vertical_angle_lookup_table_[i] = vertical_angles[i];
+      }
+    }
+
+    void DataPacketParserMSeries::setVerticalAngles(SensorType sensor)
+    {
+      if (sensor == SensorType::M8)
+      {
+        std::vector<double> vertical_angles(quanergy::client::M8_VERTICAL_ANGLES,
+                                            quanergy::client::M8_VERTICAL_ANGLES + quanergy::client::M_SERIES_NUM_LASERS);
+        setVerticalAngles(vertical_angles);
+      }
+      else if (sensor == SensorType::MQ8)
+      {
+        std::vector<double> vertical_angles(quanergy::client::MQ8_VERTICAL_ANGLES,
+                                            quanergy::client::MQ8_VERTICAL_ANGLES + quanergy::client::M_SERIES_NUM_LASERS);
+        setVerticalAngles(vertical_angles);
+      }
+    }
+
+
+    bool DataPacketParserMSeries::parse(const MSeriesDataPacket& data_packet, PointCloudHVDIRPtr& result)
+    {
+      // check that vertical angles have been defined
+      if (vertical_angle_lookup_table_.empty())
+      {
+        throw InvalidVerticalAngles("In parse, the vertical angle lookup table is empty; need to call setVerticalAngles.");
+      }
+
       bool ret = false;
 
       StatusType current_status = StatusType(data_packet.status);
@@ -125,13 +166,13 @@ namespace quanergy
       // get spin direction
       // check 3 points in the packet to figure out which way it is spinning
       // if the measurements disagree, it could be wrap so we'll ignore that
-      if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT/2].position < 0
-          && data_packet.data[M8_FIRING_PER_PKT/2].position - data_packet.data[M8_FIRING_PER_PKT-1].position < 0)
+      if (data_packet.data[0].position - data_packet.data[M_SERIES_FIRING_PER_PKT/2].position < 0
+          && data_packet.data[M_SERIES_FIRING_PER_PKT/2].position - data_packet.data[M_SERIES_FIRING_PER_PKT-1].position < 0)
       {
         direction_ = 1;
       }
-      else if (data_packet.data[0].position - data_packet.data[M8_FIRING_PER_PKT/2].position > 0
-          && data_packet.data[M8_FIRING_PER_PKT/2].position - data_packet.data[M8_FIRING_PER_PKT-1].position > 0)
+      else if (data_packet.data[0].position - data_packet.data[M_SERIES_FIRING_PER_PKT/2].position > 0
+          && data_packet.data[M_SERIES_FIRING_PER_PKT/2].position - data_packet.data[M_SERIES_FIRING_PER_PKT-1].position > 0)
       {
         direction_ = -1;
       }
@@ -145,12 +186,12 @@ namespace quanergy
       bool cloudfull = (current_cloud_->size() >= maximum_cloud_size_);
 
       // for each firing
-      for (int i = 0; i < M8_FIRING_PER_PKT; ++i)
+      for (int i = 0; i < M_SERIES_FIRING_PER_PKT; ++i)
       {
-        const M8FiringData &data = data_packet.data[i];
+        const MSeriesFiringData &data = data_packet.data[i];
 
         // calculate the angle in degrees
-        double azimuth_angle = (static_cast<double> ((data.position+(M8_NUM_ROT_ANGLES/2))%M8_NUM_ROT_ANGLES) / (M8_NUM_ROT_ANGLES) * 360.0) - 180.;
+        double azimuth_angle = (static_cast<double> ((data.position+(M_SERIES_NUM_ROT_ANGLES/2))%M_SERIES_NUM_ROT_ANGLES) / (M_SERIES_NUM_ROT_ANGLES) * 360.0) - 180.;
         double delta_angle = 0;
         if ( cloud_counter_ == 0 && start_azimuth_ == 0 )
         {
@@ -179,7 +220,7 @@ namespace quanergy
 
 						// interpolate the timestamp from the previous packet timestamp to the timestamp of this firing
             const double time_since_previous_packet =
-                (current_packet_stamp - previous_packet_stamp_) * i / static_cast<double>(M8_FIRING_PER_PKT);
+                (current_packet_stamp - previous_packet_stamp_) * i / static_cast<double>(M_SERIES_FIRING_PER_PKT);
             const auto current_firing_stamp = static_cast<uint64_t>(std::round(
                 previous_packet_stamp_ + time_since_previous_packet));
 
@@ -218,7 +259,7 @@ namespace quanergy
 
         double const horizontal_angle = horizontal_angle_lookup_table_[data.position];
 
-        for (int j = 0; j < M8_NUM_LASERS; j++)
+        for (int j = 0; j < M_SERIES_NUM_LASERS; j++)
         {
           // output point
           PointCloudHVDIR::PointType hvdir;
@@ -261,7 +302,7 @@ namespace quanergy
           }
           else
           {
-            for (int i = 0; i < quanergy::client::M8_NUM_RETURNS; ++i)
+            for (int i = 0; i < quanergy::client::M_SERIES_NUM_LASERS; ++i)
             {
               if (return_selection_ == i)
               {
@@ -293,7 +334,7 @@ namespace quanergy
       return ret;
     }
 
-    void DataPacketParserM8::organizeCloud(PointCloudHVDIRPtr & current_pc,
+    void DataPacketParserMSeries::organizeCloud(PointCloudHVDIRPtr & current_pc,
                                            PointCloudHVDIRPtr & temp_pc)
     {
       // transpose the cloud
@@ -307,16 +348,16 @@ namespace quanergy
       temp_pc->reserve(current_pc->size());
 
       unsigned int temp_index;
-      unsigned int width = current_pc->size () / M8_NUM_LASERS; // CONSTANT FOR NUM BEAMS
+      unsigned int width = current_pc->size () / M_SERIES_NUM_LASERS; // CONSTANT FOR NUM BEAMS
 
       // iterate through each ring from top down
-      for (int i = M8_NUM_LASERS - 1; i >= 0; --i)
+      for (int i = M_SERIES_NUM_LASERS - 1; i >= 0; --i)
       {
         // iterate through width in collect order
         for (unsigned int j = 0; j < width; ++j)
         {
           // original data is in collect order and laser order
-          temp_index = j * M8_NUM_LASERS + i;
+          temp_index = j * M_SERIES_NUM_LASERS + i;
 
           temp_pc->push_back(current_pc->points[temp_index]);
         }
@@ -324,7 +365,7 @@ namespace quanergy
 
       current_pc.swap(temp_pc);
 
-      current_pc->height = M8_NUM_LASERS;
+      current_pc->height = M_SERIES_NUM_LASERS;
       current_pc->width  = width;
     }
 
