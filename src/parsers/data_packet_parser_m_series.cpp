@@ -151,10 +151,14 @@ namespace quanergy
       if (data_packet.version <= 3 && data_packet.version != 0)
       {
         // some versions of API put 10 ns increments in this field
-        current_packet_stamp = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-2;
+        current_packet_stamp = static_cast<std::uint64_t>(data_packet.seconds) * 1000000ull
+                               + static_cast<std::uint64_t>(data_packet.nanoseconds) / 100ull;
       }
       else
-        current_packet_stamp = data_packet.seconds * 1E6 + data_packet.nanoseconds * 1E-3;
+      {
+        current_packet_stamp = static_cast<std::uint64_t>(data_packet.seconds) * 1000000ull
+                               + static_cast<std::uint64_t>(data_packet.nanoseconds) / 1000ull;
+      }
 
       if (previous_packet_stamp_ == 0)
       {

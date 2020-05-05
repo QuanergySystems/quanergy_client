@@ -71,8 +71,8 @@ namespace quanergy
 
       // this time is used for the cloud stamp which is a 64 bit integer in units of microseconds
       std::uint64_t current_packet_stamp =
-        data_packet.packet_header.seconds * 1E6 + 
-        data_packet.packet_header.nanoseconds * 1E-3;
+        static_cast<std::uint64_t>(data_packet.packet_header.seconds) * 1000000ull +
+        static_cast<std::uint64_t>(data_packet.packet_header.nanoseconds) / 1000ull;
 
       if (previous_packet_stamp_ == 0)
       {
