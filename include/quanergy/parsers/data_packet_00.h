@@ -50,7 +50,7 @@ namespace quanergy
       // deserialize each range
       const std::uint32_t* net_d_ptr = reinterpret_cast<const std::uint32_t*>(network_order.returns_distances);
       std::uint32_t* obj_d_ptr = reinterpret_cast<std::uint32_t*>(object.returns_distances);
-      std::for_each(obj_d_ptr, obj_d_ptr + M_SERIES_NUM_LASERS * M_SERIES_NUM_LASERS,
+      std::for_each(obj_d_ptr, obj_d_ptr + M_SERIES_NUM_RETURNS * M_SERIES_NUM_LASERS,
                     [&net_d_ptr](std::uint32_t& range)
                     {
                       range = deserialize(*net_d_ptr);
@@ -60,7 +60,7 @@ namespace quanergy
       // deserialize each intensity
       const std::uint8_t* net_i_ptr = reinterpret_cast<const std::uint8_t*>(network_order.returns_intensities);
       std::uint8_t* obj_i_ptr = reinterpret_cast<std::uint8_t*>(object.returns_intensities);
-      std::for_each(obj_i_ptr, obj_i_ptr + M_SERIES_NUM_LASERS * M_SERIES_NUM_LASERS,
+      std::for_each(obj_i_ptr, obj_i_ptr + M_SERIES_NUM_RETURNS * M_SERIES_NUM_LASERS,
                     [&net_i_ptr](std::uint8_t& intensity)
                     {
                       intensity = deserialize(*net_i_ptr);

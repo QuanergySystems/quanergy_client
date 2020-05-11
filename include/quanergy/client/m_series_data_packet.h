@@ -52,8 +52,8 @@ namespace quanergy
     {
       std::uint16_t position;
       std::uint16_t padding;
-      std::uint32_t returns_distances[M_SERIES_NUM_LASERS][M_SERIES_NUM_LASERS];   // 10 um resolution.
-      std::uint8_t  returns_intensities[M_SERIES_NUM_LASERS][M_SERIES_NUM_LASERS]; // 255 indicates saturation
+      std::uint32_t returns_distances[M_SERIES_NUM_RETURNS][M_SERIES_NUM_LASERS];   // 10 um resolution.
+      std::uint8_t  returns_intensities[M_SERIES_NUM_RETURNS][M_SERIES_NUM_LASERS]; // 255 indicates saturation
       std::uint8_t  returns_status[M_SERIES_NUM_LASERS];                      // 0 for now
     }; // 132 bytes
 

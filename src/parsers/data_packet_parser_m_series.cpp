@@ -44,7 +44,7 @@ namespace quanergy
     void DataPacketParserMSeries::setReturnSelection(int return_selection)
     {
       if ((return_selection != quanergy::client::ALL_RETURNS) &&
-          (return_selection < 0 || return_selection >= M_SERIES_NUM_LASERS))
+          (return_selection < 0 || return_selection >= M_SERIES_NUM_RETURNS))
       {
         throw InvalidReturnSelection();
       }
@@ -306,7 +306,7 @@ namespace quanergy
           }
           else
           {
-            for (int i = 0; i < quanergy::client::M_SERIES_NUM_LASERS; ++i)
+            for (int i = 0; i < quanergy::client::M_SERIES_NUM_RETURNS; ++i)
             {
               if (return_selection_ == i)
               {
