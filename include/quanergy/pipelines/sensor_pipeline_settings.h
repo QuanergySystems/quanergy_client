@@ -14,6 +14,8 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
+#include <quanergy/common/dll_export.h>
+
 namespace quanergy
 {
   namespace pipeline
@@ -22,7 +24,7 @@ namespace quanergy
     class SettingsFileLoader;
 
     /// \brief struct to hold settings values for the sensor pipeline
-    struct SensorPipelineSettings
+    struct DLLEXPORT SensorPipelineSettings
     {
       // host sensor or IP
       std::string host; // there is no default value that makes sense
@@ -71,7 +73,7 @@ namespace quanergy
 
     };
 
-    class SettingsFileLoader : public boost::property_tree::ptree
+    class DLLEXPORT SettingsFileLoader : public boost::property_tree::ptree
     {
     public:
       using boost::property_tree::ptree::ptree;

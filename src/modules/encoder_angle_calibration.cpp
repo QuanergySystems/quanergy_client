@@ -80,7 +80,7 @@ namespace quanergy
     }
 
     boost::signals2::connection EncoderAngleCalibration::connect(
-        const TYPENAME Signal::slot_type& subscriber)
+        const typename Signal::slot_type& subscriber)
     {
       return signal_.connect(subscriber);
     }

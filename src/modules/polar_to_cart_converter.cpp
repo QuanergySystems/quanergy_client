@@ -12,7 +12,7 @@ namespace quanergy
   namespace client
   {
 
-    boost::signals2::connection PolarToCartConverter::connect(const TYPENAME Signal::slot_type& subscriber)
+    boost::signals2::connection PolarToCartConverter::connect(const typename Signal::slot_type& subscriber)
     {
       return signal_.connect(subscriber);
     }

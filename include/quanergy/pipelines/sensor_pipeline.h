@@ -32,6 +32,8 @@
 // for setting file
 #include <quanergy/pipelines/sensor_pipeline_settings.h>
 
+#include <quanergy/common/dll_export.h>
+
 namespace quanergy
 {
   namespace pipeline
@@ -39,7 +41,7 @@ namespace quanergy
     /** \brief SensorPipeline covers all of the processing from raw packets to PCL point cloud
       * \details This is strictly for convenience; everything is public so the user has access to modify things
       */
-    struct SensorPipeline
+    struct DLLEXPORT SensorPipeline
     {
       // the parser type being used; this supports all Quanergy sensors by checking which of the provided
       // parsers supports the data packet recieved
@@ -99,7 +101,7 @@ namespace quanergy
        *  \returns connection object created
        */
       boost::signals2::connection connect(
-          const TYPENAME AsyncType::Signal::slot_type& subscriber)
+          const typename AsyncType::Signal::slot_type& subscriber)
       {
         return async.connect(subscriber);
       }

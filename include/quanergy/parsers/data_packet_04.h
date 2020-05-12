@@ -19,12 +19,7 @@
 // For various constants.
 #include <quanergy/client/m_series_data_packet.h>
 
-
-#ifdef _MSC_VER
-#define DLLEXPORT __declspec(dllexport)
-#else
-#define DLLEXPORT
-#endif
+#include <quanergy/common/dll_export.h>
 
 namespace quanergy
 {

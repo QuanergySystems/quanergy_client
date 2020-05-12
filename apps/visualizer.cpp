@@ -91,8 +91,8 @@ int main(int argc, char** argv)
     // let the user know if there is no host value
     if (pipeline_settings.host.empty())
     {
-      std::cout << "No host provided" << std::endl;
-      std::cout << description << std::endl;
+      std::cerr << "No host provided" << std::endl;
+      std::cerr << description << std::endl;
       return -1;
     }
 
@@ -113,16 +113,16 @@ int main(int argc, char** argv)
       }
       else
       {
-        std::cout << "Manual encoder correction expects exactly 2 paramters: amplitude and phase" << std::endl;
-        std::cout << description << std::endl;
+        std::cerr << "Manual encoder correction expects exactly 2 parameters: amplitude and phase" << std::endl;
+        std::cerr << description << std::endl;
         return -1;
       }
     }
   }
   catch (po::error& e)
   {
-    std::cout << "Boost Program Options Error: " << e.what() << std::endl << std::endl;
-    std::cout << description << std::endl;
+    std::cerr << "Boost Program Options Error: " << e.what() << std::endl << std::endl;
+    std::cerr << description << std::endl;
     return -1;
   }
   catch (std::exception& e)
@@ -131,15 +131,27 @@ int main(int argc, char** argv)
     return -2;
   }
 
+  // unique pointers so initialization can be in try/catch
+  std::unique_ptr<quanergy::client::SensorClient> client;
+  std::unique_ptr<quanergy::pipeline::SensorPipeline> pipeline;
+  std::unique_ptr<VisualizerModule> visualizer;
 
-  // create client to get raw packets from the sensor
-  quanergy::client::SensorClient client(pipeline_settings.host, port, 100);
+  try
+  {
+    // create client to get raw packets from the sensor
+    client.reset(new quanergy::client::SensorClient(pipeline_settings.host, port, 100));
 
-  // create pipeline to produce point cloud from raw packets
-  quanergy::pipeline::SensorPipeline pipeline(pipeline_settings);
+    // create pipeline to produce point cloud from raw packets
+    pipeline.reset(new quanergy::pipeline::SensorPipeline(pipeline_settings));
 
-  // visualizer to consume point clouds and display them
-  VisualizerModule visualizer;
+    // visualizer to consume point clouds and display them
+    visualizer.reset(new VisualizerModule());
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "Initialization Error: " << e.what() << std::endl;
+    return -3;
+  }
 
   // store connections for cleaner shutdown
   std::vector<boost::signals2::connection> connections;
@@ -148,16 +160,16 @@ int main(int argc, char** argv)
   /// if you'd like to parse the packets yourself, connect here
   ////////////////////////////////////////////
   // connect the packets from the client to the sensor pipeline
-  connections.push_back(client.connect(
-      [&pipeline](const std::shared_ptr<std::vector<char>>& packet){ pipeline.slot(packet); }
+  connections.push_back(client->connect(
+      [&pipeline](const std::shared_ptr<std::vector<char>>& packet){ pipeline->slot(packet); }
   ));
   
   ////////////////////////////////////////////
   /// connect application specific logic here to consume the point cloud
   ////////////////////////////////////////////
   // connect the pipeline to the visualizer
-  connections.push_back(pipeline.connect(
-      [&visualizer](const boost::shared_ptr<pcl::PointCloud<quanergy::PointXYZIR>>& pc){ visualizer.slot(pc); }
+  connections.push_back(pipeline->connect(
+      [&visualizer](const boost::shared_ptr<pcl::PointCloud<quanergy::PointXYZIR>>& pc){ visualizer->slot(pc); }
   ));
 
   // run the client in a separate thread
@@ -165,12 +177,12 @@ int main(int argc, char** argv)
   {
     try
     {
-      client.run();
+      client->run();
     }
     catch (std::exception& e)
     {
-      std::cerr << "Terminating after catching exception: " << e.what() << std::endl;
-      visualizer.stop();
+      std::cerr << "Terminating after catching client exception: " << e.what() << std::endl;
+      visualizer->stop();
     }
   });
 
@@ -178,10 +190,17 @@ int main(int argc, char** argv)
   /// put application specific initialization here
   ////////////////////////////////////////
   // start visualizer (blocks until stopped)
-  visualizer.run();
+  try
+  {
+    visualizer->run();
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "Terminating after catching visualizer error: " << e.what() << std::endl;
+  }
 
   // clean up
-  client.stop();
+  client->stop();
   connections.clear();
   client_thread.join();
 

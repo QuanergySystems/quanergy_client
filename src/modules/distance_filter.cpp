@@ -19,7 +19,7 @@ namespace quanergy
       , min_distance_threshold_(0.0f) {}
 
 
-    boost::signals2::connection DistanceFilter::connect(const TYPENAME Signal::slot_type& subscriber)
+    boost::signals2::connection DistanceFilter::connect(const typename Signal::slot_type& subscriber)
     {
       return signal_.connect(subscriber);
     }

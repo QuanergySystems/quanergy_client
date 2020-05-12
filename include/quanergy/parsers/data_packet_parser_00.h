@@ -20,11 +20,7 @@
 #include <quanergy/parsers/data_packet_00.h>
 #include <quanergy/parsers/data_packet_parser_m_series.h>
 
-#ifdef _MSC_VER
-  #define DLLEXPORT __declspec(dllexport)
-#else
-  #define DLLEXPORT
-#endif
+#include <quanergy/common/dll_export.h>
 
 namespace quanergy
 {
