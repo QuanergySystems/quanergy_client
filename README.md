@@ -2,7 +2,7 @@
 This SDK serves as sample code for connecting to Quanergy sensors.
 
 ## Build Instructions
-[Ubuntu 14.04 LTS](readme/ubuntu1404.md)
+[Ubuntu 18.04 LTS](readme/ubuntu1804.md)
 
 [Ubuntu 16.04 LTS](readme/ubuntu1604.md)
 
