@@ -7,6 +7,8 @@
 
 #include <boost/optional.hpp>
 
+#include <vector>
+
 namespace quanergy
 {
   namespace client

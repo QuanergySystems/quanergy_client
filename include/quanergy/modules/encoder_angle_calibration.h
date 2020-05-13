@@ -27,13 +27,7 @@
 #include <quanergy/common/pointcloud_types.h>
 #include <quanergy/common/angle.h>
 
-#ifdef _MSC_VER
-  #define DLLEXPORT __declspec(dllexport)
-  #define TYPENAME
-#else
-  #define DLLEXPORT
-  #define TYPENAME typename
-#endif
+#include <quanergy/common/dll_export.h>
 
 namespace quanergy
 {
@@ -110,7 +104,7 @@ namespace quanergy
        * 
        * @return connection between this class and subscriber
        */
-      boost::signals2::connection connect(const TYPENAME Signal::slot_type& subscriber);
+      boost::signals2::connection connect(const typename Signal::slot_type& subscriber);
 
       /** 
        * @brief Slot to be connected as a subscriber to another process. If

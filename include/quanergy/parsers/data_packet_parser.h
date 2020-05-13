@@ -16,12 +16,14 @@
 
 #include <quanergy/common/pointcloud_types.h>
 
+#include <quanergy/common/dll_export.h>
+
 namespace quanergy
 {
   namespace client
   {
     /** \brief base class for data packet parsers */
-    struct DataPacketParser : public PacketParserBase<PointCloudHVDIRPtr>
+    struct DLLEXPORT DataPacketParser : public PacketParserBase<PointCloudHVDIRPtr>
     {
       DataPacketParser() = default;
 

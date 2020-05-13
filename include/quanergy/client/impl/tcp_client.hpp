@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include <boost/version.hpp>
+
 namespace quanergy
 {
   namespace client
@@ -119,10 +121,16 @@ namespace quanergy
 
       try
       {
-        auto endpoint_iterator = resolver.resolve(host_query_);
+        auto endpoint = resolver.resolve(host_query_);
 
-        boost::asio::async_connect(*read_socket_, endpoint_iterator,
-                                   [this](boost::system::error_code error, boost::asio::ip::tcp::resolver::iterator)
+        boost::asio::async_connect(*read_socket_, endpoint,
+                                   [this](boost::system::error_code error,
+#if BOOST_VERSION < 106600
+                                          boost::asio::ip::tcp::resolver::iterator
+#else
+                                          boost::asio::ip::tcp::endpoint
+#endif
+                                         )
                                    {
                                      if (kill_)
                                      {

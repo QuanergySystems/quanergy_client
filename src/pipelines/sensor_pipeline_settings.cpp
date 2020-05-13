@@ -23,7 +23,7 @@ int SensorPipelineSettings::returnFromString(const std::string& r)
   else if (!r.empty() && std::all_of(r.begin(), r.end(), ::isdigit))
   {
     ret = std::atoi(r.c_str());
-    if (ret < 0 || ret >= quanergy::client::M_SERIES_NUM_LASERS)
+    if (ret < 0 || ret >= quanergy::client::M_SERIES_NUM_RETURNS)
     {
       throw std::invalid_argument("Invalid return selection");
     }
@@ -44,7 +44,7 @@ std::string SensorPipelineSettings::stringFromReturn(int r)
   {
     ret = "all";
   }
-  else if (r >= 0 && r < quanergy::client::M_SERIES_NUM_LASERS)
+  else if (r >= 0 && r < quanergy::client::M_SERIES_NUM_RETURNS)
   {
     ret = std::to_string(r);
   }

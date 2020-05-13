@@ -90,7 +90,7 @@ namespace quanergy
       virtual const char* what() const throw() { return "Invalid degrees per cloud"; }
     };
 
-    /** \brief Return selction must be less than M_SERIES_NUM_LASERS */
+    /** \brief Return selection must be less than M_SERIES_NUM_RETURNS */
     struct InvalidReturnSelection : public std::exception
     {
       virtual const char* what() const throw() { return "Invalid return selection"; }
