@@ -1,0 +1,96 @@
+diff --git a/ports/proj4/portfile.cmake b/ports/proj4/portfile.cmake
+index cdb55c059..b74e7c86c 100644
+--- a/ports/proj4/portfile.cmake
++++ b/ports/proj4/portfile.cmake
+@@ -23,9 +23,11 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
+     database BUILD_PROJ_DATABASE
+ )
+ if ("database" IN_LIST FEATURES)
+-    if (VCPKG_TARGET_IS_WINDOWS)
++    if (CMAKE_HOST_WIN32)
+         set(BIN_SUFFIX .exe)
+-        if (EXISTS ${CURRENT_INSTALLED_DIR}/../x86-windows/tools/sqlite3.exe)
++        if ((VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR (VCPKG_TARGET_ARCHITECTURE STREQUAL "x64" AND (NOT CMAKE_HOST_SYSTEM_PROCESSOR OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64"))) AND (EXISTS ${CURRENT_INSTALLED_DIR}/../${TARGET_TRIPLET}/tools/sqlite3.exe))
++            set(SQLITE3_BIN_PATH ${CURRENT_INSTALLED_DIR}/../${TARGET_TRIPLET}/tools)
++        elseif (EXISTS ${CURRENT_INSTALLED_DIR}/../x86-windows/tools/sqlite3.exe)
+             set(SQLITE3_BIN_PATH ${CURRENT_INSTALLED_DIR}/../x86-windows/tools)
+         elseif (EXISTS ${CURRENT_INSTALLED_DIR}/../x86-windows-static/tools/sqlite3.exe)
+             set(SQLITE3_BIN_PATH ${CURRENT_INSTALLED_DIR}/../x86-windows-static/tools)
+diff --git a/ports/vtk/portfile.cmake b/ports/vtk/portfile.cmake
+index 183b4e96b..39228f83f 100644
+--- a/ports/vtk/portfile.cmake
++++ b/ports/vtk/portfile.cmake
+@@ -130,19 +130,23 @@ vcpkg_fixup_cmake_targets()
+ # For some reason the references to the XDMF libraries in the target files do not end up
+ # correctly, so we fix them here.
+ if(VTK_WITH_ALL_MODULES)
+-    file(READ ${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-release.cmake VTK_TARGETS_RELEASE_CONTENT)
+-    string(REPLACE "lib/../XdmfCore.lib" "lib/XdmfCore.lib" VTK_TARGETS_RELEASE_CONTENT "${VTK_TARGETS_RELEASE_CONTENT}")
+-    string(REPLACE "bin/../XdmfCore.dll" "bin/XdmfCore.dll" VTK_TARGETS_RELEASE_CONTENT "${VTK_TARGETS_RELEASE_CONTENT}")
+-    string(REPLACE "lib/../vtkxdmf3.lib" "lib/vtkxdmf3.lib" VTK_TARGETS_RELEASE_CONTENT "${VTK_TARGETS_RELEASE_CONTENT}")
+-    string(REPLACE "bin/../vtkxdmf3.dll" "bin/vtkxdmf3.dll" VTK_TARGETS_RELEASE_CONTENT "${VTK_TARGETS_RELEASE_CONTENT}")
+-    file(WRITE ${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-release.cmake "${VTK_TARGETS_RELEASE_CONTENT}")
++    if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL release)
++        file(READ ${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-release.cmake VTK_TARGETS_RELEASE_CONTENT)
++        string(REPLACE "lib/../XdmfCore.lib" "lib/XdmfCore.lib" VTK_TARGETS_RELEASE_CONTENT "${VTK_TARGETS_RELEASE_CONTENT}")
++        string(REPLACE "bin/../XdmfCore.dll" "bin/XdmfCore.dll" VTK_TARGETS_RELEASE_CONTENT "${VTK_TARGETS_RELEASE_CONTENT}")
++        string(REPLACE "lib/../vtkxdmf3.lib" "lib/vtkxdmf3.lib" VTK_TARGETS_RELEASE_CONTENT "${VTK_TARGETS_RELEASE_CONTENT}")
++        string(REPLACE "bin/../vtkxdmf3.dll" "bin/vtkxdmf3.dll" VTK_TARGETS_RELEASE_CONTENT "${VTK_TARGETS_RELEASE_CONTENT}")
++        file(WRITE ${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-release.cmake "${VTK_TARGETS_RELEASE_CONTENT}")
++    endif()
+ 
+-    file(READ ${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-debug.cmake VTK_TARGETS_DEBUG_CONTENT)
+-    string(REPLACE "lib/../XdmfCore.lib" "lib/XdmfCore.lib" VTK_TARGETS_DEBUG_CONTENT "${VTK_TARGETS_DEBUG_CONTENT}")
+-    string(REPLACE "bin/../XdmfCore.dll" "bin/XdmfCore.dll" VTK_TARGETS_DEBUG_CONTENT "${VTK_TARGETS_DEBUG_CONTENT}")
+-    string(REPLACE "lib/../vtkxdmf3.lib" "lib/vtkxdmf3.lib" VTK_TARGETS_DEBUG_CONTENT "${VTK_TARGETS_DEBUG_CONTENT}")
+-    string(REPLACE "bin/../vtkxdmf3.dll" "bin/vtkxdmf3.dll" VTK_TARGETS_DEBUG_CONTENT "${VTK_TARGETS_DEBUG_CONTENT}")
+-    file(WRITE ${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-debug.cmake "${VTK_TARGETS_DEBUG_CONTENT}")
++    if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL debug)
++        file(READ ${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-debug.cmake VTK_TARGETS_DEBUG_CONTENT)
++        string(REPLACE "lib/../XdmfCore.lib" "lib/XdmfCore.lib" VTK_TARGETS_DEBUG_CONTENT "${VTK_TARGETS_DEBUG_CONTENT}")
++        string(REPLACE "bin/../XdmfCore.dll" "bin/XdmfCore.dll" VTK_TARGETS_DEBUG_CONTENT "${VTK_TARGETS_DEBUG_CONTENT}")
++        string(REPLACE "lib/../vtkxdmf3.lib" "lib/vtkxdmf3.lib" VTK_TARGETS_DEBUG_CONTENT "${VTK_TARGETS_DEBUG_CONTENT}")
++        string(REPLACE "bin/../vtkxdmf3.dll" "bin/vtkxdmf3.dll" VTK_TARGETS_DEBUG_CONTENT "${VTK_TARGETS_DEBUG_CONTENT}")
++        file(WRITE ${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-debug.cmake "${VTK_TARGETS_DEBUG_CONTENT}")
++    endif()
+ endif()
+ 
+ #file(READ "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets.cmake" VTK_TARGETS_CONTENT)
+@@ -182,11 +186,13 @@ function(_vtk_remove_debug_tool TOOL_NAME)
+     if(EXISTS ${filename_unix})
+         file(REMOVE ${filename_unix})
+     endif()
+-    # we also have to bend the lines referencing the tools in VTKTargets-debug.cmake
+-    # to make them point to the release version of the tools
+-    file(READ "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-debug.cmake" VTK_TARGETS_CONTENT_DEBUG)
+-    string(REPLACE "debug/bin/${TOOL_NAME}" "tools/vtk/${TOOL_NAME}" VTK_TARGETS_CONTENT_DEBUG "${VTK_TARGETS_CONTENT_DEBUG}")
+-    file(WRITE "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-debug.cmake" "${VTK_TARGETS_CONTENT_DEBUG}")
++    if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL debug)
++        # we also have to bend the lines referencing the tools in VTKTargets-debug.cmake
++        # to make them point to the release version of the tools
++        file(READ "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-debug.cmake" VTK_TARGETS_CONTENT_DEBUG)
++        string(REPLACE "debug/bin/${TOOL_NAME}" "tools/vtk/${TOOL_NAME}" VTK_TARGETS_CONTENT_DEBUG "${VTK_TARGETS_CONTENT_DEBUG}")
++        file(WRITE "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-debug.cmake" "${VTK_TARGETS_CONTENT_DEBUG}")
++    endif()
+ endfunction()
+ 
+ # Move the release binary TOOL_NAME from bin to tools
+@@ -203,11 +209,13 @@ function(_vtk_move_release_tool TOOL_NAME)
+         file(INSTALL ${old_filename_unix} DESTINATION "${CURRENT_PACKAGES_DIR}/tools/vtk")
+         file(REMOVE ${old_filename_unix})
+     endif()
+-    # we also have to bend the lines referencing the tools in VTKTargets-release.cmake
+-    # to make them point to the tool folder
+-    file(READ "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-release.cmake" VTK_TARGETS_CONTENT_RELEASE)
+-    string(REPLACE "bin/${TOOL_NAME}" "tools/vtk/${TOOL_NAME}" VTK_TARGETS_CONTENT_RELEASE "${VTK_TARGETS_CONTENT_RELEASE}")
+-    file(WRITE "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-release.cmake" "${VTK_TARGETS_CONTENT_RELEASE}")
++    if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL release)
++        # we also have to bend the lines referencing the tools in VTKTargets-release.cmake
++        # to make them point to the tool folder
++        file(READ "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-release.cmake" VTK_TARGETS_CONTENT_RELEASE)
++        string(REPLACE "bin/${TOOL_NAME}" "tools/vtk/${TOOL_NAME}" VTK_TARGETS_CONTENT_RELEASE "${VTK_TARGETS_CONTENT_RELEASE}")
++        file(WRITE "${CURRENT_PACKAGES_DIR}/share/vtk/VTKTargets-release.cmake" "${VTK_TARGETS_CONTENT_RELEASE}")
++    endif()
+ endfunction()
+ 
+ set(VTK_TOOLS

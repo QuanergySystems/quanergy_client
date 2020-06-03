@@ -94,9 +94,9 @@ set(client_SRCS
 add_library(quanergy_client SHARED ${client_SRCS})
 
 if(WIN32)
-  target_link_libraries(quanergy_client ws2_32 ${Boost_LIBRARIES})
+  target_link_libraries(quanergy_client ws2_32 ${Boost_LIBRARIES} ${PCL_LIBRARIES})
 else()
-  target_link_libraries(quanergy_client ${Boost_LIBRARIES})
+  target_link_libraries(quanergy_client ${Boost_LIBRARIES} ${PCL_LIBRARIES})
 endif()
 
 configure_file(doxyfile.in
