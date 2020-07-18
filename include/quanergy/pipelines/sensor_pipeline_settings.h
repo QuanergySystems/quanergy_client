@@ -33,10 +33,12 @@ namespace quanergy
       std::string frame = "quanergy";
 
       // return selection
-      // only applies to DataPacket00 (M-series)
       // options are 0, 1, 2 or quanergy::client::ALL_RETURNS which produces
-      //   an unorganized cloud with all 3 returns
+      //   an unorganized cloud with all 3 returns (if 3 returns are available)
       int return_selection = 0;
+      // return selection set; true if explicitly set
+      // single return packet parsers will produce an error if explicitly set to non-matching return
+      bool return_selection_set = false;
 
       // Encoder correction terms; for newer sensors, these are retrieved from the sensor but can be overridden
       // this is generally only applicable to high precision applications such as mapping

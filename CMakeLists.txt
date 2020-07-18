@@ -62,8 +62,8 @@ file(GLOB_RECURSE project_HEADERS
 
 include_directories(
   include
-  ${Boost_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS})
+  SYSTEM ${Boost_INCLUDE_DIRS}
+  SYSTEM ${PCL_INCLUDE_DIRS})
 
 link_directories(
   ${Boost_LIBRARY_DIRS}
@@ -82,6 +82,7 @@ set(client_SRCS
   src/parsers/data_packet_parser_00.cpp
   src/parsers/data_packet_parser_01.cpp
   src/parsers/data_packet_parser_04.cpp
+  src/parsers/data_packet_parser_06.cpp
   src/parsers/data_packet_parser_m_series.cpp
   src/client/http_client.cpp
   src/client/device_info.cpp

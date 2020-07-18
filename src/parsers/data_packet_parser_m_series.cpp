@@ -13,15 +13,10 @@ namespace quanergy
   {
 
     DataPacketParserMSeries::DataPacketParserMSeries()
-      : DataPacketParser()
-      , packet_counter_(0)
-      , cloud_counter_(0)
-      , last_azimuth_(65000)
+      : firing_cloud_(new PointCloudHVDIR())
       , current_cloud_(new PointCloudHVDIR())
       , worker_cloud_(new PointCloudHVDIR())
       , horizontal_angle_lookup_table_(M_SERIES_NUM_ROT_ANGLES+1)
-      , start_azimuth_(0)
-      , degrees_per_cloud_(360.0)
     {
       // Reserve space ahead of time for incoming data
       current_cloud_->reserve(maximum_cloud_size_);
@@ -50,6 +45,7 @@ namespace quanergy
       }
 
       return_selection_ = return_selection;
+      return_selection_set_ = true;
     }
 
     void DataPacketParserMSeries::setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax)
@@ -72,7 +68,7 @@ namespace quanergy
       {
         throw InvalidDegreesPerCloud();
       }
-      degrees_per_cloud_ = degrees_per_cloud;
+      angle_per_cloud_ = degrees_per_cloud*M_PI/180.;
     }
 
     void DataPacketParserMSeries::setVerticalAngles(const std::vector<double> &vertical_angles)
@@ -109,26 +105,15 @@ namespace quanergy
       }
     }
 
-
-    bool DataPacketParserMSeries::parse(const MSeriesDataPacket& data_packet, PointCloudHVDIRPtr& result)
+    void DataPacketParserMSeries::validateStatus(const StatusType& status)
     {
-      // check that vertical angles have been defined
-      if (vertical_angle_lookup_table_.empty())
+      if (status != StatusType::GOOD)
       {
-        throw InvalidVerticalAngles("In parse, the vertical angle lookup table is empty; need to call setVerticalAngles.");
-      }
-
-      bool ret = false;
-
-      StatusType current_status = StatusType(data_packet.status);
-
-      if (current_status != StatusType::GOOD)
-      {
-        if (static_cast<std::uint16_t>(data_packet.status) & static_cast<std::uint16_t>(StatusType::SENSOR_SW_FW_MISMATCH))
+        if (static_cast<std::uint16_t>(status) & static_cast<std::uint16_t>(StatusType::SENSOR_SW_FW_MISMATCH))
         {
           throw FirmwareVersionMismatchError();
         }
-        else if (static_cast<std::uint16_t>(data_packet.status) & static_cast<std::uint16_t>(StatusType::WATCHDOG_VIOLATION))
+        else if (static_cast<std::uint16_t>(status) & static_cast<std::uint16_t>(StatusType::WATCHDOG_VIOLATION))
         {
           throw FirmwareWatchdogViolationError();
         }
@@ -139,237 +124,172 @@ namespace quanergy
         // nothing.
       }
 
-      if (current_status != previous_status_)
+      if (status != previous_status_)
       {
-        std::cerr << "Sensor status: " << std::uint16_t(current_status) << std::endl;
+        std::cerr << "Sensor status: " << std::uint16_t(status) << std::endl;
 
-        previous_status_ = current_status;
+        previous_status_ = status;
       }
+    }
 
-      // get the timestamp of the last point in the packet as 64 bit integer in units of microseconds
-      std::uint64_t current_packet_stamp ;
-      if (data_packet.version <= 3 && data_packet.version != 0)
+    // register new packet for time and direction
+    void DataPacketParserMSeries::registerNewPacket(const std::uint64_t& current_packet_stamp_ms,
+      const int& start_pos, const int& mid_pos, const int& end_pos)
+    {
+      if (previous_packet_stamp_ms_ == 0)
       {
-        // some versions of API put 10 ns increments in this field
-        current_packet_stamp = static_cast<std::uint64_t>(data_packet.seconds) * 1000000ull
-                               + static_cast<std::uint64_t>(data_packet.nanoseconds) / 100ull;
+        previous_packet_stamp_ms_ = current_packet_stamp_ms;
       }
       else
       {
-        current_packet_stamp = static_cast<std::uint64_t>(data_packet.seconds) * 1000000ull
-                               + static_cast<std::uint64_t>(data_packet.nanoseconds) / 1000ull;
+        previous_packet_stamp_ms_ = current_packet_stamp_ms_;
       }
 
-      if (previous_packet_stamp_ == 0)
-      {
-        previous_packet_stamp_ = current_packet_stamp;
-      }
-
-      ++packet_counter_;
+      current_packet_stamp_ms_  = current_packet_stamp_ms;
 
       // get spin direction
       // check 3 points in the packet to figure out which way it is spinning
       // if the measurements disagree, it could be wrap so we'll ignore that
-      if (data_packet.data[0].position - data_packet.data[M_SERIES_FIRING_PER_PKT/2].position < 0
-          && data_packet.data[M_SERIES_FIRING_PER_PKT/2].position - data_packet.data[M_SERIES_FIRING_PER_PKT-1].position < 0)
+      if (start_pos - mid_pos < 0 && mid_pos - end_pos < 0)
       {
         direction_ = 1;
       }
-      else if (data_packet.data[0].position - data_packet.data[M_SERIES_FIRING_PER_PKT/2].position > 0
-          && data_packet.data[M_SERIES_FIRING_PER_PKT/2].position - data_packet.data[M_SERIES_FIRING_PER_PKT-1].position > 0)
+      else if (start_pos - mid_pos > 0 && mid_pos - end_pos > 0)
       {
         direction_ = -1;
       }
 
-      double distance_scaling = 0.01f;
-      if (data_packet.version >= 5)
-      {
-        distance_scaling = 0.00001f;
-      }
+      firing_number_ = 0;
+    }
+
+    bool DataPacketParserMSeries::checkComplete(const float& azimuth_angle, PointCloudHVDIRPtr& result)
+    {
+      bool result_updated = false;
 
       bool cloudfull = (current_cloud_->size() >= maximum_cloud_size_);
 
-      // for each firing
-      for (int i = 0; i < M_SERIES_FIRING_PER_PKT; ++i)
+      // get swept angle
+      double delta_angle = 0;
+      if (cloud_counter_ == 0 && start_azimuth_ == 0)
       {
-        const MSeriesFiringData &data = data_packet.data[i];
-
-        // calculate the angle in degrees
-        double azimuth_angle = (static_cast<double> ((data.position+(M_SERIES_NUM_ROT_ANGLES/2))%M_SERIES_NUM_ROT_ANGLES) / (M_SERIES_NUM_ROT_ANGLES) * 360.0) - 180.;
-        double delta_angle = 0;
-        if ( cloud_counter_ == 0 && start_azimuth_ == 0 )
+        start_azimuth_ = azimuth_angle;
+      } 
+      else 
+      {
+        // calculate delta
+        delta_angle = direction_ * (azimuth_angle - start_azimuth_);
+        while (delta_angle < 0.0)
         {
-          start_azimuth_ = azimuth_angle;
-        } 
-        else 
-        {
-          // calculate delta
-          delta_angle = direction_*(azimuth_angle - start_azimuth_);
-          while ( delta_angle < 0.0 )
-          {
-            delta_angle += 360.0;
-          }
+          delta_angle += 2*M_PI;
         }
+      }
         
-        if ( delta_angle >= degrees_per_cloud_ || (degrees_per_cloud_==360.0 && (direction_*azimuth_angle < direction_*last_azimuth_) ))
+      // check if we've completed the sweep; if so complete the point cloud
+      if (delta_angle >= angle_per_cloud_ || (angle_per_cloud_==2*M_PI && (direction_*azimuth_angle < direction_*last_azimuth_)))
+      {
+        start_azimuth_ = azimuth_angle;
+        if (current_cloud_->size () > minimum_cloud_size_)
         {
-          start_azimuth_ = azimuth_angle;
-          if (current_cloud_->size () > minimum_cloud_size_)
+          // we have a successful packet
+
+          if(cloudfull)
           {
-            if(cloudfull)
-            {
-              std::cout << "Warning: Maximum cloud size limit of ("
-                  << maximum_cloud_size_ << ") exceeded" << std::endl;
-            }
-
-						// interpolate the timestamp from the previous packet timestamp to the timestamp of this firing
-            const double time_since_previous_packet =
-                (current_packet_stamp - previous_packet_stamp_) * i / static_cast<double>(M_SERIES_FIRING_PER_PKT);
-            const auto current_firing_stamp = static_cast<uint64_t>(std::round(
-                previous_packet_stamp_ + time_since_previous_packet));
-
-            current_cloud_->header.stamp = current_firing_stamp;
-            current_cloud_->header.seq = cloud_counter_;
-            current_cloud_->header.frame_id = frame_id_;
-
-            // can't organize if we kept all points
-            if (return_selection_ != quanergy::client::ALL_RETURNS)
-            {
-              organizeCloud(current_cloud_, worker_cloud_);
-            }
-
-            ++cloud_counter_;
-
-            // fire the signal that we have a new cloud
-            result = current_cloud_;
-            ret = true;
-          }
-          else if(current_cloud_->size() > 0)
-          {
-            std::cout << "Warning: Minimum cloud size limit of (" << minimum_cloud_size_
-                << ") not reached (" << current_cloud_->size() << ")" << std::endl;
+            std::cout << "Warning: Maximum cloud size limit of ("
+                << maximum_cloud_size_ << ") exceeded" << std::endl;
           }
 
-          // start a new cloud
-          current_cloud_.reset(new PointCloudHVDIR());
-          // at first we assume it is dense
-          current_cloud_->is_dense = true;
-          current_cloud_->reserve(maximum_cloud_size_);
-          cloudfull = false;
+          // interpolate the timestamp from the previous packet timestamp to the timestamp of this firing
+          const double time_since_previous_packet_ms =
+              static_cast<double>((current_packet_stamp_ms_ - previous_packet_stamp_ms_) * firing_number_) 
+              / static_cast<double>(M_SERIES_FIRING_PER_PKT);
+          const std::uint64_t current_firing_stamp = previous_packet_stamp_ms_
+              + static_cast<std::uint64_t>(std::round(time_since_previous_packet_ms));
+
+          current_cloud_->header.stamp = current_firing_stamp;
+          current_cloud_->header.seq = cloud_counter_;
+          current_cloud_->header.frame_id = frame_id_;
+
+          ++cloud_counter_;
+
+          // fire the signal that we have a new cloud
+          result = current_cloud_;
+          result_updated = true;
+        }
+        else if(current_cloud_->size() > 0)
+        {
+          std::cout << "Warning: Minimum cloud size limit of (" << minimum_cloud_size_
+              << ") not reached (" << current_cloud_->size() << ")" << std::endl;
         }
 
-        if(cloudfull)
-          continue;
-
-        double const horizontal_angle = horizontal_angle_lookup_table_[data.position];
-
-        for (int j = 0; j < M_SERIES_NUM_LASERS; j++)
-        {
-          // output point
-          PointCloudHVDIR::PointType hvdir;
-
-          double const vertical_angle = vertical_angle_lookup_table_[j];
-
-          hvdir.h = horizontal_angle;
-          hvdir.v = vertical_angle;
-          hvdir.ring = j;
-
-          if (return_selection_ == quanergy::client::ALL_RETURNS)
-          {
-            // for the all case, we won't keep NaN points and we'll compare
-            // distances to illiminate duplicates
-            // index 0 (max return) could equal index 1 (first) and/or index 2 (last)
-            hvdir.intensity = data.returns_intensities[0][j];
-            std::uint32_t d = data.returns_distances[0][j];
-            if (d != 0)
-            {
-              hvdir.d = static_cast<float>(d) * distance_scaling; // convert range to meters
-              // add the point to the current scan
-              current_cloud_->push_back(hvdir);
-            }
-
-            if (data.returns_distances[1][j] != 0 && data.returns_distances[1][j] != d)
-            {
-              hvdir.intensity = data.returns_intensities[0][j];
-              hvdir.d = static_cast<float>(data.returns_distances[1][j]) * distance_scaling; // convert range to meters
-              // add the point to the current scan
-              current_cloud_->push_back(hvdir);
-            }
-
-            if (data.returns_distances[2][j] != 0 && data.returns_distances[2][j] != d)
-            {
-              hvdir.intensity = data.returns_intensities[0][j];
-              hvdir.d = static_cast<float>(data.returns_distances[2][j]) * distance_scaling; // convert range to meters
-              // add the point to the current scan
-              current_cloud_->push_back(hvdir);
-            }
-          }
-          else
-          {
-            for (int i = 0; i < quanergy::client::M_SERIES_NUM_RETURNS; ++i)
-            {
-              if (return_selection_ == i)
-              {
-                hvdir.intensity = data.returns_intensities[i][j];
-
-                if (data.returns_distances[i][j] == 0)
-                {
-                  hvdir.d = std::numeric_limits<float>::quiet_NaN();
-                  // if the range is NaN, the cloud is not dense
-                  current_cloud_->is_dense = false;
-                }
-                else
-                {
-                  hvdir.d = static_cast<float>(data.returns_distances[i][j]) * distance_scaling; // convert range to meters
-                }
-
-                // add the point to the current scan
-                current_cloud_->push_back(hvdir);
-              }
-            }
-          }
-        }
-
-        last_azimuth_ = azimuth_angle;
+        // start a new cloud
+        current_cloud_.reset(new PointCloudHVDIR());
+        // at first we assume it is dense
+        current_cloud_->is_dense = true;
+        current_cloud_->reserve(maximum_cloud_size_);
+        cloudfull = false;
       }
 
-      previous_packet_stamp_ = current_packet_stamp;
+      last_azimuth_ = azimuth_angle;
 
-      return ret;
+      return result_updated;
     }
 
-    void DataPacketParserMSeries::organizeCloud(PointCloudHVDIRPtr & current_pc,
-                                           PointCloudHVDIRPtr & temp_pc)
+    void DataPacketParserMSeries::addFiring(const PointCloudHVDIRPtr& firing_cloud)
     {
-      // transpose the cloud
-      temp_pc->clear();
+      if (firing_cloud_->empty())
+        return;
 
-      temp_pc->header.stamp = current_pc->header.stamp;
-      temp_pc->header.seq = current_pc->header.seq;
-      temp_pc->header.frame_id = current_pc->header.frame_id;
+      bool cloudfull = (current_cloud_->size() >= maximum_cloud_size_);
+
+      // if the cloud isn't full, add the firing
+      if (!cloudfull)
+      {
+        ++firing_number_;
+
+        current_cloud_->points.insert(current_cloud_->points.end(),
+          firing_cloud->points.begin(), firing_cloud->points.end());
+
+        current_cloud_->is_dense = current_cloud_->is_dense && firing_cloud->is_dense;
+      }
+    }
+
+    void DataPacketParserMSeries::organizeCloud(PointCloudHVDIRPtr& current_pc, 
+                                                unsigned int height)
+    {
+      if (height == 0 || current_pc->size() % height != 0)
+      {
+        throw std::runtime_error("Can't organize cloud when size is not divisible by height");
+      }
+
+      // transpose the cloud
+      worker_cloud_->clear();
+
+      worker_cloud_->header.stamp = current_pc->header.stamp;
+      worker_cloud_->header.seq = current_pc->header.seq;
+      worker_cloud_->header.frame_id = current_pc->header.frame_id;
 
       // reserve space
-      temp_pc->reserve(current_pc->size());
+      worker_cloud_->reserve(current_pc->size());
 
       unsigned int temp_index;
-      unsigned int width = current_pc->size () / M_SERIES_NUM_LASERS; // CONSTANT FOR NUM BEAMS
+      unsigned int width = current_pc->size () / height;
 
       // iterate through each ring from top down
-      for (int i = M_SERIES_NUM_LASERS - 1; i >= 0; --i)
+      for (int i = height - 1; i >= 0; --i)
       {
         // iterate through width in collect order
         for (unsigned int j = 0; j < width; ++j)
         {
           // original data is in collect order and laser order
-          temp_index = j * M_SERIES_NUM_LASERS + i;
+          temp_index = j * height + i;
 
-          temp_pc->push_back(current_pc->points[temp_index]);
+          worker_cloud_->push_back(current_pc->points[temp_index]);
         }
       }
 
-      current_pc.swap(temp_pc);
+      current_pc.swap(worker_cloud_);
 
-      current_pc->height = M_SERIES_NUM_LASERS;
+      current_pc->height = height;
       current_pc->width  = width;
     }
 

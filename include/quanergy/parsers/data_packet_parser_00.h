@@ -28,7 +28,7 @@ namespace quanergy
   {
     struct DLLEXPORT DataPacketParser00 : public DataPacketParserMSeries
     {
-      DataPacketParser00();
+      DataPacketParser00() = default;
 
       virtual bool validate(const std::vector<char>& packet) override;
 

@@ -59,13 +59,11 @@ namespace quanergy
     {
       DataPacketParserMSeries();
 
-      virtual bool parse(const MSeriesDataPacket& data_packet, PointCloudHVDIRPtr& result);
-
       void setReturnSelection(int return_selection);
       void setCloudSizeLimits(std::int32_t szmin, std::int32_t szmax);
       void setDegreesOfSweepPerCloud(double degrees_per_cloud);
       
-      double getDegreesOfSweepPerCloud() const { return degrees_per_cloud_; }
+      double getDegreesOfSweepPerCloud() const { return angle_per_cloud_*180./M_PI; }
 
       /// set vertical angles to use
       void setVerticalAngles(const std::vector<double>& vertical_angles);
@@ -73,22 +71,38 @@ namespace quanergy
       void setVerticalAngles(SensorType sensor);
 
     protected:
-      static void organizeCloud(PointCloudHVDIRPtr & current_pc,
-                                PointCloudHVDIRPtr & temp_pc);
+      // validate status and throw error if appropriate, print message if changed
+      void validateStatus(const StatusType& status);
 
-      /// global packet counter
-      uint32_t packet_counter_;
+      // register new packet for time and direction
+      void registerNewPacket(const std::uint64_t& current_packet_stamp_ms,
+        const int& start_pos, const int& mid_pos, const int& end_pos);
+
+      // check whether the cloud is complete; if so, fill result and return true
+      bool checkComplete(const float& azimuth_angle, PointCloudHVDIRPtr& result);
+      
+      // add firing of data
+      void addFiring(const PointCloudHVDIRPtr& firing_cloud);
+
+      // organize current_pc with height specified; throws if size not divisible by height
+      void organizeCloud(PointCloudHVDIRPtr& current_pc,
+        unsigned int height = M_SERIES_NUM_LASERS);
 
       /// global cloud counter
-      uint32_t cloud_counter_;
+      std::uint32_t cloud_counter_ = 0;
 
       /// last accounted for azimuth angle
-      double last_azimuth_;
+      double last_azimuth_ = 65000.;
 
       /// timestamp of previous data packet (microseconds)
-      std::uint64_t previous_packet_stamp_ = 0;
+      std::uint64_t current_packet_stamp_ms_ = 0;
+      std::uint64_t previous_packet_stamp_ms_ = 0;
 
+      /// cloud used for each firing defined here to reduce construct/resize costs
+      PointCloudHVDIRPtr firing_cloud_;
+      /// cloud that gets built up over time
       PointCloudHVDIRPtr current_cloud_;
+      /// temp cloud for organization used to reduce construct and resize costs
       PointCloudHVDIRPtr worker_cloud_;
 
       /// lookup table for horizontal angle
@@ -97,22 +111,27 @@ namespace quanergy
       /// lookup table for vertical angle
       std::vector<double> vertical_angle_lookup_table_;
 
-      /// return selection
+      /// return selection; default to return 0
       int return_selection_ = 0;
+      /// whether return selection was explicitly set
+      bool return_selection_set_ = false;
 
       /// cloud size limits
       std::int32_t minimum_cloud_size_ = 1;
       std::int32_t maximum_cloud_size_ = MAX_CLOUD_SIZE;
       
       /// cloud degrees of sweep
-      double start_azimuth_;
-      double degrees_per_cloud_;
+      double start_azimuth_ = 0.;
+      double angle_per_cloud_ = 2*M_PI;
 
       /// direction
       int direction_ = 1; // start with an assumed direction until we can calculate
 
       /// previous status
       StatusType previous_status_ = StatusType::GOOD;
+
+      /// firing number in packet
+      int firing_number_ = 0;
     };
 
   } // namespace client
