@@ -147,7 +147,7 @@ namespace quanergy
         // check whether cloud is complete
         bool complete = checkComplete(hvdir.h, result);
 
-	// add firing to scan
+        // add firing to scan
         addFiring(firing_cloud_);
 
         // organize if appropriate

@@ -73,6 +73,7 @@ namespace quanergy
 
     void DataPacketParserMSeries::setVerticalAngles(const std::vector<double> &vertical_angles)
     {
+      // this is only intended for M8/MQ8
       if (vertical_angles.size() != M_SERIES_NUM_LASERS)
       {
         throw InvalidVerticalAngles(std::string("Vertical Angles must be size: ")
@@ -81,12 +82,8 @@ namespace quanergy
                                     + std::to_string(vertical_angles.size()));
       }
 
-      vertical_angle_lookup_table_.resize(vertical_angles.size());
+      vertical_angle_lookup_table_ = vertical_angles;
 
-      for (std::uint32_t i = 0; i < M_SERIES_NUM_LASERS; ++i)
-      {
-        vertical_angle_lookup_table_[i] = vertical_angles[i];
-      }
     }
 
     void DataPacketParserMSeries::setVerticalAngles(SensorType sensor)

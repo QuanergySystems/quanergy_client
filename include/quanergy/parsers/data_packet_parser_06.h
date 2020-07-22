@@ -33,7 +33,6 @@ namespace quanergy
 
       virtual bool validate(const std::vector<char>& packet) override;
   
-
       virtual bool parse(const std::vector<char>& packet, PointCloudHVDIRPtr& result) override;
 
     private:

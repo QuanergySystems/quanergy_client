@@ -31,7 +31,7 @@ namespace quanergy
       -0.165195, 
       -0.111003, 
       -0.0557982, 
-      0.f, 
+      0., 
       0.0557982 };
 
     static const double MQ8_VERTICAL_ANGLES[] = {
@@ -65,7 +65,7 @@ namespace quanergy
       
       double getDegreesOfSweepPerCloud() const { return angle_per_cloud_*180./M_PI; }
 
-      /// set vertical angles to use
+      /// set vertical angles to use for M8/MQ8
       void setVerticalAngles(const std::vector<double>& vertical_angles);
       /// set vertical angles to the default values for the specified sensors
       void setVerticalAngles(SensorType sensor);
