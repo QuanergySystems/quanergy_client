@@ -61,9 +61,11 @@ file(GLOB_RECURSE project_HEADERS
 
 
 include_directories(
-  include
-  SYSTEM ${Boost_INCLUDE_DIRS}
-  SYSTEM ${PCL_INCLUDE_DIRS})
+  include)
+
+include_directories(SYSTEM
+  ${Boost_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS})
 
 link_directories(
   ${Boost_LIBRARY_DIRS}
