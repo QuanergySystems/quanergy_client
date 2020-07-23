@@ -40,22 +40,31 @@ DeviceInfo::DeviceInfo(const std::string& host)
     amplitude_ = calibration_data->get_optional<double>("encoder.amplitude");
     phase_ = calibration_data->get_optional<double>("encoder.phase");
 
-    // get vertical angles
-    vertical_angles_.resize(calibration_data->get<unsigned int>("lasers.<xmlattr>.number"), 0.);
-
-    for (auto& laser : calibration_data->get_child("lasers"))
+    // get vertical angles, if available
+    auto laser_data = calibration_data->get_child_optional("lasers");
+    if (laser_data)
     {
-      if (laser.first == "laser")
+      vertical_angles_.resize(laser_data->get<unsigned int>("<xmlattr>.number"), 0.);
+
+      for (auto& laser : *laser_data)
       {
-        auto id = laser.second.get<unsigned int>("<xmlattr>.id");
-        if (id < vertical_angles_.size())
+        if (laser.first == "laser")
         {
-          vertical_angles_[id] = laser.second.get<double>("v");
-        }
-      }
-    }
-  }
-}
+          auto id = laser.second.get<unsigned int>("<xmlattr>.id");
+          if (id < vertical_angles_.size())
+          {
+            vertical_angles_[id] = laser.second.get<double>("v");
+          } // if id valid
+
+        } // if laser
+
+      } // for laser
+
+    } // if laser data
+
+  } // if cal data
+
+} // constructor
 
 
 
