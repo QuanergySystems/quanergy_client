@@ -86,28 +86,32 @@ namespace quanergy
           {
             // for the all case, we won't keep NaN points and we'll compare
             // distances to illiminate duplicates
-            // index 0 (max return) could equal index 1 (first) and/or index 2 (last)
-            hvdir.intensity = firing.returns_intensities[0][laser_index];
-            std::uint32_t d = firing.returns_distances[0][laser_index];
-            if (d != 0)
+            // index 2 could equal index 0 and/or index 1
+            // index 1 could equal index 0 but only if all 3 are equal so don't need to check that as separate case
+            std::uint32_t dist2 = firing.returns_distances[2][laser_index];
+
+            std::uint32_t dist0 = firing.returns_distances[0][laser_index];
+            if (dist0 != 0 && dist0 != dist2)
             {
-              hvdir.d = static_cast<float>(d) * distance_scaling; // convert range to meters
+              hvdir.intensity = firing.returns_intensities[0][laser_index];
+              hvdir.d = static_cast<float>(dist0) * distance_scaling; // convert range to meters
               // add the point to the current firing
               firing_cloud_->push_back(hvdir);
             }
 
-            if (firing.returns_distances[1][laser_index] != 0 && firing.returns_distances[1][laser_index] != d)
+            std::uint32_t dist1 = firing.returns_distances[1][laser_index];
+            if (dist1 != 0 && dist1 != dist2)
             {
               hvdir.intensity = firing.returns_intensities[1][laser_index];
-              hvdir.d = static_cast<float>(firing.returns_distances[1][laser_index]) * distance_scaling; // convert range to meters
+              hvdir.d = static_cast<float>(dist1) * distance_scaling; // convert range to meters
               // add the point to the current firing
               firing_cloud_->push_back(hvdir);
             }
 
-            if (firing.returns_distances[2][laser_index] != 0 && firing.returns_distances[2][laser_index] != d)
+            if (dist2 != 0)
             {
               hvdir.intensity = firing.returns_intensities[2][laser_index];
-              hvdir.d = static_cast<float>(firing.returns_distances[2][laser_index]) * distance_scaling; // convert range to meters
+              hvdir.d = static_cast<float>(dist2) * distance_scaling; // convert range to meters
               // add the point to the current firing
               firing_cloud_->push_back(hvdir);
             }
@@ -116,29 +120,21 @@ namespace quanergy
           else
           {
             // just want a single return case
-            for (int return_index = 0; return_index < quanergy::client::M_SERIES_NUM_RETURNS; ++return_index)
+            hvdir.intensity = firing.returns_intensities[return_selection_][laser_index];
+
+            if (firing.returns_distances[return_selection_][laser_index] == 0)
             {
-              if (return_selection_ == return_index)
-              {
-                hvdir.intensity = firing.returns_intensities[return_index][laser_index];
+              hvdir.d = std::numeric_limits<float>::quiet_NaN();
+              // if the range is NaN, the cloud is not dense
+              firing_cloud_->is_dense = false;
+            }
+            else
+            {
+              hvdir.d = static_cast<float>(firing.returns_distances[return_selection_][laser_index]) * distance_scaling; // convert range to meters
+            }
 
-                if (firing.returns_distances[return_index][laser_index] == 0)
-                {
-                  hvdir.d = std::numeric_limits<float>::quiet_NaN();
-                  // if the range is NaN, the cloud is not dense
-                  firing_cloud_->is_dense = false;
-                }
-                else
-                {
-                  hvdir.d = static_cast<float>(firing.returns_distances[return_index][laser_index]) * distance_scaling; // convert range to meters
-                }
-
-                // add the point to the current firing
-                firing_cloud_->push_back(hvdir);
-
-              } // if (return_selection_ == return_index)
-
-            } // for return index
+            // add the point to the current firing
+            firing_cloud_->push_back(hvdir);
 
           } // else (return_selection_ != quanergy::client::ALL_RETURNS)
 

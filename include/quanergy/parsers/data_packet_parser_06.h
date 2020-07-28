@@ -89,28 +89,32 @@ namespace quanergy
           {
             // for the all case, we won't keep NaN points and we'll compare
             // distances to illiminate duplicates
-            // index 0 (max return) could equal index 1 (first) and/or index 2 (last)
-            hvdir.intensity = firing.intensity[0];
-            std::uint32_t d = firing.radius[0];
-            if (d != 0)
+            // index 2 could equal index 0 and/or index 1
+            // index 1 could equal index 0 but only if all 3 are equal so don't need to check that as separate case
+            std::uint32_t dist2 = firing.radius[2];
+
+            std::uint32_t dist0 = firing.radius[0];
+            if (dist0 != 0 && dist0 != dist2)
             {
-              hvdir.d = static_cast<float>(d) * distance_scaling; // convert range to meters
+              hvdir.intensity = firing.intensity[0];
+              hvdir.d = static_cast<float>(dist0) * distance_scaling; // convert range to meters
               // add the point to the current firing
               firing_cloud_->push_back(hvdir);
             }
 
-            if (firing.radius[1] != 0 && firing.radius[1] != d)
+            std::uint32_t dist1 = firing.radius[1];
+            if (dist1 != 0 && dist1 != dist2)
             {
               hvdir.intensity = firing.intensity[1];
-              hvdir.d = static_cast<float>(firing.radius[1]) * distance_scaling; // convert range to meters
+              hvdir.d = static_cast<float>(dist1) * distance_scaling; // convert range to meters
               // add the point to the current firing
               firing_cloud_->push_back(hvdir);
             }
 
-            if (firing.radius[2] != 0 && firing.radius[2] != d)
+            if (dist2 != 0)
             {
               hvdir.intensity = firing.intensity[2];
-              hvdir.d = static_cast<float>(firing.radius[2]) * distance_scaling; // convert range to meters
+              hvdir.d = static_cast<float>(dist2) * distance_scaling; // convert range to meters
               // add the point to the current firing
               firing_cloud_->push_back(hvdir);
             }
@@ -119,29 +123,21 @@ namespace quanergy
           else if(R == M_SERIES_NUM_RETURNS)
           {
             // We only want 1 return, find the correct one
-            for (int return_index = 0; return_index < quanergy::client::M_SERIES_NUM_RETURNS; ++return_index)
+            hvdir.intensity = firing.intensity[return_selection_];
+
+            if (firing.radius[return_selection_] == 0)
             {
-              if (return_selection_ == return_index)
-              {
-                hvdir.intensity = firing.intensity[return_index];
+              hvdir.d = std::numeric_limits<float>::quiet_NaN();
+              // if the range is NaN, the cloud is not dense
+              firing_cloud_->is_dense = false;
+            }
+            else
+            {
+              hvdir.d = static_cast<float>(firing.radius[return_selection_]) * distance_scaling; // convert range to meters
+            }
 
-                if (firing.radius[return_index] == 0)
-                {
-                  hvdir.d = std::numeric_limits<float>::quiet_NaN();
-                  // if the range is NaN, the cloud is not dense
-                  firing_cloud_->is_dense = false;
-                }
-                else
-                {
-                  hvdir.d = static_cast<float>(firing.radius[return_index]) * distance_scaling; // convert range to meters
-                }
-
-                // add the point to the current firing
-                firing_cloud_->push_back(hvdir);
-
-              } // if return selection
-
-            } // for return index
+            // add the point to the current firing
+            firing_cloud_->push_back(hvdir);
 
           } // else if (R == M_SERIES_NUM_RETURNS)
           else
@@ -152,7 +148,8 @@ namespace quanergy
             if (firing.radius[0] == 0)
             {
               hvdir.d = std::numeric_limits<float>::quiet_NaN();
-
+              // if the range is NaN, the cloud is not dense
+              firing_cloud_->is_dense = false;
             }
             else
             {
