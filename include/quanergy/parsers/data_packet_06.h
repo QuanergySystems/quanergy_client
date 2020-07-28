@@ -8,7 +8,7 @@
 /**
  *  @file data_packet_06.h
  *
- *  @brief Data structure for Reduced-Bandwidth M-Series Packets (04)
+ *  @brief Data structure for M1 Packets (06)
  */
 
 #ifndef QUANERGY_CLIENT_PARSERS_DATA_PACKET_06_H
