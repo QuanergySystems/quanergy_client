@@ -2,7 +2,7 @@ project(QuanergyClient)
 cmake_minimum_required(VERSION 2.8)
 
 #  This should match what's in include/quanergy/client/version.h
-set(QUANERGY_CLIENT_VERSION "4.0.0")
+set(QUANERGY_CLIENT_VERSION "4.1.0")
 
 #required to prevent macro definition of min and max in windows
 add_definitions(-DNOMINMAX)
@@ -61,7 +61,9 @@ file(GLOB_RECURSE project_HEADERS
 
 
 include_directories(
-  include
+  include)
+
+include_directories(SYSTEM
   ${Boost_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS})
 
@@ -82,6 +84,7 @@ set(client_SRCS
   src/parsers/data_packet_parser_00.cpp
   src/parsers/data_packet_parser_01.cpp
   src/parsers/data_packet_parser_04.cpp
+  src/parsers/data_packet_parser_06.cpp
   src/parsers/data_packet_parser_m_series.cpp
   src/client/http_client.cpp
   src/client/device_info.cpp

@@ -62,9 +62,12 @@ void SensorPipelineSettings::load(const SettingsFileLoader& settings)
 
   frame = settings.get("Settings.frame", frame);
 
-  std::string r = stringFromReturn(return_selection);
-  r = settings.get("Settings.return", r);
-  return_selection = returnFromString(r);
+  auto r = settings.get_optional<std::string>("Settings.return");
+  if (r && !r->empty())
+  {
+    return_selection_set = true;
+    return_selection = returnFromString(*r);
+  }
 
   min_distance = settings.get("Settings.DistanceFilter.min", min_distance);
   max_distance = settings.get("Settings.DistanceFilter.max", max_distance);

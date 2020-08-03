@@ -23,10 +23,11 @@ namespace quanergy
       auto model = device_info.model();
       std::cout << "got model from device info: " << model << std::endl;
 
-      bool mechanical = model.find("MQ") != std::string::npos
-                              || model.find("M8") != std::string::npos;
+      bool m_series = model.find("MQ") != std::string::npos
+                              || model.find("M8") != std::string::npos
+                              || model.find("M1") != std::string::npos;
 
-      if (mechanical)
+      if (m_series)
       {
         // encoder params
         if (settings.calibrate)
@@ -53,6 +54,11 @@ namespace quanergy
         auto vertical_angles = device_info.verticalAngles();
         if (!vertical_angles.empty())
         {
+          if (model.find("M1") != std::string::npos)
+          {
+            throw quanergy::client::InvalidVerticalAngles("M1 sensor found with vertical angles but none are expected");
+          }
+
           // send the vertical angles to the parsers
           parser.get<PARSER_00_INDEX>().setVerticalAngles(vertical_angles);
           parser.get<PARSER_04_INDEX>().setVerticalAngles(vertical_angles);
@@ -65,8 +71,9 @@ namespace quanergy
           parser.get<PARSER_00_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
           parser.get<PARSER_04_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
         }
-        else
+        else if (model.find("MQ") != std::string::npos)
         {
+          // all MQ sensors should have vertical angles
           throw quanergy::client::InvalidVerticalAngles("MQ sensor found with no vertical angles on the sensor");
         }
       }
@@ -76,6 +83,7 @@ namespace quanergy
       auto &parser00 = parser.get<PARSER_00_INDEX>();
       auto &parser01 = parser.get<PARSER_01_INDEX>();
       auto &parser04 = parser.get<PARSER_04_INDEX>();
+      auto &parser06 = parser.get<PARSER_06_INDEX>();
 
       // Parser 00
       parser00.setFrameId(settings.frame);
@@ -90,7 +98,22 @@ namespace quanergy
 
       // Parser 04
       parser04.setFrameId(settings.frame);
+      if (settings.return_selection_set)
+      {
+        parser04.setReturnSelection(settings.return_selection);
+      }
       parser04.setCloudSizeLimits(
+        settings.min_cloud_size,
+        settings.max_cloud_size
+      );
+
+      // Parser 06
+      parser06.setFrameId(settings.frame);
+      if (settings.return_selection_set)
+      {
+        parser06.setReturnSelection(settings.return_selection);
+      }
+      parser06.setCloudSizeLimits(
         settings.min_cloud_size,
         settings.max_cloud_size
       );
@@ -111,9 +134,9 @@ namespace quanergy
         );
       }
 
-      if (mechanical)
+      if (m_series)
       {
-        // Connect modules for mechanical
+        // Connect modules for m_series
         // Parser to Encoder Corrector
         connections.push_back(
           parser.connect(
@@ -148,7 +171,6 @@ namespace quanergy
       }
       else
       {
-        // Connect modules for solid state
         // Parser to Distance Filter
         connections.push_back(
           parser.connect(

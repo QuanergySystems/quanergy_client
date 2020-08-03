@@ -15,6 +15,7 @@
 #include <quanergy/parsers/data_packet_parser_00.h>
 #include <quanergy/parsers/data_packet_parser_01.h>
 #include <quanergy/parsers/data_packet_parser_04.h>
+#include <quanergy/parsers/data_packet_parser_06.h>
 
 // filters
 #include <quanergy/modules/distance_filter.h>
@@ -48,14 +49,16 @@ namespace quanergy
       using Parser =  quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,      // return type
                                                      quanergy::client::DataPacketParser00,      // PARSER_00_INDEX
                                                      quanergy::client::DataPacketParser01,      // PARSER_01_INDEX
-                                                     quanergy::client::DataPacketParser04>;     // PARSER_04_INDEX
+                                                     quanergy::client::DataPacketParser04,      // PARSER_04_INDEX
+                                                     quanergy::client::DataPacketParser06>;     // PARSER_06_INDEX
 
       // convenience enum for accessing the individual parsers
       enum
       {
         PARSER_00_INDEX = 0,
         PARSER_01_INDEX = 1,
-        PARSER_04_INDEX = 2
+        PARSER_04_INDEX = 2,
+        PARSER_06_INDEX = 3
       };
 
       // the parser module type
