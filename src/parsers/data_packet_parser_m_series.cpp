@@ -210,6 +210,9 @@ namespace quanergy
 
           // fire the signal that we have a new cloud
           result = current_cloud_;
+          // set the size which until organized is 1 x num_points
+          result->height = 1;
+          result->width = result->size();
           result_updated = true;
         }
         else if(current_cloud_->size() > 0)
@@ -258,33 +261,38 @@ namespace quanergy
         throw std::runtime_error("Can't organize cloud when size is not divisible by height");
       }
 
-      // transpose the cloud
-      worker_cloud_->clear();
-
-      worker_cloud_->header.stamp = current_pc->header.stamp;
-      worker_cloud_->header.seq = current_pc->header.seq;
-      worker_cloud_->header.frame_id = current_pc->header.frame_id;
-
-      // reserve space
-      worker_cloud_->reserve(current_pc->size());
-
-      unsigned int temp_index;
-      unsigned int width = current_pc->size () / height;
-
-      // iterate through each ring from top down
-      for (int i = height - 1; i >= 0; --i)
+      unsigned int width = current_pc->size() / height;
+      
+      // if height is 1, there is no need to transpose the cloud
+      if (height != 1)
       {
-        // iterate through width in collect order
-        for (unsigned int j = 0; j < width; ++j)
+        // transpose the cloud
+        worker_cloud_->clear();
+
+        worker_cloud_->header.stamp = current_pc->header.stamp;
+        worker_cloud_->header.seq = current_pc->header.seq;
+        worker_cloud_->header.frame_id = current_pc->header.frame_id;
+
+        // reserve space
+        worker_cloud_->reserve(current_pc->size());
+
+        unsigned int temp_index;
+
+        // iterate through each ring from top down
+        for (int i = height - 1; i >= 0; --i)
         {
-          // original data is in collect order and laser order
-          temp_index = j * height + i;
+          // iterate through width in collect order
+          for (unsigned int j = 0; j < width; ++j)
+          {
+            // original data is in collect order and laser order
+            temp_index = j * height + i;
 
-          worker_cloud_->push_back(current_pc->points[temp_index]);
+            worker_cloud_->push_back(current_pc->points[temp_index]);
+          }
         }
-      }
 
-      current_pc.swap(worker_cloud_);
+        current_pc.swap(worker_cloud_);
+      }
 
       current_pc->height = height;
       current_pc->width  = width;
