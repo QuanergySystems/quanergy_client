@@ -23,9 +23,11 @@ namespace quanergy
       auto model = device_info.model();
       std::cout << "got model from device info: " << model << std::endl;
 
-      bool m_series = model.find("MQ") != std::string::npos
-                              || model.find("M8") != std::string::npos
-                              || model.find("M1") != std::string::npos;
+      // 'model.rfind(sub, 0) == 0' checks only the first position (the beginning) of model for sub
+      // and is true if sub was found there
+      bool m_series = model.rfind("MQ", 0) == 0
+                              || model.rfind("M8", 0) == 0
+                              || model.rfind("M1", 0) == 0;
 
       if (m_series)
       {
@@ -54,7 +56,7 @@ namespace quanergy
         auto vertical_angles = device_info.verticalAngles();
         if (!vertical_angles.empty())
         {
-          if (model.find("M1") != std::string::npos)
+          if (model.rfind("M1", 0) == 0)
           {
             throw quanergy::client::InvalidVerticalAngles("M1 sensor found with vertical angles but none are expected");
           }
@@ -63,7 +65,7 @@ namespace quanergy
           parser.get<PARSER_00_INDEX>().setVerticalAngles(vertical_angles);
           parser.get<PARSER_04_INDEX>().setVerticalAngles(vertical_angles);
         }
-        else if (model.find("M8") != std::string::npos)
+        else if (model.rfind("M8", 0) == 0)
         {
           std::cout << "No vertical angle calibration information available on sensor, proceeding with M8 defaults" << std::endl;
 
@@ -71,7 +73,7 @@ namespace quanergy
           parser.get<PARSER_00_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
           parser.get<PARSER_04_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
         }
-        else if (model.find("MQ") != std::string::npos)
+        else if (model.rfind("MQ", 0) == 0)
         {
           // all MQ sensors should have vertical angles
           throw quanergy::client::InvalidVerticalAngles("MQ sensor found with no vertical angles on the sensor");
