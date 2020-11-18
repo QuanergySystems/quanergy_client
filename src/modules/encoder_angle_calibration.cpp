@@ -163,11 +163,12 @@ namespace quanergy
         }
       }
 
-      // Add the points to a point cloud. Do this until we have enough points
-      // to check for a complete revolution
-      encoder_angles_.reserve(cloud_ptr->size());
-      for (const auto& pt : *cloud_ptr)
+      // Add the angles to the container while checking for completion
+      // only iterate through the width to avoid repeated angles
+      encoder_angles_.reserve(cloud_ptr->width);
+      for (auto it = cloud_ptr->begin(); it != cloud_ptr->begin() + cloud_ptr->width; ++it)
       {
+        const auto& pt = *it;
         if (!encoder_angles_.empty() && std::abs(encoder_angles_.back() - pt.h) > M_PI)
         {
           // we're at a discontinuity
