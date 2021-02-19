@@ -22,11 +22,16 @@
 
 // networking
 #include <boost/asio.hpp>
+#include <boost/asio/steady_timer.hpp>
+
 // signals for output
 #include <boost/signals2.hpp>
 
 // exception library
 #include <quanergy/client/exceptions.h>
+
+// for redirecting notifications to somebody instead of just std::cout
+#include <quanergy/common/notifications.h>
 
 namespace quanergy
 {
@@ -73,7 +78,22 @@ namespace quanergy
       /** \brief Stops processing the Quanergy packets */
       virtual void stop();
 
+      /** \brief Returns true if the client is currently running */
+      inline bool isRunning() { return is_running_; };
+
+      /** \brief Sets the number of seconds to wait for checking stale-dead connections */
+      void setWatchDogTime(uint32_t timeSec);
+
+      /** \brief Returns the current number of seconds to wait for checking stale-dead connections */
+      uint32_t getWatchDogTime();
+
     protected:
+
+      /** \brief Starts the watchdog timer for checking stale-dead connections */
+      virtual void startWatchdog();
+
+      /** \brief Asynchronously gets fired on the timer to check stale-dead connections */
+      virtual void watchDogElapsed(const boost::system::error_code& error);
 
       /** \brief Asynchronously wait for connection. */
       virtual void startDataConnect();
@@ -90,24 +110,31 @@ namespace quanergy
       /** \brief Pulls packets off buffer queue and calls signal. */
       virtual void signalPackets();
 
-      std::unique_ptr<boost::asio::ip::tcp::socket>       read_socket_;
-      std::vector<char>                                   buff_;
+      std::unique_ptr<boost::asio::ip::tcp::socket>     read_socket_;
+      std::vector<char>                                 buff_;
 
     private:
 
-      boost::asio::io_service                       io_service_;
-      boost::asio::ip::tcp::resolver::query         host_query_;
+      boost::asio::io_service                           io_service_;
+      boost::asio::ip::tcp::resolver::query             host_query_;
 
       /// thread for running signals
-      std::unique_ptr<std::thread> signal_thread_;
+      std::unique_ptr<std::thread>                      signal_thread_;
 
-      std::queue<std::shared_ptr<std::vector<char>>> buff_queue_;
-      std::size_t max_queue_size_;
-      std::mutex                  buff_queue_mutex_;
-      std::condition_variable     buff_queue_conditional_;
-      std::atomic<bool>           kill_; // std::atomic_bool lacks proper constructors in MSVC
+      std::queue<std::shared_ptr<std::vector<char>>>    buff_queue_;
+      std::size_t                                       max_queue_size_;
+      std::mutex                                        buff_queue_mutex_;
+      std::condition_variable                           buff_queue_conditional_;
+      std::atomic<bool>                                 kill_; // std::atomic_bool lacks proper constructors in MSVC
 
-      Signal signal_;
+      std::atomic<std::chrono::time_point<
+          std::chrono::steady_clock>>                   last_data_time_;
+      boost::asio::steady_timer 		                updated_timer_;
+      uint32_t                                          watch_time_sec_;
+
+    protected:
+      std::atomic<bool>                                 is_running_;
+      Signal                                            signal_;
     };
 
   } // namespace client

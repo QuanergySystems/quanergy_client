@@ -26,6 +26,10 @@ namespace quanergy
       , host_query_(host, port)
       , max_queue_size_(max_queue_size)
       , kill_(true)
+      , is_running_(false)
+      , updated_timer_(io_service_)
+      , last_data_time_(std::chrono::steady_clock::now())
+      , watch_time_sec_(30)
     {
     }
 
@@ -72,10 +76,12 @@ namespace quanergy
                                             }));
 
         // Add this thread to the pool to handle data
+        is_running_ = true;
         io_service_.run();
       }
       catch (...)
       {
+        is_running_ = false;
         eptr = std::current_exception();
         stop();
       }
@@ -110,6 +116,60 @@ namespace quanergy
 
       // notify that we are killing
       buff_queue_conditional_.notify_one();
+      is_running_ = false;
+    }
+
+    template <class HEADER>
+    void TCPClient<HEADER>::setWatchDogTime(uint32_t timeSec)
+    {
+        watch_time_sec_ = timeSec;
+    }
+
+    template <class HEADER>
+    uint32_t TCPClient<HEADER>::getWatchDogTime()
+    {
+        return watch_time_sec_;
+    }
+
+    template <class HEADER>
+    void TCPClient<HEADER>::startWatchdog()
+    {
+        using namespace std::chrono_literals;
+        if (watch_time_sec_ == 0)
+            return;
+        updated_timer_.expires_from_now(std::chrono::seconds(watch_time_sec_));
+        updated_timer_.async_wait([this](const boost::system::error_code& code)
+        {
+            watchDogElapsed(code);
+        });
+    }
+
+    template <class HEADER>
+    void TCPClient<HEADER>::watchDogElapsed(const boost::system::error_code& error)
+    {
+        using namespace std::chrono_literals;
+        if (!error)
+        {
+            auto now = std::chrono::steady_clock::now();
+            if ((now - last_data_time_.load()) > 2s)
+            {
+                qerr << "Quanergy update watchdog expired (" << watch_time_sec_ << "s)! Killing connection";
+                stop();
+            }
+            else
+            {
+                last_data_time_ = now;
+                startWatchdog();
+            }
+        }
+        //Not an error if abort was requested
+        if (error && error.value() != boost::asio::error::operation_aborted)
+        {
+            std::string msg = "Quanergy update watchdog error! Killing connection - ";
+            msg += error.message();
+            qerr << msg << std::endl;
+            stop();
+        }
     }
 
     template <class HEADER>

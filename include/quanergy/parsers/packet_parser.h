@@ -14,11 +14,19 @@
 #ifndef QUANERGY_CLIENT_PACKET_PARSER_H
 #define QUANERGY_CLIENT_PACKET_PARSER_H
 
+#pragma warning ( disable : 4275 )
+
 #include <memory>
+#include <chrono>
 
 #include <boost/signals2.hpp>
 
 #include <quanergy/client/exceptions.h>
+
+namespace
+{
+	using namespace std::chrono_literals;
+}
 
 namespace quanergy
 {
@@ -37,19 +45,41 @@ namespace quanergy
         return signal_.connect(subscriber);
       }
 
-      void slot(const std::shared_ptr<std::vector<char>>& packet)
-      {
-        // don't do the work unless someone is listening
-        if (signal_.num_slots() == 0)
-          return;
+	  void slot(const std::shared_ptr<std::vector<char>>& packet)
+	  {
+	    // don't do the work unless someone is listening
+	    if (signal_.num_slots() == 0)
+		    return;
 
-        if (PARSER::validateParse(*packet, result))
-          signal_(result);
-      }
+	    if (PARSER::validateParse(*packet, result))
+	    {
+            last_data_time_ = std::chrono::steady_clock::now();
+		    signal_(result);
+	    }
+	    else
+	    {
+		    //Starting from this point the driver will have parse_timeout_sec_ to get a new full cloud without failing out
+		    if (last_data_time_ == min_time_)
+		    {
+                last_data_time_ = std::chrono::steady_clock::now();
+		    }
+		    else if ((std::chrono::steady_clock::now() - last_data_time_) > parse_timeout_sec_)
+		    {
+			    //Reset clock for next try
+                last_data_time_ = min_time_;
+			    throw ParseTimeoutError();
+		    }
+	    }
+	  }
 
       protected:
+		static constexpr auto min_time_ = std::chrono::time_point<std::chrono::steady_clock>::min();
+		static constexpr auto parse_timeout_sec_ = 500s;
+		std::chrono::time_point<std::chrono::steady_clock> last_data_time_ = min_time_;
+
         /// Signal that gets fired whenever a result is ready.
         Signal signal_;
+
         /// result to pass to parse function
         typename PARSER::ResultType result;
     };
