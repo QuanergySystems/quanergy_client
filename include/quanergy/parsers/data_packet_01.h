@@ -91,9 +91,10 @@ namespace quanergy
           sizeof(DataHeader01) +
           object.data_header.point_count * sizeof(DataPoint01))
       {
-        std::cerr << "Invalid sizes: " << object.data_header.point_count
+        std::stringstream ss;
+        ss << "Invalid sizes: " << object.data_header.point_count
                   << " points and " << object.packet_header.size << " bytes" << std::endl;
-        throw SizeMismatchError();
+        throw SizeMismatchError(ss.str());
       }
 
       object.data_points.resize(object.data_header.point_count);

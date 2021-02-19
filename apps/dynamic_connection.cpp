@@ -18,9 +18,24 @@
 // sensor pipeline
 #include <quanergy/pipelines/sensor_pipeline.h>
 
+// handle notifications
+#include <quanergy/common/notifications.h>
+
 int main(int argc, char** argv)
 {
   namespace po = boost::program_options;
+
+  // Pipe the notifications out to std::cout / std::cerr
+  quanergy::qout.connect([](const quanergy::NotificationType& type, const std::string& msg)
+  {
+      std::cout << msg;
+  });
+
+  // Pipe the notifications out to std::cout / std::cerr
+  quanergy::qerr.connect([](const quanergy::NotificationType& type, const std::string& msg)
+  {
+      std::cerr << msg;
+  });
 
   po::options_description description("Quanergy Client Dynamic Connection");
   const po::positional_options_description p; // empty positional options

@@ -115,8 +115,8 @@ namespace quanergy
     template <class HEADER>
     void TCPClient<HEADER>::startDataConnect()
     {
-      std::cout << "Attempting to connect (" << host_query_.host_name()
-                << ":" << host_query_.service_name() << ")..." << std::endl;
+      qout << "Attempting to connect (" << host_query_.host_name()
+              << ":" << host_query_.service_name() << ")..." << std::endl;
       boost::asio::ip::tcp::resolver resolver(io_service_);
 
       try
@@ -138,23 +138,25 @@ namespace quanergy
                                      }
                                      else if (error)
                                      {
-                                       std::cerr << "Unable to bind to socket (" << host_query_.host_name()
-                                                 << ":" << host_query_.service_name() << ")! "
-                                                 << error.message() << std::endl;
+                                       qerr << "Unable to bind to socket (" << host_query_.host_name()
+                                           << ":" << host_query_.service_name() << ")! "
+                                           << error.message() << std::endl;
+
                                        throw SocketBindError(error.message());
                                      }
                                      else
                                      {
-                                       std::cout << "Connection established" << std::endl;
+                                       qerr << "Connection established" << std::endl;
+
                                        startDataRead();
                                      }
                                    });
       }
       catch (boost::system::system_error& e)
       {
-        std::cerr << "Unable to resolve host (" << host_query_.host_name()
-                  << ":" << host_query_.service_name() << ")! "
-                  << e.what() << std::endl;
+        qerr << "Unable to resolve host (" << host_query_.host_name()
+            << ":" << host_query_.service_name() << ")! "
+            << e.what() << std::endl;
         throw SocketBindError(e.what());
       }
     }
@@ -177,8 +179,8 @@ namespace quanergy
       }
       else if (error)
       {
-        std::cerr << "Error reading header: "
-                  << error.message() << std::endl;
+        qerr << "Error reading header: "
+           << error.message() << std::endl;
         throw SocketReadError(error.message());
       }
       else
@@ -213,8 +215,9 @@ namespace quanergy
       }
       else if (error)
       {
-        std::cerr << "Error reading body: "
-                  << error.message() << std::endl;
+        qerr << "Error reading body: "
+            << error.message() << std::endl;
+
         throw SocketReadError(error.message());
       }
       else
@@ -227,7 +230,7 @@ namespace quanergy
         while (buff_queue_.size() > max_queue_size_)
         {
           buff_queue_.pop();
-          std::cout << "Warning: Client dropped packet due to full buffer" << std::endl;
+          qout << "Warning: Client dropped packet due to full buffer" << std::endl;
         }
         lk.unlock();
 

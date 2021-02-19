@@ -7,6 +7,8 @@
 
 #include <quanergy/modules/ring_intensity_filter.h>
 
+#include <quanergy/common/notifications.h>
+
 namespace quanergy
 {
   namespace client
@@ -97,7 +99,7 @@ namespace quanergy
     {
       if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        std::cerr << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
+        qerr << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
         return std::numeric_limits<float>::quiet_NaN();
       }
 
@@ -110,7 +112,7 @@ namespace quanergy
     {
       if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        std::cerr << "Index out of bound! Beam index should be between 0 and " 
+        qerr << "Index out of bound! Beam index should be between 0 and " 
                   << M_SERIES_NUM_LASERS << std::endl;
       }
       else
@@ -124,7 +126,7 @@ namespace quanergy
     {
       if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        std::cerr << "Index out of bound! Beam index should be between 0 and " 
+        qerr << "Index out of bound! Beam index should be between 0 and " 
                   << M_SERIES_NUM_LASERS << std::endl;
         return -1;
       }
@@ -138,7 +140,7 @@ namespace quanergy
     {
       if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        std::cerr << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
+        qerr << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
       }
       else
       {

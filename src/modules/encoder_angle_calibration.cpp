@@ -14,6 +14,8 @@
 
 #include <quanergy/modules/encoder_angle_calibration.h>
 
+#include <quanergy/common/notifications.h>
+
 #include <Eigen/Dense>
 
 namespace quanergy
@@ -118,7 +120,7 @@ namespace quanergy
       {
         if (!started_calibration_)
         {
-          std::cout << "QuanergyClient: Starting encoder calibration. This may take up to "
+          qout << "QuanergyClient: Starting encoder calibration. This may take up to "
                     << std::chrono::duration_cast<std::chrono::seconds>(timeout_).count()
                     << " seconds to complete..." << std::endl;
           started_calibration_ = true;
@@ -143,7 +145,7 @@ namespace quanergy
               std::stringstream msg;
               msg << "QuanergyClient: Encoder calibration not required for this sensor.\n"
                 "Average amplitude calculated: " << ba::mean(amplitude_accumulator_);
-              std::cout << msg.str() << std::endl;
+              qout << msg.str() << std::endl;
 
               calibration_complete_ = true;
               amplitude_ = 0.;
@@ -275,7 +277,7 @@ namespace quanergy
         {
           if (first_run_)
           {
-            std::cout << "QuanergyClient: AMPLITUDE(rads), PHASE(rads)" << std::endl;
+            qout << "QuanergyClient: AMPLITUDE(rads), PHASE(rads)" << std::endl;
             first_run_ = false;
           }
 
@@ -283,7 +285,7 @@ namespace quanergy
           output << sine_parameters.first << "," << sine_parameters.second
                  << std::endl;
 
-          std::cout << output.str();
+          qout << output.str();
           continue;
         }
 
@@ -321,7 +323,7 @@ namespace quanergy
             amplitude_ = ba::mean(amplitude_accumulator_);
             phase_ = phase_averager_.avg();
 
-            std::cout << "QuanergyClient: Calibration complete." << std::endl
+            qout << "QuanergyClient: Calibration complete." << std::endl
               << "  amplitude : " << amplitude_ << std::endl
               << "  phase     : " << phase_ << std::endl;
 
