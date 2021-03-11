@@ -164,6 +164,17 @@ else()
 
 endif()
 
+# uninstall target
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/QuanergyClientUninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/QuanergyClientUninstall.cmake.in"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake/QuanergyClientUninstall.cmake.in)
+endif()
+
 
 # Add all targets to the build-tree export set
 export(TARGETS quanergy_client FILE "${PROJECT_BINARY_DIR}/QuanergyClientTargets.cmake")
