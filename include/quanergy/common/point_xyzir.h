@@ -37,7 +37,7 @@ namespace quanergy
   {
     PCL_ADD_POINT4D;                    // quad-word XYZ
     float               intensity;      ///< laser intensity reading
-    uint16_t            ring;           ///< laser ring number
+    std::uint16_t       ring;           ///< laser ring number
 
     PointXYZIR (const PointXYZIR& p)
       : x(p.x)
@@ -63,7 +63,7 @@ namespace quanergy
                 float _y, 
                 float _z, 
                 float _intensity = 0.0f, 
-                uint16_t _ring = std::numeric_limits<uint16_t>::max())
+                std::uint16_t _ring = std::numeric_limits<std::uint16_t>::max())
       : x(_x)
       , y(_y)
       , z(_z)
@@ -101,7 +101,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(quanergy::PointXYZIR,
                                   (float, y, y)
                                   (float, z, z)
                                   (float, intensity, intensity)
-                                  (uint16_t, ring, ring))
+                                  (std::uint16_t, ring, ring))
 
 #endif // __QUANERGY_POINT_XYZIR_H
 
