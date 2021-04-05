@@ -35,9 +35,8 @@ namespace quanergy
     void EncoderAngleCalibration::reset()
     {
       // mark complete and clean up threads
-      calibration_complete_ = true;
-      amplitude_ = 0.;
-      phase_ = 0.;
+      setParams(0., 0.);
+
       nonempty_condition_.notify_all();
 
       for (auto& future : futures_)
@@ -145,9 +144,7 @@ namespace quanergy
                 "Average amplitude calculated: " << ba::mean(amplitude_accumulator_);
               std::cout << msg.str() << std::endl;
 
-              calibration_complete_ = true;
-              amplitude_ = 0.;
-              phase_ = 0;
+              setParams(0., 0.);
               applyCalibration(cloud_ptr);
               return;
             }
@@ -208,6 +205,7 @@ namespace quanergy
 
       amplitude_ = amplitude;
       phase_ = phase;
+      zero_offset_ = getOffset(0.);
 
       calibration_complete_ = true;
     }
@@ -226,7 +224,7 @@ namespace quanergy
       for (auto& point : cloud)
       {
         // corrects in place, saves copying other values
-        point.h = point.h - (amplitude_ * std::sin(point.h + phase_));
+        point.h += zero_offset_ - getOffset(point.h);
         if (point.h < -M_PI)
         {
           point.h += 2 * M_PI;
@@ -319,15 +317,12 @@ namespace quanergy
 
           if (num_valid_samples_ > required_samples_)
           {
-            amplitude_ = ba::mean(amplitude_accumulator_);
-            phase_ = phase_averager_.avg();
+            setParams(ba::mean(amplitude_accumulator_, phase_averager_.avg());
 
             std::cout << "QuanergyClient: Calibration complete." << std::endl
               << "  amplitude : " << amplitude_ << std::endl
               << "  phase     : " << phase_ << std::endl;
 
-            calibration_complete_ = true;
-            
             // notify all threads waiting on period_queue_ so they can wake up,
             // check calibration_complete_ and return
             nonempty_condition_.notify_all();
