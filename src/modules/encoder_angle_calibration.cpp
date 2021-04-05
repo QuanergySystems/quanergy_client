@@ -317,7 +317,7 @@ namespace quanergy
 
           if (num_valid_samples_ > required_samples_)
           {
-            setParams(ba::mean(amplitude_accumulator_, phase_averager_.avg());
+            setParams(ba::mean(amplitude_accumulator_), phase_averager_.avg());
 
             std::cout << "QuanergyClient: Calibration complete." << std::endl
               << "  amplitude : " << amplitude_ << std::endl

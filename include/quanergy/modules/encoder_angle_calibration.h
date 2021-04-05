@@ -231,7 +231,7 @@ namespace quanergy
        * @param[in] angle angle to calculate the offset for
        * @returns offset
        */
-      inline double getOffset(double angle)
+      inline double getOffset(double angle) const
       {
         return amplitude_ * std::sin(angle + phase_);
       }
