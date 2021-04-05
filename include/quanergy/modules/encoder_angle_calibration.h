@@ -347,7 +347,7 @@ namespace quanergy
 
       /** number of encoder calibrations to run before before averaging
        * amplitude and phase values and reporting these to user */
-      std::atomic<int> required_samples_ {100};
+      std::atomic<int> required_samples_ {13};
 
       /** number of calibrations which have currently been processed. Used to
        * check against required_samples_ */
