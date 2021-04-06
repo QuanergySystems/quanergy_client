@@ -1,5 +1,5 @@
 project(QuanergyClient)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 #  This should match what's in include/quanergy/client/version.h
 set(QUANERGY_CLIENT_VERSION "4.2.0")
@@ -7,7 +7,9 @@ set(QUANERGY_CLIENT_VERSION "4.2.0")
 #required to prevent macro definition of min and max in windows
 add_definitions(-DNOMINMAX)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(NoViz "Do not build visualizer" OFF)
 
@@ -99,7 +101,7 @@ add_library(quanergy_client SHARED ${client_SRCS})
 if(WIN32)
   target_link_libraries(quanergy_client ws2_32 ${Boost_LIBRARIES} ${PCL_LIBRARIES})
 else()
-  target_link_libraries(quanergy_client ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+  target_link_libraries(quanergy_client pthread ${Boost_LIBRARIES} ${PCL_LIBRARIES})
 endif()
 
 configure_file(doxyfile.in
