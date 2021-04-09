@@ -35,9 +35,8 @@ namespace quanergy
     void EncoderAngleCalibration::reset()
     {
       // mark complete and clean up threads
-      calibration_complete_ = true;
-      amplitude_ = 0.;
-      phase_ = 0.;
+      setParams(0., 0.);
+
       nonempty_condition_.notify_all();
 
       for (auto& future : futures_)
@@ -124,42 +123,44 @@ namespace quanergy
           started_calibration_ = true;
           time_started_ = std::chrono::system_clock::now();
         }
-        else
+        else if (std::chrono::system_clock::now() - time_started_ > timeout_)
         {
-          if (std::chrono::system_clock::now() - time_started_ > timeout_)
+          // if we've timed out and the phase hasn't converged, it could be
+          // because there isn't a lot of error. If this is the case, the
+          // average amplitude will be below a threshold (~0.05 rads)
+          // Check the average amplitude, if below the threshold report that
+          // no calibration is necessary and do not apply a calibration to
+          // future point clouds
+          
+          namespace ba = boost::accumulators;
+          
+          std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
+          if (ba::mean(amplitude_accumulator_) < amplitude_threshold_)
           {
-            // if we've timed out and the phase hasn't converged, it could be
-            // because there isn't a lot of error. If this is the case, the
-            // average amplitude will be below a threshold (~0.05 rads)
-            // Check the average amplitude, if below the threshold report that
-            // no calibration is necessary and do not apply a calibration to
-            // future point clouds
-            
-            namespace ba = boost::accumulators;
-            
-            std::lock_guard<decltype(container_mutex_)> lock(container_mutex_);
-            if (ba::mean(amplitude_accumulator_) < amplitude_threshold_)
-            {
-              std::stringstream msg;
-              msg << "QuanergyClient: Encoder calibration not required for this sensor.\n"
-                "Average amplitude calculated: " << ba::mean(amplitude_accumulator_);
-              std::cout << msg.str() << std::endl;
-
-              calibration_complete_ = true;
-              amplitude_ = 0.;
-              phase_ = 0;
-              applyCalibration(cloud_ptr);
-              return;
-            }
-
             std::stringstream msg;
-            msg << "QuanergyClient: Phase values did not converge for encoder calibration before timeout"
-                   "\nNumber of consecutive valid frames: " << num_valid_samples_ << " / " << required_samples_ << 
-                   "\nNumber of incomplete frames: " << stats_.num_incomplete_frames <<
-                   "\nNumber of phase values outside of convergence: " << stats_.num_divergent_phase_values;
+            msg << "QuanergyClient: Encoder calibration not required for this sensor.\n"
+              "Average amplitude calculated: " << ba::mean(amplitude_accumulator_);
+            std::cout << msg.str() << std::endl;
 
-            throw std::runtime_error(msg.str());
+            setParams(0., 0.);
+            applyCalibration(cloud_ptr);
+            return;
           }
+
+          std::stringstream msg;
+          msg << "QuanergyClient: Phase values did not converge for encoder calibration before timeout"
+                  "\nNumber of consecutive valid frames: " << num_valid_samples_ << " / " << required_samples_ << 
+                  "\nNumber of incomplete frames: " << stats_.num_incomplete_frames <<
+                  "\nNumber of phase values outside of convergence: " << stats_.num_divergent_phase_values;
+
+          if (num_valid_samples_ == 0)
+          {
+            msg << "\nEncoder calibration only works for M-series sensors configured with a scan field width of "
+              "360 degrees and frame rate of 10 Hz. Since there were no valid samples, it's likely one of "
+              "these conditions is not configured properly.";
+          }
+
+          throw std::runtime_error(msg.str());
         }
       }
 
@@ -208,6 +209,7 @@ namespace quanergy
 
       amplitude_ = amplitude;
       phase_ = phase;
+      zero_offset_ = getOffset(0.);
 
       calibration_complete_ = true;
     }
@@ -226,7 +228,7 @@ namespace quanergy
       for (auto& point : cloud)
       {
         // corrects in place, saves copying other values
-        point.h = point.h - (amplitude_ * std::sin(point.h + phase_));
+        point.h += zero_offset_ - getOffset(point.h);
         if (point.h < -M_PI)
         {
           point.h += 2 * M_PI;
@@ -319,15 +321,12 @@ namespace quanergy
 
           if (num_valid_samples_ > required_samples_)
           {
-            amplitude_ = ba::mean(amplitude_accumulator_);
-            phase_ = phase_averager_.avg();
+            setParams(ba::mean(amplitude_accumulator_), phase_averager_.avg());
 
             std::cout << "QuanergyClient: Calibration complete." << std::endl
               << "  amplitude : " << amplitude_ << std::endl
               << "  phase     : " << phase_ << std::endl;
 
-            calibration_complete_ = true;
-            
             // notify all threads waiting on period_queue_ so they can wake up,
             // check calibration_complete_ and return
             nonempty_condition_.notify_all();
