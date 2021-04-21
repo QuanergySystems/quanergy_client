@@ -156,8 +156,8 @@ namespace quanergy
           if (num_valid_samples_ == 0)
           {
             msg << "\nEncoder calibration only works for M-series sensors configured with a scan field width of "
-              "360 degrees and frame rate of 10 Hz. Since there were no valid samples, it's likely one of "
-              "these conditions is not configured properly.";
+              "360 degrees and it is configured for a frame rate of " << frame_rate_ << " Hz. Since there were no "
+              "valid samples, it's likely the sensor is not configured to match these conditions.";
           }
 
           throw std::runtime_error(msg.str());
