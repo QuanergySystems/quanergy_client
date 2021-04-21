@@ -48,9 +48,9 @@ namespace quanergy
   /** Polar coordinate, including intensity and ring number. */
   struct PointHVDIR
   {
-    PCL_ADD_POINT4D_HVD;                    // quad-word HVD
+    PCL_ADD_POINT4D_HVD;                // quad-word HVD
     float    intensity;                 ///< laser intensity reading
-    uint16_t ring;                      ///< laser ring number
+    std::uint16_t ring;                 ///< laser ring number
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW     // ensure proper alignment
   } EIGEN_ALIGN16;
 
@@ -62,7 +62,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(quanergy::PointHVDIR,
                                   (float, v, v)
                                   (float, d, d)
                                   (float, intensity, intensity)
-                                  (uint16_t, ring, ring))
+                                  (std::uint16_t, ring, ring))
 
 
 
