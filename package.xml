@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>quanergy_client</name>
+  <version>4.1.2</version>
+  <description>Quanergy Sensor SDK</description>
+
+  <maintainer email="ross.taylor@quanergy.com">Ross Taylor</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>cmake</buildtool_depend>
+  <depend>boost</depend>
+  <depend>libpcl-all-dev</depend>
+  <exec_depend>catkin</exec_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>

@@ -211,7 +211,7 @@ configure_file(cmake/QuanergyClientConfigVersion.cmake.in
 if (PACKAGE_FOR_DEV)
   # Install the QuanergyClientConfig.cmake and QuanergyClientConfigVersion.cmake
 
-  message("config: ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/QuanergyClientConfig.cmake")
+  message(STATUS "config: ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/QuanergyClientConfig.cmake")
 
   install(FILES
     "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/QuanergyClientConfig.cmake"
@@ -264,4 +264,6 @@ endif()
 add_executable(dynamic_connection apps/dynamic_connection.cpp)
 target_link_libraries(dynamic_connection quanergy_client ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 
-message("PCL_LIBRARIES: ${PCL_LIBRARIES}")
+message(STATUS "PCL_LIBRARIES: ${PCL_LIBRARIES}")
+
+INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
