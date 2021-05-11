@@ -266,4 +266,4 @@ target_link_libraries(dynamic_connection quanergy_client ${PCL_LIBRARIES} ${Boos
 
 message(STATUS "PCL_LIBRARIES: ${PCL_LIBRARIES}")
 
-INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
+install(FILES package.xml DESTINATION share/quanergy_client)
