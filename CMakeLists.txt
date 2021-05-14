@@ -75,7 +75,7 @@ link_directories(
 
 add_definitions(${PCL_DEFINITIONS})
 
-
+ 
 set(client_SRCS
   src/modules/polar_to_cart_converter.cpp
   src/modules/distance_filter.cpp
@@ -142,7 +142,8 @@ if (PACKAGE_FOR_DEV)
   if(WIN32)
   install(TARGETS quanergy_client
     EXPORT QuanergyClientTargets
-    RUNTIME DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib)
+    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
+    RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT shlib)
   else()
   install(TARGETS quanergy_client
     EXPORT QuanergyClientTargets
