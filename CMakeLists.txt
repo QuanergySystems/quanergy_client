@@ -1,13 +1,15 @@
 project(QuanergyClient)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 #  This should match what's in include/quanergy/client/version.h
-set(QUANERGY_CLIENT_VERSION "4.1.2")
+set(QUANERGY_CLIENT_VERSION "4.2.0")
 
 #required to prevent macro definition of min and max in windows
 add_definitions(-DNOMINMAX)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(NoViz "Do not build visualizer" OFF)
 
@@ -100,7 +102,7 @@ add_library(quanergy_client SHARED ${client_SRCS})
 if(WIN32)
   target_link_libraries(quanergy_client ws2_32 ${Boost_LIBRARIES} ${PCL_LIBRARIES})
 else()
-  target_link_libraries(quanergy_client ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+  target_link_libraries(quanergy_client pthread ${Boost_LIBRARIES} ${PCL_LIBRARIES})
 endif()
 
 configure_file(doxyfile.in
@@ -166,6 +168,17 @@ else()
 
 endif()
 
+# uninstall target
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/QuanergyClientUninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/QuanergyClientUninstall.cmake.in"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake/QuanergyClientUninstall.cmake.in)
+endif()
+
 
 # Add all targets to the build-tree export set
 export(TARGETS quanergy_client FILE "${PROJECT_BINARY_DIR}/QuanergyClientTargets.cmake")
@@ -200,7 +213,7 @@ configure_file(cmake/QuanergyClientConfigVersion.cmake.in
 if (PACKAGE_FOR_DEV)
   # Install the QuanergyClientConfig.cmake and QuanergyClientConfigVersion.cmake
 
-  message("config: ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/QuanergyClientConfig.cmake")
+  message(STATUS "config: ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/QuanergyClientConfig.cmake")
 
   install(FILES
     "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/QuanergyClientConfig.cmake"
@@ -253,4 +266,6 @@ endif()
 add_executable(dynamic_connection apps/dynamic_connection.cpp)
 target_link_libraries(dynamic_connection quanergy_client ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 
-message("PCL_LIBRARIES: ${PCL_LIBRARIES}")
+message(STATUS "PCL_LIBRARIES: ${PCL_LIBRARIES}")
+
+install(FILES package.xml DESTINATION share/quanergy_client)
