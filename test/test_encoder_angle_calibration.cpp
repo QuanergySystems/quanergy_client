@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <gtest/gtest.h>
+#include <random>
 #include <quanergy/modules/encoder_angle_calibration.h>
 
 namespace quanergy

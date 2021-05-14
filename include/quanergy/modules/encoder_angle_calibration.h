@@ -226,6 +226,17 @@ namespace quanergy
 
     private:
       /**
+       * @brief function to calculate offset for an angle based on params
+       * 
+       * @param[in] angle angle to calculate the offset for
+       * @returns offset
+       */
+      inline double getOffset(double angle) const
+      {
+        return amplitude_ * std::sin(angle + phase_);
+      }
+
+      /**
        * @brief Function to create line representing the expected encoder
        * values. Unwrapped encoder values should be linear with respect to 
        * time-index. This line is used to determine the error.
@@ -334,6 +345,9 @@ namespace quanergy
       /** Calculated phase (radians) */
       double phase_ = 0.;
 
+      /** Calculated zero offset to maintain the zero position */
+      double zero_offset_ = 0.;
+
       /** Frame rate of M-Series sensor */
       double frame_rate_ = 10.;
 
@@ -347,7 +361,7 @@ namespace quanergy
 
       /** number of encoder calibrations to run before before averaging
        * amplitude and phase values and reporting these to user */
-      std::atomic<int> required_samples_ {100};
+      std::atomic<int> required_samples_ {13};
 
       /** number of calibrations which have currently been processed. Used to
        * check against required_samples_ */
