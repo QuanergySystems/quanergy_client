@@ -20,9 +20,6 @@
 // handle notifications
 #include <quanergy/common/notifications.h>
 
-// TEST
-#include <quanergy/client/device_config.h>
-
 int main(int argc, char** argv)
 {
   namespace po = boost::program_options;
@@ -155,45 +152,10 @@ int main(int argc, char** argv)
   std::unique_ptr<quanergy::pipeline::SensorPipeline> pipeline;
   std::unique_ptr<VisualizerModule> visualizer;
 
-  std::unique_ptr<quanergy::client::DeviceConfig> device_config;
-
   try
   {
     // create client to get raw packets from the sensor
     client.reset(new quanergy::client::SensorClient(pipeline_settings.host, port, 100));
-
-    /*
-        DEVICE CONFIG TEST
-    */
-
-    // create a device configurator
-    device_config.reset(new quanergy::client::DeviceConfig(pipeline_settings.host));
-
-    // Get the initial parameters from when the sensor connected
-    auto init_params = device_config->get_parameters();
-    std::string ntp_ip_before = *(init_params->get_ntp_ip_addr());
-    std::string ip_before = *(init_params->get_ipAddress());
-
-    bool success = true;
-    // Write new ntp_ip 5 times, check that it is written
-    for (int i = 100; i < 105; i++)
-    {
-        std::string new_ip = "192.168.1." + std::to_string(i);
-        success &= device_config->send_set_request(
-            device_config->new_set_request()
-            .set_ntp_ip_addr(new_ip));
-        auto after_params = device_config->get_parameters();
-        success &= (new_ip == *(after_params->get_ntp_ip_addr()));
-    }
-
-    // Reset the parameters to factory stock
-    device_config->reset_parameters();
-    auto reset_params = device_config->get_parameters();
-    std::string ip = *(reset_params->get_ipAddress());
-
-    /*
-        END - DEVICE CONFIG TEST
-    */
 
     // create pipeline to produce point cloud from raw packets
     pipeline.reset(new quanergy::pipeline::SensorPipeline(pipeline_settings));
