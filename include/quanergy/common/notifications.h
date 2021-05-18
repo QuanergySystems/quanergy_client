@@ -27,27 +27,50 @@ namespace quanergy
   class DLLEXPORT NotifierBuf : public std::stringbuf
   {
   public:
-    NotifierBuf() = default;
+    /** \brief constructor
+      * \param name notifier name printed in output
+      * \param level notifier level printed in output
+      */
+    NotifierBuf(std::string name, NotificationLevel level);
 
     /** \brief called on flush allowing us to forward to sink_ */
     virtual int sync() override;
 
     /** \brief set the downstream sink */
-    void SetSink(std::ostream* sink) {sink_ = sink;}
+    void SetSink(std::ostream* sink) { sink_ = sink; }
+
+    /** \brief enable formatting on output (time, level, name) */
+    void EnableFormatting(bool enable = true) { add_formatting_ = enable; }
 
   protected:
     /** \brief sink to stream to on flush */
     std::ostream* sink_ = nullptr;
+
+    /** \brief flag determining whether to include time, level, and name */
+    bool add_formatting_ = true;
+
+    /** \brief name used for formatting */
+    std::string name_;
+
+    /** \brief level string used for formatting */
+    std::string level_string_;
   };
 
   /** \brief ostream for notifier */
   class DLLEXPORT NotifierStream : public std::ostream
   {
   public:
-    NotifierStream() : std::ostream(&buf_) {}
+    /** \brief constructor
+      * \param name notifier name printed in output
+      * \param level notifier level printed in output
+      */
+    NotifierStream(std::string name, NotificationLevel level);
 
     /** \brief set the downstream sink */
-    void SetSink(std::ostream* sink) {buf_.SetSink(sink);}
+    void SetSink(std::ostream* sink) { buf_.SetSink(sink); }
+
+    /** \brief enable formatting on output (time, level, name) */
+    void EnableFormatting(bool enable = true) { buf_.EnableFormatting(enable); }
 
   protected:
     /** \brief the notification buffer for this stream */
@@ -60,7 +83,10 @@ namespace quanergy
   class DLLEXPORT Notifier
   {
   public:
-    Notifier();
+    /** \brief constructor
+      * \param name notifier name printed in output
+      */
+    Notifier(std::string name);
 
     /** \brief set the downstream sink for one or more streams */
     void SetSinks(std::ostream* sink, NotificationLevel minLevel = NotificationLevel::Trace, NotificationLevel maxLevel = NotificationLevel::Error);
@@ -71,6 +97,9 @@ namespace quanergy
     void ClearSinks(NotificationLevel minLevel = NotificationLevel::Trace, NotificationLevel maxLevel = NotificationLevel::Error);
     /** \brief clear the downstream sink for one stream */
     void ClearSink(NotificationLevel level);
+
+    /** \brief enable formatting on output (time, level, name) */
+    void EnableFormatting(bool enable = true);
 
     /** \brief the error stream */
     NotifierStream error;
@@ -84,7 +113,7 @@ namespace quanergy
     NotifierStream trace;
   };
 
-  static Notifier log;
+  static Notifier log {"QuanergyClient"};
 
 } // namespace quanergy
 
