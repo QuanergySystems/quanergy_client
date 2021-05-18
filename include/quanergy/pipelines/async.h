@@ -90,7 +90,7 @@ namespace quanergy
         // while shouldn't be necessary but doesn't hurt just to be sure
         while (input_queue_.size() > max_queue_size_)
         {
-          log.warn << "Warning: AsyncModule dropped input due to full buffer" << std::endl;
+          log.warn << "AsyncModule dropped input due to full buffer" << std::endl;
           input_queue_.pop();
         }
 

@@ -230,7 +230,7 @@ namespace quanergy
         while (buff_queue_.size() > max_queue_size_)
         {
           buff_queue_.pop();
-          log.warn << "Warning: Client dropped packet due to full buffer" << std::endl;
+          log.warn << "Client dropped packet due to full buffer" << std::endl;
         }
         lk.unlock();
 

@@ -193,7 +193,7 @@ namespace quanergy
 
           if(cloudfull)
           {
-            log.warn << "Warning: Maximum cloud size limit of ("
+            log.warn << "Maximum cloud size limit of ("
                 << maximum_cloud_size_ << ") exceeded" << std::endl;
           }
 
@@ -219,7 +219,7 @@ namespace quanergy
         }
         else if(current_cloud_->size() > 0)
         {
-          log.warn << "Warning: Minimum cloud size limit of (" << minimum_cloud_size_
+          log.warn << "Minimum cloud size limit of (" << minimum_cloud_size_
               << ") not reached (" << current_cloud_->size() << ")" << std::endl;
         }
 
