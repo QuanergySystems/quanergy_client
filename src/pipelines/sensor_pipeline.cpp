@@ -23,7 +23,7 @@ namespace quanergy
 
       // get sensor type
       auto model = device_info.model();
-      qout << "got model from device info: " << model << std::endl;
+      log.info << "got model from device info: " << model << std::endl;
 
       // 'model.rfind(sub, 0) == 0' checks only the first position (the beginning) of model for sub
       // and is true if sub was found there
@@ -36,22 +36,22 @@ namespace quanergy
         // encoder params
         if (settings.calibrate)
         {
-          qout << "Encoder calibration will be performed" << std::endl;
+          log.info << "Encoder calibration will be performed" << std::endl;
           encoder_corrector.setFrameRate(settings.frame_rate);
         }
         else if (settings.override_encoder_params)
         {
-          qout << "Encoder calibration parameters provided will be applied" << std::endl;
+          log.info << "Encoder calibration parameters provided will be applied" << std::endl;
           encoder_corrector.setParams(settings.amplitude, settings.phase);
         }
         else if (device_info.amplitude() && device_info.phase())
         {
-          qout << "Encoder calibration parameters from the sensor will be applied" << std::endl;
+          log.info << "Encoder calibration parameters from the sensor will be applied" << std::endl;
           encoder_corrector.setParams(*device_info.amplitude(), *device_info.phase());
         }
         else
         {
-          qout << "No encoder calibration will be applied" << std::endl;
+          log.info << "No encoder calibration will be applied" << std::endl;
           encoder_corrector.setParams(0.f, 0.f); // turns off calibration procedure
         }
 
@@ -69,7 +69,7 @@ namespace quanergy
         }
         else if (model.rfind("M8", 0) == 0)
         {
-          qout << "No vertical angle calibration information available on sensor, proceeding with M8 defaults" << std::endl;
+          log.warn << "No vertical angle calibration information available on sensor, proceeding with M8 defaults" << std::endl;
 
           // tell parsers to use M8 defaults
           parser.get<PARSER_00_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);

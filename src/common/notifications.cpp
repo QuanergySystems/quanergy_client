@@ -9,97 +9,64 @@
 
 using namespace quanergy;
 
-boost::signals2::connection INotify::connect(const typename NotificationSignal::slot_type& subscriber)
+static inline bool checkLevel(NotificationLevel level, NotificationLevel min, NotificationLevel max)
 {
-    return notification_signal_.connect(subscriber);
+  return (level >= min && level <= max);
 }
 
-// Try to find a NotificationType in the message, if one is not found, the input type is not changed
-bool FindNotificationTag(const std::string& str, NotificationType& type)
+int NotifierBuf::sync()
 {
-	if (str.find("[trace]") != std::string::npos ||
-		str.find("[Trace]") != std::string::npos ||
-		str.find("[TRACE]") != std::string::npos)
-	{
-		type = NotificationType::Trace;
-	}
-	else if (str.find("[debug]") != std::string::npos ||
-		str.find("[Debug]") != std::string::npos ||
-		str.find("[DEBUG]") != std::string::npos)
-	{
-		type = NotificationType::Debug;
-	}
-	else if (str.find("[info]") != std::string::npos ||
-		str.find("[Info]") != std::string::npos ||
-		str.find("[INFO]") != std::string::npos)
-	{
-		type = NotificationType::Info;
-	}
-	else if (str.find("[warn]") != std::string::npos ||
-		str.find("[warning]") != std::string::npos ||
-		str.find("[Warn]") != std::string::npos ||
-		str.find("[Warning]") != std::string::npos ||
-		str.find("[WARN]") != std::string::npos ||
-		str.find("[WARNING]") != std::string::npos)
-	{
-		type = NotificationType::Warning;
-	}
-	else if (str.find("[error]") != std::string::npos ||
-		str.find("[Error]") != std::string::npos ||
-		str.find("[ERROR]") != std::string::npos)
-	{
-		type = NotificationType::Error;
-	}
-	else if (str.find("[critical]") != std::string::npos ||
-		str.find("[Critical]") != std::string::npos ||
-		str.find("[CRITICAL]") != std::string::npos)
-	{
-		type = NotificationType::Critical;
-	}
-	else
-	{
-		return false;
-	}
-		
-	return true;
+	// NotificationType type = NotificationType::Info;
+  // notification_signal_(type, this->str());
+  if (sink_ && !this->str().empty())
+    (*sink_) << this->str();
+    
+  this->str("");
+  return 0;
 }
 
-int InfoBuf::sync()
+Notifier::Notifier()
 {
-	NotificationType type = NotificationType::Info;
-	FindNotificationTag(this->str(), type);
-    // do something with this->str() here
-    notification_signal_(type, this->str());
-    // (optionally clear buffer afterwards)
-    this->str("");
-    return 0;
+  // default to Info & Warn on cout and Error on cerr
+  SetSinks(&std::cout, NotificationLevel::Info, NotificationLevel::Warn);
+  SetSink(&std::cerr, NotificationLevel::Error);
 }
 
-int ErrorBuf::sync()
+void Notifier::SetSinks(std::ostream* sink, NotificationLevel minLevel, NotificationLevel maxLevel)
 {
-	NotificationType type = NotificationType::Error;
-	FindNotificationTag(this->str(), type);
-    // do something with this->str() here
-    notification_signal_(type, this->str());
-    // (optionally clear buffer afterwards)
-    this->str("");
-    return 0;
+  if (checkLevel(NotificationLevel::Trace, minLevel, maxLevel))
+  {
+    trace.SetSink(sink);
+  }
+  if (checkLevel(NotificationLevel::Debug, minLevel, maxLevel))
+  {
+    debug.SetSink(sink);
+  }
+  if (checkLevel(NotificationLevel::Info, minLevel, maxLevel))
+  {
+    info.SetSink(sink);
+  }
+  if (checkLevel(NotificationLevel::Warn, minLevel, maxLevel))
+  {
+    warn.SetSink(sink);
+  }
+  if (checkLevel(NotificationLevel::Error, minLevel, maxLevel))
+  {
+    error.SetSink(sink);
+  }
 }
 
-InfoBuf InfoStream::buf;
-InfoStream::InfoStream() : std::ostream(&buf)
-{}
-
-boost::signals2::connection InfoStream::connect(const typename NotificationSignal::slot_type& subscriber)
+void Notifier::SetSink(std::ostream* sink, NotificationLevel level)
 {
-    return buf.connect(subscriber);
+  SetSinks(sink, level, level);
 }
 
-ErrorBuf ErrorStream::buf;
-ErrorStream::ErrorStream() : std::ostream(&buf)
-{}
-
-boost::signals2::connection ErrorStream::connect(const typename NotificationSignal::slot_type& subscriber)
+void Notifier::ClearSinks(NotificationLevel minLevel, NotificationLevel maxLevel)
 {
-    return buf.connect(subscriber);
+  SetSinks(nullptr, minLevel, maxLevel);
+}
+
+void Notifier::ClearSink(NotificationLevel level)
+{
+  ClearSinks(level, level);
 }

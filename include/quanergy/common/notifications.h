@@ -16,69 +16,75 @@
 #include <iostream>
 #include <sstream>
 
-// signals for output
-#include <boost/signals2.hpp>
-
 #include <quanergy/common/dll_export.h>
 
 namespace quanergy
 {
-    /** \brief severity level of the notification */
-    enum class NotificationType { Trace, Debug, Info, Warning, Error, Critical };
+  /** \brief severity level of the notification */
+  enum class NotificationLevel { Trace, Debug, Info, Warn, Error };
 
-    /// Notifications (error messages) are output on a different signal
-    typedef boost::signals2::signal<void(const NotificationType&, const std::string&)> NotificationSignal;
+  /** \brief string buffer for notifier */
+  class DLLEXPORT NotifierBuf : public std::stringbuf
+  {
+  public:
+    NotifierBuf() = default;
 
-    class DLLEXPORT INotify
-    {
-    public:
-        /** \brief Connect a slot to the signal which will be for outputting messages and notifications */
-        boost::signals2::connection connect(const typename NotificationSignal::slot_type& subscriber);
+    /** \brief called on flush allowing us to forward to sink_ */
+    virtual int sync() override;
 
-    protected:
-        NotificationSignal notification_signal_;
-    };
+    /** \brief set the downstream sink */
+    void SetSink(std::ostream* sink) {sink_ = sink;}
 
-    class DLLEXPORT InfoBuf : public std::stringbuf, public INotify
-    {
-    public:
-        InfoBuf() = default;
-        virtual int sync() override;
-    };
+  protected:
+    /** \brief sink to stream to on flush */
+    std::ostream* sink_ = nullptr;
+  };
 
-    class DLLEXPORT ErrorBuf : public std::stringbuf, public INotify
-    {
-    public:
-        ErrorBuf() = default;
-        virtual int sync() override;
-    };
+  /** \brief ostream for notifier */
+  class DLLEXPORT NotifierStream : public std::ostream
+  {
+  public:
+    NotifierStream() : std::ostream(&buf_) {}
 
-    class DLLEXPORT InfoStream : public std::ostream
-    {
-    public:
-        InfoStream();
-        
-        /** \brief Connect a slot to the signal which will be for outputting messages and notifications */
-        static boost::signals2::connection connect(const typename NotificationSignal::slot_type& subscriber);
+    /** \brief set the downstream sink */
+    void SetSink(std::ostream* sink) {buf_.SetSink(sink);}
 
-    protected:
-        static InfoBuf buf;
-    };
+  protected:
+    /** \brief the notification buffer for this stream */
+    NotifierBuf buf_;
+  };
 
-    class DLLEXPORT ErrorStream : public std::ostream
-    {
-    public:
-        ErrorStream();
+  /** \brief class to keep the various streams 
+   *  by default, error streams to cerr and info and warn stream to cout
+  */
+  class DLLEXPORT Notifier
+  {
+  public:
+    Notifier();
 
-        /** \brief Connect a slot to the signal which will be for outputting messages and notifications */
-        static boost::signals2::connection connect(const typename NotificationSignal::slot_type& subscriber);
+    /** \brief set the downstream sink for one or more streams */
+    void SetSinks(std::ostream* sink, NotificationLevel minLevel = NotificationLevel::Trace, NotificationLevel maxLevel = NotificationLevel::Error);
+    /** \brief set the downstream sink for one stream */
+    void SetSink(std::ostream* sink, NotificationLevel level);
 
-    protected:
-        static ErrorBuf buf;
-    };
+    /** \brief clear the downstream sink for one or more streams */
+    void ClearSinks(NotificationLevel minLevel = NotificationLevel::Trace, NotificationLevel maxLevel = NotificationLevel::Error);
+    /** \brief clear the downstream sink for one stream */
+    void ClearSink(NotificationLevel level);
 
-    static InfoStream qout;
-    static ErrorStream qerr;
+    /** \brief the error stream */
+    NotifierStream error;
+    /** \brief the warn stream */
+    NotifierStream warn;
+    /** \brief the info stream */
+    NotifierStream info;
+    /** \brief the debug stream */
+    NotifierStream debug;
+    /** \brief the info stream */
+    NotifierStream trace;
+  };
+
+  static Notifier log;
 
 } // namespace quanergy
 

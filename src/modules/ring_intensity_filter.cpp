@@ -99,7 +99,7 @@ namespace quanergy
     {
       if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        qerr << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
+        log.error << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
         return std::numeric_limits<float>::quiet_NaN();
       }
 
@@ -112,7 +112,7 @@ namespace quanergy
     {
       if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        qerr << "Index out of bound! Beam index should be between 0 and " 
+        log.error << "Index out of bound! Beam index should be between 0 and " 
                   << M_SERIES_NUM_LASERS << std::endl;
       }
       else
@@ -126,7 +126,7 @@ namespace quanergy
     {
       if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        qerr << "Index out of bound! Beam index should be between 0 and " 
+        log.error << "Index out of bound! Beam index should be between 0 and " 
                   << M_SERIES_NUM_LASERS << std::endl;
         return -1;
       }
@@ -140,7 +140,7 @@ namespace quanergy
     {
       if (laser_beam >= M_SERIES_NUM_LASERS)
       {
-        qerr << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
+        log.error << "Index out of bound! Beam index should be between 0 and " << M_SERIES_NUM_LASERS << std::endl;
       }
       else
       {

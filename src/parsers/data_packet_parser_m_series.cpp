@@ -125,7 +125,7 @@ namespace quanergy
 
       if (status != previous_status_)
       {
-        qerr << "Sensor status: " << std::uint16_t(status) << std::endl;
+        log.error << "Sensor status: " << std::uint16_t(status) << std::endl;
 
         previous_status_ = status;
       }
@@ -193,7 +193,7 @@ namespace quanergy
 
           if(cloudfull)
           {
-            qout << "Warning: Maximum cloud size limit of ("
+            log.warn << "Warning: Maximum cloud size limit of ("
                 << maximum_cloud_size_ << ") exceeded" << std::endl;
           }
 
@@ -219,7 +219,7 @@ namespace quanergy
         }
         else if(current_cloud_->size() > 0)
         {
-          qout << "Warning: Minimum cloud size limit of (" << minimum_cloud_size_
+          log.warn << "Warning: Minimum cloud size limit of (" << minimum_cloud_size_
               << ") not reached (" << current_cloud_->size() << ")" << std::endl;
         }
 

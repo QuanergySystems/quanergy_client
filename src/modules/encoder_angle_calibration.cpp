@@ -119,7 +119,7 @@ namespace quanergy
       {
         if (!started_calibration_)
         {
-          qout << "QuanergyClient: Starting encoder calibration. This may take up to "
+          log.info << "QuanergyClient: Starting encoder calibration. This may take up to "
                     << std::chrono::duration_cast<std::chrono::seconds>(timeout_).count()
                     << " seconds to complete..." << std::endl;
           started_calibration_ = true;
@@ -142,7 +142,7 @@ namespace quanergy
             std::stringstream msg;
             msg << "QuanergyClient: Encoder calibration not required for this sensor.\n"
               "Average amplitude calculated: " << ba::mean(amplitude_accumulator_);
-            qout << msg.str() << std::endl;
+            log.info << msg.str() << std::endl;
 
             setParams(0., 0.);
             applyCalibration(cloud_ptr);
@@ -280,7 +280,7 @@ namespace quanergy
         {
           if (first_run_)
           {
-            qout << "QuanergyClient: AMPLITUDE(rads), PHASE(rads)" << std::endl;
+            log.info << "QuanergyClient: AMPLITUDE(rads), PHASE(rads)" << std::endl;
             first_run_ = false;
           }
 
@@ -288,7 +288,7 @@ namespace quanergy
           output << sine_parameters.first << "," << sine_parameters.second
                  << std::endl;
 
-          qout << output.str();
+          log.info << output.str();
           continue;
         }
 
@@ -325,7 +325,7 @@ namespace quanergy
           {
             setParams(ba::mean(amplitude_accumulator_), phase_averager_.avg());
 
-            qout << "QuanergyClient: Calibration complete." << std::endl
+            log.info << "QuanergyClient: Calibration complete." << std::endl
               << "  amplitude : " << amplitude_ << std::endl
               << "  phase     : " << phase_ << std::endl;
 

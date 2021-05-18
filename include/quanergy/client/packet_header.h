@@ -100,7 +100,7 @@ namespace quanergy
     {
       if (deserialize(object.signature) != SIGNATURE)
       {
-        qerr << "Invalid header signature: " << std::hex << std::showbase
+        log.error << "Invalid header signature: " << std::hex << std::showbase
                 << object.signature << std::dec << std::noshowbase << std::endl;
         return false;
       }
