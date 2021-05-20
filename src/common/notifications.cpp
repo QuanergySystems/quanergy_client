@@ -71,7 +71,8 @@ int NotifierBuf::sync()
 }
 
 NotifierStream::NotifierStream(std::string name, NotificationLevel level)
-: buf_(name, level)
+: std::ostream(nullptr)
+, buf_(name, level)
 {
   this->rdbuf(&buf_);
 }
