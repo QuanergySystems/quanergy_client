@@ -35,15 +35,27 @@ namespace quanergy
     };
 
     /** \brief error parsing header */
-    struct InvalidHeaderError : public std::exception
+    struct ParseTimeoutError : public std::exception
     {
-      virtual const char* what() const throw() { return "Invalid header"; }
+        virtual const char* what() const throw() { return "Parse timeout error"; }
+    };
+
+    /** \brief error parsing header */
+    struct InvalidHeaderError : public std::runtime_error
+    {
+        explicit InvalidHeaderError(const std::string& message)
+            : std::runtime_error("Invalid header! Details: " + message) {}
+        explicit InvalidHeaderError()
+            : std::runtime_error("Invalid header!") {}
     };
 
     /** \brief packet size doesn't match data description */
-    struct SizeMismatchError : public std::exception
+    struct SizeMismatchError : public std::runtime_error
     {
-      virtual const char* what() const throw() { return "Packet sizes don't match"; }
+        explicit SizeMismatchError(const std::string& message)
+            : std::runtime_error("Packet sizes don't match! Details: " + message) {}
+        explicit SizeMismatchError()
+            : std::runtime_error("Packet sizes don't match!") {}
     };
 
     /** \brief Invalid packet */

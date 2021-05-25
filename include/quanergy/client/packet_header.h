@@ -24,6 +24,8 @@
 
 #include <quanergy/client/exceptions.h>
 
+#include <quanergy/common/notifications.h>
+
 #include <iostream>
 
 namespace quanergy
@@ -98,9 +100,8 @@ namespace quanergy
     {
       if (deserialize(object.signature) != SIGNATURE)
       {
-        std::cerr << "Invalid header signature: " << std::hex << std::showbase
-                  << object.signature << std::dec << std::noshowbase << std::endl;
-
+        log.error << "Invalid header signature: " << std::hex << std::showbase
+                << object.signature << std::dec << std::noshowbase << std::endl;
         return false;
       }
 

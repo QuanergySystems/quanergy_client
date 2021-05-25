@@ -17,6 +17,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
+// Handle notifications
+#include <quanergy/common/notifications.h>
+
 using namespace quanergy::client;
 
 DeviceInfo::DeviceInfo(const std::string& host)
@@ -25,7 +28,7 @@ DeviceInfo::DeviceInfo(const std::string& host)
   std::stringstream device_info_stream;
 
   // get deviceInfo from sensor for calibration
-  std::cout << "Attempting to get device info from " << host << std::endl;
+  quanergy::log.info << "Attempting to get device info from " << host << "..." << std::endl;
   http_client.read(device_info_path_, device_info_stream);
   boost::property_tree::ptree device_info_tree;
   boost::property_tree::read_xml(device_info_stream, device_info_tree);
@@ -63,7 +66,7 @@ DeviceInfo::DeviceInfo(const std::string& host)
     } // if laser data
 
   } // if cal data
-
+  quanergy::log.info << "Device info retrieval complete." << std::endl;
 } // constructor
 
 

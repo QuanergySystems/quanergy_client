@@ -17,6 +17,9 @@
 // sensor pipeline
 #include <quanergy/pipelines/sensor_pipeline.h>
 
+// handle notifications
+#include <quanergy/common/notifications.h>
+
 int main(int argc, char** argv)
 {
   namespace po = boost::program_options;
