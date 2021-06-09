@@ -61,20 +61,11 @@ file(GLOB_RECURSE project_HEADERS
     "*.hpp"
 )
 
-
-include_directories(
-  include)
-
-include_directories(SYSTEM
-  ${Boost_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS})
-
 link_directories(
   ${Boost_LIBRARY_DIRS}
   ${PCL_LIBRARY_DIRS})
 
 add_definitions(${PCL_DEFINITIONS})
-
 
 set(client_SRCS
   src/modules/polar_to_cart_converter.cpp
@@ -97,6 +88,15 @@ set(client_SRCS
 
 
 add_library(quanergy_client SHARED ${client_SRCS})
+
+target_include_directories(quanergy_client PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+  )
+
+target_include_directories(quanergy_client SYSTEM PUBLIC
+  ${Boost_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS})
 
 if(WIN32)
   target_link_libraries(quanergy_client ws2_32 ${Boost_LIBRARIES} ${PCL_LIBRARIES})
