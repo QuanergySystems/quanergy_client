@@ -70,6 +70,9 @@ namespace quanergy
       /// set vertical angles to the default values for the specified sensors
       void setVerticalAngles(SensorType sensor);
 
+      /// set horizontal angles to use
+      void setHorizontalAngles(const std::vector<double>& horizontal_angles);
+
     protected:
       // validate status and throw error if appropriate, print message if changed
       void validateStatus(const StatusType& status);

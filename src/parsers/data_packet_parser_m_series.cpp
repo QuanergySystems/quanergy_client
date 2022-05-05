@@ -102,6 +102,11 @@ namespace quanergy
       }
     }
 
+    void DataPacketParserMSeries::setHorizontalAngles(const std::vector<double> &horizontal_angles)
+    {
+      horizontal_angle_lookup_table_ = horizontal_angles;
+    }
+
     void DataPacketParserMSeries::validateStatus(const StatusType& status)
     {
       if (status != StatusType::GOOD)

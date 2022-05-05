@@ -19,6 +19,8 @@
 
 using namespace quanergy::client;
 
+std::size_t M_SERIES_NUM_ROT_ANGLES = 10400; // legacy number of encoder ticks
+
 DeviceInfo::DeviceInfo(const std::string& host)
 {
   HTTPClient http_client(host);
@@ -33,6 +35,7 @@ DeviceInfo::DeviceInfo(const std::string& host)
   // get model
   model_ = device_info_tree.get<std::string>("DeviceInfo.model");
 
+  // get calibration data, if available
   auto calibration_data = device_info_tree.get_child_optional("DeviceInfo.calibration");
   if (calibration_data)
   {
@@ -63,6 +66,29 @@ DeviceInfo::DeviceInfo(const std::string& host)
     } // if laser data
 
   } // if cal data
+
+  // get encoderTicks, if available
+  auto encoder_ticks = device_info_tree.get_child_optional("DeviceInfo.encoderTicks");
+  std::size_t num_angles = M_SERIES_NUM_ROT_ANGLES;
+  if (encoder_ticks)
+  {
+    num_angles = encoder_ticks->get_value<std::size_t>();
+  }
+
+  // create horizontal angle lookup
+  horizontal_angles_.resize(num_angles + 1);
+  for (std::size_t i = 0; i < horizontal_angles_.size(); ++i)
+  {
+    // Shift by half the rot angles to keep the number positive when wrapping.
+    std::size_t j = (i + (num_angles / 2) % num_angles);
+
+    // normalized
+    double n = static_cast<double>(j) / static_cast<double>(num_angles);
+
+    double rad = n * M_PI * 2.0 - M_PI;
+
+    horizontal_angles_[i] = rad;
+  }
 
 } // constructor
 

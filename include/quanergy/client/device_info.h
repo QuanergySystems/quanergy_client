@@ -35,6 +35,9 @@ namespace quanergy
       /// \brief get the vertical angles; empty means they were not available
       const std::vector<double>& verticalAngles() const { return vertical_angles_; }
 
+      /// \brief get the horizontal angles; empty means they were not available
+      const std::vector<double>& horizontalAngles() const { return horizontal_angles_; }
+
     private:
       const std::string device_info_path_ {"/PSIA/System/deviceInfo"};
 
@@ -42,6 +45,7 @@ namespace quanergy
       boost::optional<double> amplitude_;
       boost::optional<double> phase_;
       std::vector<double> vertical_angles_;
+      std::vector<double> horizontal_angles_;
     };
   }
 }

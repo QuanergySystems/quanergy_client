@@ -16,6 +16,12 @@ namespace quanergy
   {
     SensorPipeline::SensorPipeline(const SensorPipelineSettings& settings)
     {
+      // Parsers
+      auto &parser00 = parser.get<PARSER_00_INDEX>();
+      auto &parser01 = parser.get<PARSER_01_INDEX>();
+      auto &parser04 = parser.get<PARSER_04_INDEX>();
+      auto &parser06 = parser.get<PARSER_06_INDEX>();
+
       // get deviceInfo from sensor and apply calibration
       quanergy::client::DeviceInfo device_info(settings.host);
 
@@ -62,31 +68,31 @@ namespace quanergy
           }
 
           // send the vertical angles to the parsers
-          parser.get<PARSER_00_INDEX>().setVerticalAngles(vertical_angles);
-          parser.get<PARSER_04_INDEX>().setVerticalAngles(vertical_angles);
+          parser00.setVerticalAngles(vertical_angles);
+          parser04.setVerticalAngles(vertical_angles);
         }
         else if (model.rfind("M8", 0) == 0)
         {
           std::cout << "No vertical angle calibration information available on sensor, proceeding with M8 defaults" << std::endl;
 
           // tell parsers to use M8 defaults
-          parser.get<PARSER_00_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
-          parser.get<PARSER_04_INDEX>().setVerticalAngles(quanergy::client::SensorType::M8);
+          parser00.setVerticalAngles(quanergy::client::SensorType::M8);
+          parser04.setVerticalAngles(quanergy::client::SensorType::M8);
         }
         else if (model.rfind("MQ", 0) == 0)
         {
           // all MQ sensors should have vertical angles
           throw quanergy::client::InvalidVerticalAngles("MQ sensor found with no vertical angles on the sensor");
         }
+
+        auto horizontal_angles = device_info.horizontalAngles();
+        // send the horizontal angles to the parsers
+        parser00.setHorizontalAngles(horizontal_angles);
+        parser04.setHorizontalAngles(horizontal_angles);
+        parser06.setHorizontalAngles(horizontal_angles);
       }
 
       // Setup modules
-      // Parsers
-      auto &parser00 = parser.get<PARSER_00_INDEX>();
-      auto &parser01 = parser.get<PARSER_01_INDEX>();
-      auto &parser04 = parser.get<PARSER_04_INDEX>();
-      auto &parser06 = parser.get<PARSER_06_INDEX>();
-
       // Parser 00
       parser00.setFrameId(settings.frame);
       parser00.setReturnSelection(settings.return_selection);
