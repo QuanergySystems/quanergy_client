@@ -157,7 +157,7 @@ int main(int argc, char** argv)
   // here we'll simply count the number of packets and output every 100
   unsigned int cloud_count = 0;
   connections.push_back(pipeline.connect(
-      [&cloud_count](const boost::shared_ptr<pcl::PointCloud<quanergy::PointXYZIR>>& /*pc*/)
+      [&cloud_count](const quanergy::PointCloudXYZIRPtr& /*pc*/)
       { ++cloud_count; if(cloud_count % 100 == 0) std::cout << "clouds received: " << cloud_count << std::endl; }
   ));
 

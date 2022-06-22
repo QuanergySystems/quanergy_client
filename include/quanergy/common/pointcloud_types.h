@@ -13,34 +13,32 @@
 #ifndef QUANERGY_CLIENT_POINTCLOUD_TYPES_H
 #define QUANERGY_CLIENT_POINTCLOUD_TYPES_H
 
-#include <memory>
-#include <boost/shared_ptr.hpp>
-
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+
+#if PCL_VERSION_COMPARE(>=, 1, 10, 0)
+#include <pcl/memory.h>
+#else
+#include <boost/shared_ptr.hpp>
+#endif
 
 #include <quanergy/common/point_xyzir.h>
 #include <quanergy/common/point_hvdir.h>
 
 namespace quanergy 
 {
-  /*!
-   *  Note the PCL uses boost shared pointers internally.
-   *  @TODO: Switch to std::shared_ptr?
-   */
-
   typedef pcl::PointCloud<pcl::PointXYZI> PointCloudXYZI;
   typedef pcl::PointCloud<quanergy::PointXYZIR> PointCloudXYZIR;
   typedef pcl::PointCloud<quanergy::PointHVDIR> PointCloudHVDIR;
 
-#if 0
-  typedef std::shared_ptr<PointCloudXYZI> PointCloudXYZIPtr;
-  typedef std::shared_ptr<PointCloudXYZIR> PointCloudXYZIRPtr;
-  typedef std::shared_ptr<PointCloudHVDIR> PointCloudHDVIRPtr;
+#if PCL_VERSION_COMPARE(>=, 1, 10, 0)
+  typedef pcl::shared_ptr<PointCloudXYZI> PointCloudXYZIPtr;
+  typedef pcl::shared_ptr<PointCloudXYZIR> PointCloudXYZIRPtr;
+  typedef pcl::shared_ptr<PointCloudHVDIR> PointCloudHVDIRPtr;
 
-  typedef std::shared_ptr<PointCloudXYZI const> PointCloudXYZIConstPtr;
-  typedef std::shared_ptr<PointCloudXYZIR const> PointCloudXYZIRConstPtr;
-  typedef std::shared_ptr<PointCloudHVDIR const> PointCloudHDVIRConstPtr;
+  typedef pcl::shared_ptr<PointCloudXYZI const> PointCloudXYZIConstPtr;
+  typedef pcl::shared_ptr<PointCloudXYZIR const> PointCloudXYZIRConstPtr;
+  typedef pcl::shared_ptr<PointCloudHVDIR const> PointCloudHVDIRConstPtr;
 #else
   typedef boost::shared_ptr<PointCloudXYZI> PointCloudXYZIPtr;
   typedef boost::shared_ptr<PointCloudXYZIR> PointCloudXYZIRPtr;

@@ -170,7 +170,7 @@ int main(int argc, char** argv)
   ////////////////////////////////////////////
   // connect the pipeline to the visualizer
   connections.push_back(pipeline->connect(
-      [&visualizer](const boost::shared_ptr<pcl::PointCloud<quanergy::PointXYZIR>>& pc){ visualizer->slot(pc); }
+      [&visualizer](const quanergy::PointCloudXYZIRPtr& pc){ visualizer->slot(pc); }
   ));
 
   // run the client in a separate thread

@@ -75,7 +75,7 @@ namespace quanergy
       // polar to cart converter; converts from the polar PCL cloud to a Cartesian one
       quanergy::client::PolarToCartConverter cartesian_converter;
       // async module to put the processing of the output cloud on a separate thread
-      using AsyncType = quanergy::pipeline::AsyncModule<boost::shared_ptr<pcl::PointCloud<quanergy::PointXYZIR>>>;
+      using AsyncType = quanergy::pipeline::AsyncModule<quanergy::PointCloudXYZIRPtr>;
       AsyncType async;
 
 
