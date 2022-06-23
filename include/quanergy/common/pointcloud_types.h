@@ -16,9 +16,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
-#if PCL_VERSION_COMPARE(>=, 1, 10, 0)
-#include <pcl/memory.h>
-#else
+#if PCL_VERSION_COMPARE(<, 1, 10, 0)
 #include <boost/shared_ptr.hpp>
 #endif
 
