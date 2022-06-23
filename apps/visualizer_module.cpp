@@ -13,6 +13,15 @@
 VisualizerModule::VisualizerModule()
   : viewer_("Cloud Viewer")
 {
+#if (VTK_MAJOR_VERSION == 9 && ((VTK_MINOR_VERSION == 0 && VTK_BUILD_VERSION != 0) || (VTK_MINOR_VERSION == 1 && VTK_BUILD_VERSION == 0)) \
+    && (PCL_MAJOR_VERSION < 1 || (PCL_MAJOR_VERSION == 1 && (PCL_MINOR_VERSION < 12 || (PCL_MINOR_VERSION == 12 && PCL_REVISION_VERSION <= 1)))))
+  // VTK versions 9.0.1 to 9.1.0 have a bug making spin_once not work with PCL
+  // newer versions of VTK and PCL should fix the issue (PCL implemented a workaround)
+  // for these versions, we'll throw a meaningful error instead of getting Segfault
+  // https://github.com/PointCloudLibrary/pcl/issues/5237
+  throw std::runtime_error("A bug in VTK, makes this application unable to run; see apps/visualizer_module.cpp for more information");
+#endif
+
   /// basic visualization setup
 #if (PCL_MAJOR_VERSION == 1 && PCL_MINOR_VERSION == 7 && PCL_REVISION_VERSION <= 2)
   viewer_.addCoordinateSystem(1.0);

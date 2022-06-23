@@ -1,5 +1,5 @@
-# Ubuntu 18.04/20.04 LTS Builds of QuanergyClient
-These instructions work for both 18.04 Bionic and 20.04 Focal.
+# Ubuntu 18.04/20.04/22.04 LTS Builds of QuanergyClient
+These instructions work for Ubuntu 18.04 Bionic, 20.04 Focal, and 22.04 Jammy.
 
 ## Install Prerequisites and Dependencies
 The following will install prerequisites and dependencies including PCL. 
@@ -26,6 +26,7 @@ make
 ```
 
 ## Testing build
+On Ubuntu 22.04, as of June 2022, there is a bug in VTK that prevents the visualizer application from running as expected. The help command will print as expected. The application `./dynamic_connection` can be used to verify point clouds are received but does not allow visualization. Hopefully, this issue will get fixed in the stable repos.
 ```
 cd ~/QuanergySystems/quanergy_client/build/
 ./visualizer --help
