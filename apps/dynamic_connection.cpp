@@ -86,6 +86,19 @@ int main(int argc, char** argv)
       pipeline_settings.load(file_loader);
     }
 
+    // remove the defaulted values so they don't override settings
+    for (auto it = vm.begin(); it != vm.end();)
+    {
+      if (it->second.defaulted())
+      {
+        it = vm.erase(it);
+      }
+      else
+      {
+        ++it;
+      }
+    }
+
     // notify; this stores command line options in associated variables
     po::notify(vm);
 
