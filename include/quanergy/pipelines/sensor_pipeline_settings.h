@@ -75,6 +75,25 @@ namespace quanergy
 
     };
 
+    inline std::ostream& operator<<(std::ostream &os, const SensorPipelineSettings& settings)
+    {
+      std::cout << "SensorPipelineSettings:\n"
+                << "  host:       " << settings.host << "\n"
+                << "  frame:      " << settings.frame << "\n" 
+                << "  return sel: " << (settings.return_selection_set ? std::to_string(settings.return_selection) : "not set") << "\n" 
+                << "  calibrate : " << std::boolalpha << settings.calibrate << "\n"
+                << "  frame rate: " << settings.frame_rate << "\n"
+                << "  override  : " << settings.override_encoder_params << "\n"
+                << "  amplitude : " << settings.amplitude << "\n"
+                << "  phase     : " << settings.phase << "\n"
+                << "  min dist  : " << settings.min_distance << "\n"
+                << "  max dist  : " << settings.max_distance << "\n"
+                << "  min size  : " << settings.min_cloud_size << "\n"
+                << "  max size  : " << settings.max_cloud_size << std::endl;
+
+      return os;
+    }
+
     class DLLEXPORT SettingsFileLoader : public boost::property_tree::ptree
     {
     public:
