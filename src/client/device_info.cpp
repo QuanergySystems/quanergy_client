@@ -17,6 +17,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
+// for M_PI
+#include <cmath>
+
 using namespace quanergy::client;
 
 std::size_t M_SERIES_NUM_ROT_ANGLES = 10400; // legacy number of encoder ticks

@@ -4,10 +4,10 @@ cmake_minimum_required(VERSION 3.1)
 #  This should match what's in include/quanergy/client/version.h
 set(QUANERGY_CLIENT_VERSION "5.0.0")
 
-#required to prevent macro definition of min and max in windows
-add_definitions(-DNOMINMAX)
+# required in windows
+add_definitions(-DNOMINMAX -D_USE_MATH_DEFINES)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
